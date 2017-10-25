@@ -2,42 +2,61 @@ package ru.alexandrdv.schooltester.main;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Calendar;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
-import ru.alexandrdv.schooltester.util.ButtonX;
-import javax.swing.UIManager;
-import java.awt.SystemColor;
+import javax.swing.Timer;
 
 public class Main
 {
 
 	public static void main(String[] args)
 	{
-		new Main();
+		new Window();
 	}
 
+	boolean paused = false;
 	int var = 0;
 	ButtonX[] btns = new ButtonX[6];
 
-	public Main()
+	public Main(String _class, String surname, String name, String secondName)
 	{
+		new Timer(1000, new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if (!paused)
+					timeOfWork++;
+				allTime++;
+			}
+		}).start();
+		for (int j = 0, max = 0; j < objs.length; j++, maxResult += max, max = 0)
+			for (int i = 0; i < objs[j].awards.length; i++)
+				max = Math.max(max, objs[j].awards[i]);
 		JFrame window = new JFrame();
 		window.setTitle("SchoolTester by AlexandrDV");
 		window.getContentPane().setBackground(SystemColor.info);
 		window.setDefaultCloseOperation(3);
 		window.getContentPane().setLayout(null);
-		window.setSize(448, 508);
+		window.setSize(451, 508);
 		window.setVisible(true);
 		// TODO Add theme with errors in words
 		Color bg = new Color(200, 70, 0);
 		Color fr = new Color(200, 0, 0);
-		ButtonX question = new ButtonX(bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, "Âûâåðèòå äàòó ïóòåøåñòâèÿ Ìàãåëëàíà", new boolean[] { true, false, false, true });
+		ButtonX question = new ButtonX(bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, "Ð’Ñ‹Ð²ÐµÑ€Ð¸Ñ‚Ðµ Ð´Ð°Ñ‚Ñƒ Ð¿ÑƒÑ‚ÐµÑˆÐµÑÑ‚Ð²Ð¸Ñ ÐœÐ°Ð³ÐµÐ»Ð»Ð°Ð½Ð°", new boolean[] { true, false, false, true });
 		question.setFont(new Font("Comic Sans Ms", 0, 16));
 		question.setTextColor(Color.black);
 		question.addActionListener(new ActionListener()
@@ -196,6 +215,28 @@ public class Main
 			});
 		}
 		ButtonX next = new ButtonX("Next", true, new boolean[] { false, false, false, false });
+		ButtonX pause = new ButtonX("â€–", true, new boolean[] { false, false, false, false });
+		pause.setNormalColor(new Color(204, 255, 51));
+		window.getContentPane().add(pause);
+
+		pause.setFont(new Font("Arial Bold", 1, 16));
+		pause.setTextColor(Color.black);
+		pause.setBounds(20, 391, 42, 42);
+		pause.setRounding(10);
+		pause.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				question.setVisible(paused);
+				next.setVisible(paused);
+				for (int i = 0; i < objs[questionNumber].answers.length; i++)
+					btns[i].setVisible(paused);
+				paused = !paused;
+			}
+		});
+
 		next.setNormalColor(new Color(204, 255, 51));
 		window.getContentPane().add(next);
 		{
@@ -236,10 +277,7 @@ public class Main
 								{
 									e.printStackTrace();
 								}
-								JOptionPane j = new JOptionPane("Your result: " + result);
-								JDialog d = j.createDialog(null, "SchoolTester by AlexandrDV");
-								d.setLocationRelativeTo(window);
-								d.setVisible(true);
+								showResult(window,_class,surname,name,secondName);
 								window.setVisible(false);
 								System.exit(0);
 							}
@@ -252,6 +290,50 @@ public class Main
 			openQuestion(question, questionNumber);
 		}
 	}
+
+	public void showResult(JFrame window, String _class, String surname, String name, String secondName)
+	{
+		String text = "";
+		text += "Class: " + _class;
+		text += "\nSurname: " + surname;
+		text += "\nName: " + name;
+		text += "\nSecond Name: " + secondName;
+		text += "\nResult: " + result;
+		text += "\nMax result: " + maxResult;
+		text += "\nTime: " + toSize(timeOfWork / 60, 2) + ":" + toSize(timeOfWork % 60, 2);
+		text += "\nMax time: " + toSize(maxTime / 60, 2) + ":" + toSize(maxTime % 60, 2);
+		text += "\nAll time: " + toSize(allTime / 60, 2) + ":" + toSize(allTime % 60, 2);
+		Calendar c = Calendar.getInstance();
+		File f = new File("Result From " + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".txt");
+		try
+		{
+			f.createNewFile();
+			BufferedWriter pw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "Cp1251"));
+			pw.write(text);
+			pw.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		JOptionPane j = new JOptionPane(text);
+		JDialog d = j.createDialog(null, "SchoolTester by AlexandrDV");
+		d.setLocationRelativeTo(window);
+		d.setVisible(true);
+	}
+
+	int maxResult;
+	int maxTime = 20 * 60;
+
+	public String toSize(int i, int size)
+	{
+		String s = i + "";
+		for (; s.length() < size;)
+			s = "0" + s;
+		return s;
+	}
+
+	int allTime = 0, timeOfWork = 0;
 
 	public void openQuestion(ButtonX question, int number)
 	{

@@ -16,7 +16,7 @@ public class ButtonX extends JPanel
 
 {
 	String text;
-	int size = 15, framesize = 4;
+	int rounding, framesize = 4;
 	Color backgroundColor, frameColor = new Color(255, 150, 0), textColor = Color.WHITE;
 	boolean[] rect;
 
@@ -43,9 +43,9 @@ public class ButtonX extends JPanel
 	{
 		// Drawing rounded rectangle for message
 		g.setColor(frameColor);
-		fillRoundedRect(g, 1, 1, getWidth() - 1, getHeight() - 1 - 3, size);
+		fillRoundedRect(g, 1, 1, getWidth() - 1, getHeight() - 1 - 3, rounding);
 		g.setColor(backgroundColor);
-		fillRoundedRect(g, framesize, framesize, getWidth() - framesize, getHeight() - 3 - framesize, size - 2);
+		fillRoundedRect(g, framesize, framesize, getWidth() - framesize, getHeight() - 3 - framesize, rounding - 2);
 
 		g.setColor(textColor);
 		g.setFont(getFont());
@@ -89,6 +89,7 @@ public class ButtonX extends JPanel
 
 	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, Color frameNormalColor, Color frameSelectedColor, Color framePressedColor, Color frameClickedColor, Color frameClickedSelectedColor, Color frameClickedPressedColor, String text, boolean[] rect)
 	{
+		rounding=15;
 		actionListeners = new ArrayList<ActionListener>();
 		this.text = text;
 		this.rect = rect;
@@ -297,5 +298,25 @@ public class ButtonX extends JPanel
 	{
 		this.text = text;
 		update();
+	}
+
+	public int getRounding()
+	{
+		return rounding;
+	}
+
+	public void setRounding(int rounding)
+	{
+		this.rounding = rounding;
+	}
+
+	public int getFramesize()
+	{
+		return framesize;
+	}
+
+	public void setFramesize(int framesize)
+	{
+		this.framesize = framesize;
 	}
 }
