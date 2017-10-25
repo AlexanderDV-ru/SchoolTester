@@ -239,6 +239,11 @@ public class ButtonX extends JPanel
 		update();
 	}
 
+	public void clearActionListeners()
+	{
+		actionListeners.clear();
+	}
+
 	public Color getNormalColor()
 	{
 		return normalColor;
@@ -280,6 +285,17 @@ public class ButtonX extends JPanel
 	public void setClickedPressedColor(Color clickedPressedColor)
 	{
 		this.clickedPressedColor = clickedPressedColor;
+		update();
+	}
+
+	public String getText()
+	{
+		return text;
+	}
+
+	public void setText(String text)
+	{
+		this.text = text;
 		update();
 	}
 }
