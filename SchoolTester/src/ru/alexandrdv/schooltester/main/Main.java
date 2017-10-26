@@ -1,7 +1,10 @@
 package ru.alexandrdv.schooltester.main;
 
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,35 +26,30 @@ public class Main
 
 	public static void main(String[] args)
 	{
+		// new Main(new Point(0, 0), new Dimension(0, 0), null, "", "", "", "",
+		// 0);
 		new Window();
 	}
 
-	boolean paused = false;
+	boolean paused = false, canPause;
 	int var = 0;
 	ButtonX[] btns = new ButtonX[6];
 
-	public Main(String _class, String surname, String name, String secondName)
+	public Main(Point parentLoc, Dimension parentSize, Question[] q, String _class, String surname, String name, String secondName, int maxTime, boolean canPause)
 	{
-		new Timer(1000, new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				if (!paused)
-					timeOfWork++;
-				allTime++;
-			}
-		}).start();
+		this.canPause = canPause;
+		this.maxTime = maxTime;
+		objs = q;
 		for (int j = 0, max = 0; j < objs.length; j++, maxResult += max, max = 0)
 			for (int i = 0; i < objs[j].awards.length; i++)
 				max = Math.max(max, objs[j].awards[i]);
 		JFrame window = new JFrame();
+		window.setSize(451, 508);
+		window.setLocation(parentLoc.x + parentSize.width / 2 - window.getWidth() / 2, parentLoc.y + parentSize.height / 2 - window.getHeight() / 2);
 		window.setTitle("SchoolTester by AlexandrDV");
 		window.getContentPane().setBackground(SystemColor.info);
 		window.setDefaultCloseOperation(3);
 		window.getContentPane().setLayout(null);
-		window.setSize(451, 508);
 		window.setVisible(true);
 		// TODO Add theme with errors in words
 		Color bg = new Color(200, 70, 0);
@@ -59,40 +57,30 @@ public class Main
 		ButtonX question = new ButtonX(bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, "Выверите дату путешествия Магеллана", new boolean[] { true, false, false, true });
 		question.setFont(new Font("Comic Sans Ms", 0, 16));
 		question.setTextColor(Color.black);
-		question.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				System.out.println("clicked");
-
-			}
-		});
 		question.setBounds(10, 11, 414, 50);
 		window.getContentPane().add(question);
 
-		ButtonX btn0 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn0 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[0] = btn0;
 		window.getContentPane().add(btn0);
 
-		ButtonX btn1 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn1 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[1] = btn1;
 		window.getContentPane().add(btn1);
 
-		ButtonX btn2 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn2 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[2] = btn2;
 		window.getContentPane().add(btn2);
 
-		ButtonX btn3 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn3 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[3] = btn3;
 		window.getContentPane().add(btn3);
 
-		ButtonX btn4 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn4 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[4] = btn4;
 		window.getContentPane().add(btn4);
 
-		ButtonX btn5 = new ButtonX("1994-1995", true, new boolean[] { false, false, false, false });
+		ButtonX btn5 = new ButtonX("", true, new boolean[] { false, false, false, false });
 		btns[5] = btn5;
 		window.getContentPane().add(btn5);
 		{
@@ -214,26 +202,31 @@ public class Main
 				}
 			});
 		}
+		ButtonX timer = new ButtonX("", true, new boolean[] { false, false, false, false });
+		timer.setNormalColor(new Color(173, 255, 47));
 		ButtonX next = new ButtonX("Next", true, new boolean[] { false, false, false, false });
-		ButtonX pause = new ButtonX("‖", true, new boolean[] { false, false, false, false });
-		pause.setNormalColor(new Color(204, 255, 51));
-		window.getContentPane().add(pause);
+		next.setRounding(10);
+		window.getContentPane().add(timer);
 
-		pause.setFont(new Font("Arial Bold", 1, 16));
-		pause.setTextColor(Color.black);
-		pause.setBounds(20, 391, 42, 42);
-		pause.setRounding(10);
-		pause.addActionListener(new ActionListener()
+		timer.setFont(new Font("Arial Bold", 1, 16));
+		timer.setTextColor(Color.black);
+		timer.setBounds(20, 391, 108, 42);
+		timer.setRounding(10);
+		timer.addActionListener(new ActionListener()
 		{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				question.setVisible(paused);
-				next.setVisible(paused);
-				for (int i = 0; i < objs[questionNumber].answers.length; i++)
-					btns[i].setVisible(paused);
-				paused = !paused;
+				if (canPause)
+				{
+					question.setVisible(paused);
+					next.setVisible(paused);
+					for (int i = 0; i < objs[questionNumber].answers.length; i++)
+						btns[i].setVisible(paused);
+					paused = !paused;
+				}
+				timer.setClicked(paused);
 			}
 		});
 
@@ -269,17 +262,7 @@ public class Main
 							@Override
 							public void actionPerformed(ActionEvent arg0)
 							{
-								try
-								{
-									result += objs[questionNumber].awards[var];
-								}
-								catch (Exception e)
-								{
-									e.printStackTrace();
-								}
-								showResult(window,_class,surname,name,secondName);
-								window.setVisible(false);
-								System.exit(0);
+								finish(window, _class, surname, name, secondName);
 							}
 						});
 					}
@@ -289,6 +272,39 @@ public class Main
 			});
 			openQuestion(question, questionNumber);
 		}
+		new Timer(1000, new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if(finished)
+					return;
+				
+				if (!paused)
+					timeOfWork++;
+				allTime++;
+				timer.setText(toSize((maxTime - timeOfWork) / 60, 2) + ":" + toSize((maxTime - timeOfWork) % 60, 2));
+				if (timeOfWork >= maxTime)
+					finish(window, _class, surname, name, secondName);
+			}
+		}).start();
+	}
+boolean finished=false;
+	public void finish(JFrame window, String _class, String surname, String name, String secondName)
+	{
+		finished=true;
+		try
+		{
+			result += objs[questionNumber].awards[var];
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		showResult(window, _class, surname, name, secondName);
+		window.setVisible(false);
+		System.exit(0);
 	}
 
 	public void showResult(JFrame window, String _class, String surname, String name, String secondName)
@@ -346,7 +362,7 @@ public class Main
 			btns[i].setText(objs[questionNumber].answers[i]);
 			btns[i].setClicked(false);
 		}
-		question.setText("q1");
+		question.setText(objs[questionNumber].question);
 	}
 
 	int result = 0;
@@ -367,7 +383,12 @@ public class Main
 	}
 
 	int questionNumber = 0;
-	static final Question[] objs = new Question[] { new Question("q1", new String[] { "aa1", "aa2" }, new int[] { 2, 0 }), new Question("q1", new String[] { "aa1", "aa2" }, new int[] { 2, 0 }), new Question("q2", new String[] { "ab1", "ab2", "ab3" }, new int[] { 2, 0, 1 }) };
+	final Question[] objs;// = new Question[] { new Question("q1", new String[]
+							// { "aa1", "aa2" }, new int[] { 2, 0 }), new
+							// Question("q1", new String[] { "aa1", "aa2" }, new
+							// int[] { 2, 0 }), new Question("q2", new String[]
+							// { "ab1", "ab2", "ab3" }, new int[] { 2, 0, 1 })
+							// };
 
 	static class ButtonX extends ru.alexandrdv.schooltester.util.ButtonX
 	{

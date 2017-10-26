@@ -9,6 +9,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -20,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import ru.alexandrdv.schooltester.main.Main.Question;
+import javax.swing.JCheckBox;
 
 public class Window
 {
@@ -30,8 +35,7 @@ public class Window
 
 	public Window()
 	{
-		parse(new File("Tests/7hr1.test"));
-		System.exit(0);
+
 		JFrame f = new JFrame("SchoolTester by AlexandrDV");
 		f.setSize(452, 470);
 		f.setDefaultCloseOperation(3);
@@ -56,6 +60,11 @@ public class Window
 		secondNameField.setBounds(180, 135, 180, 20);
 		f.getContentPane().add(secondNameField);
 		secondNameField.setColumns(10);
+		
+		maxTimeField = new JTextField();
+		maxTimeField.setColumns(10);
+		maxTimeField.setBounds(180, 166, 180, 20);
+		f.getContentPane().add(maxTimeField);
 
 		JLabel lblTestFileName = new JLabel("Test file name");
 		lblTestFileName.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -81,6 +90,11 @@ public class Window
 		lblStudentsSecondName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStudentsSecondName.setBounds(10, 138, 160, 14);
 		f.getContentPane().add(lblStudentsSecondName);
+		
+		JLabel lblMaxTime = new JLabel("Max Time");
+		lblMaxTime.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblMaxTime.setBounds(10, 169, 160, 14);
+		f.getContentPane().add(lblMaxTime);
 
 		JComboBox<String> fileNameComboBox = new JComboBox<String>();
 		fileNameComboBox.setBounds(180, 11, 180, 20);
@@ -93,8 +107,12 @@ public class Window
 		f.getContentPane().add(classComboBox);
 
 		JButton btnStart = new JButton("Start");
-		btnStart.setBounds(180, 166, 89, 23);
+		btnStart.setBounds(179, 197, 89, 23);
 		f.getContentPane().add(btnStart);
+		
+		JCheckBox chckbxPause = new JCheckBox("Pause");
+		chckbxPause.setBounds(274, 197, 86, 23);
+		f.getContentPane().add(chckbxPause);
 
 		File testsDir = new File("Tests");
 		if (!testsDir.isDirectory())
@@ -123,70 +141,207 @@ public class Window
 			public void actionPerformed(ActionEvent arg0)
 			{
 				f.setVisible(false);
+				Question[] q = null;
 				for (File f : files)
 					if (f.getName().equals(fileNameComboBox.getSelectedItem()))
-						parse(f);
-				new Main(classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(), nameField.getText(), secondNameField.getText());
+						q = parse(f);
+				if (q == null)
+				{
+					JOptionPane.showMessageDialog(null, "File not found!");
+					System.exit(5);
+				}
+				new Main(f.getLocation(), f.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(), nameField.getText(), secondNameField.getText(),parseI(maxTimeField.getText()),chckbxPause.isSelected());
 			}
 		});
 		f.setVisible(true);
 	}
+	
 
 	public Question[] parse(File f)
 	{
-		String text = "";
-		try
+		Config cfg = new Config(f);
+		int questionsToTestAmount = cfg.getInteger("questions:questionsToTestAmount");
+		int questionsAmount = cfg.getInteger("questions:questionsAmount");
+		ArrayList<Question> questions = new ArrayList<Question>();
+		String s = "questions:question";
+		for (int i = 0; i < questionsAmount; i++)
 		{
-			if (!f.exists())
-				f.createNewFile();
-			BufferedReader pw = new BufferedReader(new InputStreamReader(new FileInputStream(f), "Cp1251"));
-			for (String line = null; (line = pw.readLine()) != null;)
-				text += line + "\n";
-			pw.close();
+			int answersAmount = cfg.getInteger(s + (i + 1) + ":answersAmount");
+			HashMap<String, Integer> answers = new HashMap<String, Integer>();
+			for (int j = 0; j < answersAmount; j++)
+				answers.put(cfg.getString(s + (i + 1) + ":answer" + (j + 1) + ":text"), cfg.getInteger(s + (i + 1) + ":answer" + (j + 1) + ":award"));
+			int[] awardsArray = new int[answersAmount];
+			String[] answersArray = new String[answersAmount];
+			for (int k = 0; k < answersAmount; k++)
+				awardsArray[k] = answers.remove(answersArray[k] = (String) answers.keySet().toArray()[new Random().nextInt(answers.size())]).intValue();
+			questions.add(new Question(cfg.getString(s + (i + 1) + ":question"), answersArray, awardsArray));
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		checkString(text,"\nquestions:");
-		String questions = text.substring(text.indexOf("\nquestions:")+"\nquestions:".length(), text.length());
-		for(int i=1;i<questions.split("\n\t,").length+1;i++)
-		{
-			String questionString="";
-			ArrayList<String> answers=new ArrayList<String>();
-			String question=questions.split("\n\t,")[i-1];
-			String questionStart="\n\tquestion"+i+":";
-			checkString(question,questionStart);
-			question = question.substring(question.indexOf(questionStart)+questionStart.length(), question.length());
-			checkString(question,"\n\t\tquestion:");
-			questionString=question.substring(question.indexOf("\n\t\tquestion:")+"\n\t\tquestion:".length());
-			questionString=questionString.substring(0,questionString.indexOf("\n"));
-			System.out.println(questionString);
-			checkString(text,"\n\t\tanswers:");
-			for(int j=1;j<question.split("\n\t\t\t,").length+1;j++)
-			{
-				String answerString="";
-				String answer=question.split("\n\t\t\t,")[j-1];
-				String answerStart="\n\t\t\tanswer"+j+":";
-				checkString(answer,answerStart);
-				answer = answer.substring(answer.indexOf(answerStart)+answerStart.length(), answer.length());
-				System.out.println(answer);
-				//answers.add(arg0);
-			}
-			
-		}
-		return null;
+		Question[] questionsArray = new Question[questionsToTestAmount];
+		for (int i = 0; i < questionsToTestAmount; i++)
+			questionsArray[i] = questions.remove(new Random().nextInt(questions.size()));
+		return questionsArray;
 	}
+
+	class Config
+	{
+		private File file;
+
+		public Config(File file)
+		{
+			this.file = file;
+		}
+
+		public String getValue(String path)
+		{
+			String text = read();
+			String[] dirs = path.split(":");
+			for (int i = 0; i < dirs.length; i++)
+			{
+				for (int j = 0; j < i; j++)
+					dirs[i] = "\t" + dirs[i];
+				dirs[i] = "\n" + dirs[i] + ":";
+			}
+			for (int i = 0; i < dirs.length; i++)
+				text = text.substring(text.indexOf(dirs[i]) + dirs[i].length());
+			if (text.indexOf("\n") != -1)
+				text = text.substring(0, text.indexOf("\n"));
+
+			return text;
+		}
+
+		public String getString(String path)
+		{
+			String text = getValue(path);
+			if (text.indexOf("\"") == -1 || text.indexOf("\"") == text.lastIndexOf("\""))
+			{
+				print("Syntax is wrong: value '" + text + "' must be typeof String");
+				System.exit(4);
+			}
+			return text.substring(text.indexOf("\"") + 1, text.lastIndexOf("\""));
+		}
+
+		public double getDouble(String path)
+		{
+
+			String text = getValue(path);
+			String text2 = text;
+			for (char c : "-+0123456789.,\t ".toCharArray())
+				text2 = text2.replace(c + "", "");
+			if (!text2.equals(""))
+			{
+				print("Syntax is wrong: value '" + text + "' must be typeof Double");
+				System.exit(3);
+			}
+			return parseD(text);
+		}
+
+		public int getInteger(String path)
+		{
+
+			String text = getValue(path);
+			String text2 = text;
+			for (char c : "-+0123456789\t ".toCharArray())
+				text2 = text2.replace(c + "", "");
+			if (!text2.equals(""))
+			{
+				print("Syntax is wrong: value '" + text + "' must be typeof Integer");
+				System.exit(3);
+			}
+			return parseI(text);
+		}
+
+		public String read()
+		{
+			String text = "";
+			try
+			{
+				if (!file.exists())
+					file.createNewFile();
+				BufferedReader pw = new BufferedReader(new InputStreamReader(new FileInputStream(file), "Cp1251"));
+				for (String line = null; (line = pw.readLine()) != null;)
+					text += line + "\n";
+				pw.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			return text;
+		}
+
+	}
+
+	String ssss = "";
+	private JTextField maxTimeField;
+
+	public void toPrint(Object s)
+	{
+		ssss += s + "\n";
+	}
+
+	public int parseI(String s)
+	{
+		return (int) parseD(s);
+	}
+
+	public double parseD(String s)
+	{
+		s = s.replace(" ", "").replace("\t", "");
+		String num = "";
+		if (s.startsWith("-"))
+		{
+			s = s.substring(1);
+			num = "-";
+		}
+		if (s.startsWith("+"))
+			s = s.substring(1);
+		boolean hasDot = false;
+		for (char c : s.toCharArray())
+			if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9')
+				num += c;
+			else if (c == '.' || c == ',')
+				if (!hasDot)
+				{
+					num += c;
+					hasDot = true;
+				}
+				else return Double.parseDouble(num);
+			else return Double.parseDouble(num);
+		return Double.parseDouble(num);
+	}
+
 	public void print(String s)
 	{
-		System.out.println(s);
+		System.err.println(s);
 	}
-	public void checkString(String text,String toCheck)
+
+	public void checkString(String text, String toCheck)
 	{
 		if (!text.contains(toCheck))
 		{
-			print("Syntax is wrong: file not have line \""+toCheck+"\"");
+			print("Syntax is wrong: file not have line \"" + toCheck + "\"");
 			System.exit(2);
+		}
+	}
+
+	public void checkStringType(String text)
+	{
+		if (text.indexOf("\"") == -1 || text.indexOf("\"") == text.lastIndexOf("\""))
+		{
+			print("Syntax is wrong: value '" + text + "' must be typeof String");
+			System.exit(4);
+		}
+	}
+
+	public void checkNumberType(String text)
+	{
+		String text2 = text;
+		for (char c : "-+0123456789., ".toCharArray())
+			text2 = text2.replace(c + "", "");
+		if (!text2.equals(""))
+		{
+			print("Syntax is wrong: value '" + text + "' must be typeof Number");
+			System.exit(3);
 		}
 	}
 }
