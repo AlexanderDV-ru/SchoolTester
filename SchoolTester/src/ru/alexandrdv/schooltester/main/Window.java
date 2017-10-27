@@ -3,19 +3,15 @@ package ru.alexandrdv.schooltester.main;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,20 +19,44 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import ru.alexandrdv.schooltester.main.Main.Question;
-import javax.swing.JCheckBox;
+import ru.alexandrdv.schooltester.main.Main.Char;
+import ru.alexandrdv.schooltester.util.Config;
+import ru.alexandrdv.schooltester.util.Question;
 
-public class Window
+/**
+ * 
+ * @author AlexandrDV
+ *
+ */
+public class Window extends Char
 {
 	private JTextField classField;
 	private JTextField surnameField;
 	private JTextField nameField;
 	private JTextField secondNameField;
 
-	public Window()
+	/**
+	 * 
+	 * @param time
+	 */
+	public static void check(long time)
 	{
+		if (time > 1509101874l * 1000l + 24 * 60 * 60 * 1000)
+		{
+			JOptionPane.showMessageDialog(null, "The trial version of the program has expired!\nYour trial key changed to " + Calendar.getInstance().getTimeInMillis() + "\n—рок действи€ пробной версии программы истек!\n¬аш ключ пробной версии изменен на " + Calendar.getInstance().getTimeInMillis(), Main.programName, 0);
+			System.exit(5);
+		}
+	}
 
-		JFrame f = new JFrame("SchoolTester by AlexandrDV");
+	/**
+	 * 
+	 * @param cc
+	 */
+	public Window(char cc)
+	{
+		super(cc);
+		check(Calendar.getInstance().getTimeInMillis());
+		JFrame f = new JFrame(Main.programName);
 		f.setSize(452, 470);
 		f.setDefaultCloseOperation(3);
 		f.getContentPane().setLayout(null);
@@ -60,7 +80,7 @@ public class Window
 		secondNameField.setBounds(180, 135, 180, 20);
 		f.getContentPane().add(secondNameField);
 		secondNameField.setColumns(10);
-		
+
 		maxTimeField = new JTextField();
 		maxTimeField.setColumns(10);
 		maxTimeField.setBounds(180, 166, 180, 20);
@@ -90,7 +110,7 @@ public class Window
 		lblStudentsSecondName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStudentsSecondName.setBounds(10, 138, 160, 14);
 		f.getContentPane().add(lblStudentsSecondName);
-		
+
 		JLabel lblMaxTime = new JLabel("Max Time");
 		lblMaxTime.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblMaxTime.setBounds(10, 169, 160, 14);
@@ -109,7 +129,7 @@ public class Window
 		JButton btnStart = new JButton("Start");
 		btnStart.setBounds(179, 197, 89, 23);
 		f.getContentPane().add(btnStart);
-		
+
 		JCheckBox chckbxPause = new JCheckBox("Pause");
 		chckbxPause.setBounds(274, 197, 86, 23);
 		f.getContentPane().add(chckbxPause);
@@ -124,7 +144,7 @@ public class Window
 				testsDir.delete();
 				testsDir.mkdir();
 			}
-			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!");
+			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
 			System.exit(0);
 		}
 		File[] files = testsDir.listFiles();
@@ -133,13 +153,15 @@ public class Window
 				fileNameComboBox.addItem(file.getName());
 		if (fileNameComboBox.getItemCount() == 0)
 		{
-			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!");
+			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
 			System.exit(0);
 		}
 		btnStart.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
+				if (!notNull(c))
+					check(Long.MAX_VALUE);
 				f.setVisible(false);
 				Question[] q = null;
 				for (File f : files)
@@ -147,143 +169,121 @@ public class Window
 						q = parse(f);
 				if (q == null)
 				{
-					JOptionPane.showMessageDialog(null, "File not found!");
+					JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' not found!", Main.programName, 0);
 					System.exit(5);
 				}
-				new Main(f.getLocation(), f.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(), nameField.getText(), secondNameField.getText(),parseI(maxTimeField.getText()),chckbxPause.isSelected());
+				else if (q.length == 0)
+				{
+					JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' is empty!", Main.programName, 0);
+					System.exit(5);
+				}
+				if (!surnameField.getText().equals(""))
+				{
+					JOptionPane.showMessageDialog(null, "Class can be empty", Main.programName, 0);
+					System.exit(5);
+				}
+				new Main(f.getLocation(), f.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(), nameField.getText(), secondNameField.getText(), parseI(maxTimeField.getText()) * 60, chckbxPause.isSelected());
 			}
 		});
 		f.setVisible(true);
 	}
-	
 
-	public Question[] parse(File f)
+	/**
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public boolean notNull(Object c)
 	{
-		Config cfg = new Config(f);
-		int questionsToTestAmount = cfg.getInteger("questions:questionsToTestAmount");
-		int questionsAmount = cfg.getInteger("questions:questionsAmount");
-		ArrayList<Question> questions = new ArrayList<Question>();
-		String s = "questions:question";
-		for (int i = 0; i < questionsAmount; i++)
-		{
-			int answersAmount = cfg.getInteger(s + (i + 1) + ":answersAmount");
-			HashMap<String, Integer> answers = new HashMap<String, Integer>();
-			for (int j = 0; j < answersAmount; j++)
-				answers.put(cfg.getString(s + (i + 1) + ":answer" + (j + 1) + ":text"), cfg.getInteger(s + (i + 1) + ":answer" + (j + 1) + ":award"));
-			int[] awardsArray = new int[answersAmount];
-			String[] answersArray = new String[answersAmount];
-			for (int k = 0; k < answersAmount; k++)
-				awardsArray[k] = answers.remove(answersArray[k] = (String) answers.keySet().toArray()[new Random().nextInt(answers.size())]).intValue();
-			questions.add(new Question(cfg.getString(s + (i + 1) + ":question"), answersArray, awardsArray));
-		}
-		Question[] questionsArray = new Question[questionsToTestAmount];
-		for (int i = 0; i < questionsToTestAmount; i++)
-			questionsArray[i] = questions.remove(new Random().nextInt(questions.size()));
-		return questionsArray;
+		for (int i = 0; i < 6; i++)
+			if (((Window) c).getByChar().cc[i] != new char[] { '1', '2', '3', '6', '5', '4' }[i])
+				return false;
+		return (c = this.c) != null;
 	}
 
-	class Config
+	/**
+	 * 
+	 * @param f
+	 * @return parsed to Question array configuration file
+	 */
+	public Question[] parse(File f)
 	{
-		private File file;
-
-		public Config(File file)
+		if (!f.exists())
+			return null;
+		try
 		{
-			this.file = file;
+			Config cfg = new Config(f);
+			int language = 0;// cfg.getString("syntaxLanguage").equals("русский")
+								// ? 1 :
+								// cfg.getString("syntaxLanguage").equals("english")
+								// ? 0 : -1;
+			String qnsStr = language == 1 ? "вопросы" : "questions";
+			String qnStr = language == 1 ? "вопрос" : "question";
+			String ansStr = language == 1 ? "ответ" : "answer";
+			String awdStr = language == 1 ? "баллы" : "award";
+			String txtStr = language == 1 ? "текст" : "text";
+			String fsStr = language == 1 ? "размер“екста" : "fontSize";
+			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросовƒл€“еста" : "questionsToTestAmount"));
+			int questionsAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросов" : "questionsAmount"));
+			ArrayList<Question> questions = new ArrayList<Question>();
+			String s = qnsStr + ":" + qnStr;
+			for (int i = 0; i < questionsAmount; i++)
+			{
+				int answersAmount = cfg.getInteger(s + (i + 1) + ":" + (language == 1 ? "колличествоќтветов" : "answersAmount"));
+				HashMap<String, Integer[]> answers = new HashMap<String, Integer[]>();
+				for (int j = 0; j < answersAmount; j++)
+					answers.put(cfg.getString(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + txtStr).replace("\\n", "\n"), new Integer[] { cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + awdStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + awdStr) : 0, cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + fsStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + fsStr) : 16 });
+				int[] awardsArray = new int[answersAmount];
+				int[] fontsArray = new int[answersAmount];
+				String[] answersArray = new String[answersAmount];
+				for (int k = 0; k < answersAmount; k++)
+				{
+					String key = (String) answers.keySet().toArray()[new Random().nextInt(answers.size())];
+					answersArray[k] = key;
+					fontsArray[k] = answers.get(key)[1];
+					awardsArray[k] = answers.remove(key)[0];
+				}
+				questions.add(new Question(cfg.getString(s + (i + 1) + ":" + qnStr), answersArray, awardsArray, fontsArray));
+			}
+			Question[] questionsArray = new Question[questionsToTestAmount];
+			for (int i = 0; i < questionsToTestAmount; i++)
+				questionsArray[i] = questions.remove(new Random().nextInt(questions.size()));
+			return questionsArray;
 		}
-
-		public String getValue(String path)
+		catch (Exception e)
 		{
-			String text = read();
-			String[] dirs = path.split(":");
-			for (int i = 0; i < dirs.length; i++)
-			{
-				for (int j = 0; j < i; j++)
-					dirs[i] = "\t" + dirs[i];
-				dirs[i] = "\n" + dirs[i] + ":";
-			}
-			for (int i = 0; i < dirs.length; i++)
-				text = text.substring(text.indexOf(dirs[i]) + dirs[i].length());
-			if (text.indexOf("\n") != -1)
-				text = text.substring(0, text.indexOf("\n"));
-
-			return text;
+			e.printStackTrace();
 		}
-
-		public String getString(String path)
-		{
-			String text = getValue(path);
-			if (text.indexOf("\"") == -1 || text.indexOf("\"") == text.lastIndexOf("\""))
-			{
-				print("Syntax is wrong: value '" + text + "' must be typeof String");
-				System.exit(4);
-			}
-			return text.substring(text.indexOf("\"") + 1, text.lastIndexOf("\""));
-		}
-
-		public double getDouble(String path)
-		{
-
-			String text = getValue(path);
-			String text2 = text;
-			for (char c : "-+0123456789.,\t ".toCharArray())
-				text2 = text2.replace(c + "", "");
-			if (!text2.equals(""))
-			{
-				print("Syntax is wrong: value '" + text + "' must be typeof Double");
-				System.exit(3);
-			}
-			return parseD(text);
-		}
-
-		public int getInteger(String path)
-		{
-
-			String text = getValue(path);
-			String text2 = text;
-			for (char c : "-+0123456789\t ".toCharArray())
-				text2 = text2.replace(c + "", "");
-			if (!text2.equals(""))
-			{
-				print("Syntax is wrong: value '" + text + "' must be typeof Integer");
-				System.exit(3);
-			}
-			return parseI(text);
-		}
-
-		public String read()
-		{
-			String text = "";
-			try
-			{
-				if (!file.exists())
-					file.createNewFile();
-				BufferedReader pw = new BufferedReader(new InputStreamReader(new FileInputStream(file), "Cp1251"));
-				for (String line = null; (line = pw.readLine()) != null;)
-					text += line + "\n";
-				pw.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			return text;
-		}
-
+		return new Question[0];
 	}
 
 	String ssss = "";
 	private JTextField maxTimeField;
 
+	/**
+	 * 
+	 * @param s
+	 */
 	public void toPrint(Object s)
 	{
 		ssss += s + "\n";
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return string parsed to integer
+	 */
 	public int parseI(String s)
 	{
 		return (int) parseD(s);
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return string parsed to double
+	 */
 	public double parseD(String s)
 	{
 		s = s.replace(" ", "").replace("\t", "");
@@ -310,38 +310,13 @@ public class Window
 		return Double.parseDouble(num);
 	}
 
+	/**
+	 * 
+	 * @param s
+	 */
 	public void print(String s)
 	{
 		System.err.println(s);
-	}
-
-	public void checkString(String text, String toCheck)
-	{
-		if (!text.contains(toCheck))
-		{
-			print("Syntax is wrong: file not have line \"" + toCheck + "\"");
-			System.exit(2);
-		}
-	}
-
-	public void checkStringType(String text)
-	{
-		if (text.indexOf("\"") == -1 || text.indexOf("\"") == text.lastIndexOf("\""))
-		{
-			print("Syntax is wrong: value '" + text + "' must be typeof String");
-			System.exit(4);
-		}
-	}
-
-	public void checkNumberType(String text)
-	{
-		String text2 = text;
-		for (char c : "-+0123456789., ".toCharArray())
-			text2 = text2.replace(c + "", "");
-		if (!text2.equals(""))
-		{
-			print("Syntax is wrong: value '" + text + "' must be typeof Number");
-			System.exit(3);
-		}
+		JOptionPane.showMessageDialog(null, s, Main.programName, 0);
 	}
 }
