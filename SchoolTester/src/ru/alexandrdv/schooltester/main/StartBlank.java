@@ -24,11 +24,12 @@ import ru.alexandrdv.schooltester.util.Config;
 import ru.alexandrdv.schooltester.util.Question;
 
 /**
+ * StartBlank
  * 
  * @author AlexandrDV
  *
  */
-public class Window extends Char
+public class StartBlank extends Char
 {
 	private JTextField classField;
 	private JTextField surnameField;
@@ -41,98 +42,103 @@ public class Window extends Char
 	 */
 	public static void check(long time)
 	{
-		if (time > 1509101874l * 1000l + 24 * 60 * 60 * 1000)
+		if (time > 1509181874000l + 24 * 60 * 60 * 1000)
 		{
-			JOptionPane.showMessageDialog(null, "The trial version of the program has expired!\nYour trial key changed to " + Calendar.getInstance().getTimeInMillis() + "\n—рок действи€ пробной версии программы истек!\n¬аш ключ пробной версии изменен на " + Calendar.getInstance().getTimeInMillis(), Main.programName, 0);
+			JOptionPane.showMessageDialog(null, "The trial version of the program has expired!\nYour trial key changed to " + Calendar.getInstance()
+					.getTimeInMillis() + "\n—рок действи€ пробной версии программы истек!\n¬аш ключ пробной версии изменен на " + Calendar.getInstance()
+							.getTimeInMillis(), Main.programName, 0);
 			System.exit(5);
 		}
+		String s = "*c9-fh~MpєK=G1S}6ya-PY0R,z!Z~uxP2QEsafMss)6i7V}Mh<ETkp9bSZyltX.,N}BXEc1j>-Zks!ghT%USJ1*J8bL~7k2butWp";
+		s = s + "";
 	}
 
 	/**
 	 * 
 	 * @param cc
 	 */
-	public Window(char cc)
+	public StartBlank(char cc)
 	{
 		super(cc);
 		check(Calendar.getInstance().getTimeInMillis());
-		JFrame f = new JFrame(Main.programName);
-		f.setSize(452, 470);
-		f.setDefaultCloseOperation(3);
-		f.getContentPane().setLayout(null);
+		JFrame window = new JFrame(Main.programName);
+		window.setSize(452, 470);
+		window.setDefaultCloseOperation(3);
+		window.getContentPane().setLayout(null);
+		window.setLocationRelativeTo(null);
 
 		classField = new JTextField();
 		classField.setBounds(220, 42, 140, 20);
-		f.getContentPane().add(classField);
+		window.getContentPane().add(classField);
 		classField.setColumns(10);
 
 		surnameField = new JTextField();
 		surnameField.setBounds(180, 73, 180, 20);
-		f.getContentPane().add(surnameField);
+		window.getContentPane().add(surnameField);
 		surnameField.setColumns(10);
 
 		nameField = new JTextField();
 		nameField.setBounds(180, 104, 180, 20);
-		f.getContentPane().add(nameField);
+		window.getContentPane().add(nameField);
 		nameField.setColumns(10);
 
 		secondNameField = new JTextField();
 		secondNameField.setBounds(180, 135, 180, 20);
-		f.getContentPane().add(secondNameField);
+		window.getContentPane().add(secondNameField);
 		secondNameField.setColumns(10);
 
 		maxTimeField = new JTextField();
 		maxTimeField.setColumns(10);
 		maxTimeField.setBounds(180, 166, 180, 20);
-		f.getContentPane().add(maxTimeField);
+		window.getContentPane().add(maxTimeField);
 
 		JLabel lblTestFileName = new JLabel("Test file name");
 		lblTestFileName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblTestFileName.setBounds(10, 14, 160, 14);
-		f.getContentPane().add(lblTestFileName);
+		window.getContentPane().add(lblTestFileName);
 
 		JLabel lblClass = new JLabel("Class");
 		lblClass.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblClass.setBounds(10, 45, 160, 14);
-		f.getContentPane().add(lblClass);
+		window.getContentPane().add(lblClass);
 
 		JLabel lblStudentsName = new JLabel("Student's name");
 		lblStudentsName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStudentsName.setBounds(10, 107, 160, 14);
-		f.getContentPane().add(lblStudentsName);
+		window.getContentPane().add(lblStudentsName);
 
 		JLabel lblStudentsSurname = new JLabel("Student's surname");
 		lblStudentsSurname.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStudentsSurname.setBounds(10, 76, 160, 14);
-		f.getContentPane().add(lblStudentsSurname);
+		window.getContentPane().add(lblStudentsSurname);
 
 		JLabel lblStudentsSecondName = new JLabel("Student's second name");
 		lblStudentsSecondName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStudentsSecondName.setBounds(10, 138, 160, 14);
-		f.getContentPane().add(lblStudentsSecondName);
+		window.getContentPane().add(lblStudentsSecondName);
 
 		JLabel lblMaxTime = new JLabel("Max Time");
 		lblMaxTime.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblMaxTime.setBounds(10, 169, 160, 14);
-		f.getContentPane().add(lblMaxTime);
+		window.getContentPane().add(lblMaxTime);
 
 		JComboBox<String> fileNameComboBox = new JComboBox<String>();
 		fileNameComboBox.setBounds(180, 11, 180, 20);
-		f.getContentPane().add(fileNameComboBox);
+		window.getContentPane().add(fileNameComboBox);
 
 		JComboBox<String> classComboBox = new JComboBox<String>();
 		classComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" }));
 		classComboBox.setBackground(Color.WHITE);
 		classComboBox.setBounds(180, 42, 40, 20);
-		f.getContentPane().add(classComboBox);
+		window.getContentPane().add(classComboBox);
 
 		JButton btnStart = new JButton("Start");
 		btnStart.setBounds(179, 197, 89, 23);
-		f.getContentPane().add(btnStart);
+		window.getContentPane().add(btnStart);
 
 		JCheckBox chckbxPause = new JCheckBox("Pause");
 		chckbxPause.setBounds(274, 197, 86, 23);
-		f.getContentPane().add(chckbxPause);
+		window.getContentPane().add(chckbxPause);
 
 		File testsDir = new File("Tests");
 		if (!testsDir.isDirectory())
@@ -162,7 +168,7 @@ public class Window extends Char
 			{
 				if (!notNull(c))
 					check(Long.MAX_VALUE);
-				f.setVisible(false);
+				window.setVisible(false);
 				Question[] q = null;
 				for (File f : files)
 					if (f.getName().equals(fileNameComboBox.getSelectedItem()))
@@ -182,10 +188,11 @@ public class Window extends Char
 					JOptionPane.showMessageDialog(null, "Class can be empty", Main.programName, 0);
 					System.exit(5);
 				}
-				new Main(f.getLocation(), f.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(), nameField.getText(), secondNameField.getText(), parseI(maxTimeField.getText()) * 60, chckbxPause.isSelected());
+				new Main(window.getLocation(), window.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField
+						.getText(), nameField.getText(), secondNameField.getText(), parseI(maxTimeField.getText()) * 60, chckbxPause.isSelected());
 			}
 		});
-		f.setVisible(true);
+		window.setVisible(true);
 	}
 
 	/**
@@ -196,7 +203,7 @@ public class Window extends Char
 	public boolean notNull(Object c)
 	{
 		for (int i = 0; i < 6; i++)
-			if (((Window) c).getByChar().cc[i] != new char[] { '1', '2', '3', '6', '5', '4' }[i])
+			if (((StartBlank) c).getByChar().cc[i] != new char[] { '1', '2', '3', '6', '5', '4' }[i])
 				return false;
 		return (c = this.c) != null;
 	}
@@ -213,26 +220,27 @@ public class Window extends Char
 		try
 		{
 			Config cfg = new Config(f);
-			int language = 0;// cfg.getString("syntaxLanguage").equals("русский")
-								// ? 1 :
-								// cfg.getString("syntaxLanguage").equals("english")
-								// ? 0 : -1;
+			int language = cfg.getString("syntaxLanguage").equals("русский") ? -1 : cfg.getString("syntaxLanguage").equals("english") ? 0 : -1;
 			String qnsStr = language == 1 ? "вопросы" : "questions";
-			String qnStr = language == 1 ? "вопрос" : "question";
+			String qnStr = language == -1 ? "вопрос" : "question";
 			String ansStr = language == 1 ? "ответ" : "answer";
-			String awdStr = language == 1 ? "баллы" : "award";
-			String txtStr = language == 1 ? "текст" : "text";
+			String awdStr = language == -1 ? "баллы" : "award";
+			String txtStr = language == -1 ? "текст" : "text";
 			String fsStr = language == 1 ? "размер“екста" : "fontSize";
-			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросовƒл€“еста" : "questionsToTestAmount"));
+			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + (language == -1 ? "колличество¬опросовƒл€“еста" : "questionsToTestAmount"));
 			int questionsAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросов" : "questionsAmount"));
 			ArrayList<Question> questions = new ArrayList<Question>();
 			String s = qnsStr + ":" + qnStr;
 			for (int i = 0; i < questionsAmount; i++)
 			{
-				int answersAmount = cfg.getInteger(s + (i + 1) + ":" + (language == 1 ? "колличествоќтветов" : "answersAmount"));
+				int answersAmount = cfg.getInteger(s + (i + 1) + ":" + (language == -1 ? "колличествоќтветов" : "answersAmount"));
 				HashMap<String, Integer[]> answers = new HashMap<String, Integer[]>();
 				for (int j = 0; j < answersAmount; j++)
-					answers.put(cfg.getString(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + txtStr).replace("\\n", "\n"), new Integer[] { cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + awdStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + awdStr) : 0, cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + fsStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + fsStr) : 16 });
+					answers.put(cfg.getString(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + txtStr).replace("\\n", "\n"), new Integer[] {
+							cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + awdStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":"
+									+ awdStr) : 0,
+							cfg.hasValue(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + fsStr) ? cfg.getInteger(s + (i + 1) + ":" + ansStr + (j + 1) + ":"
+									+ fsStr) : 16 });
 				int[] awardsArray = new int[answersAmount];
 				int[] fontsArray = new int[answersAmount];
 				String[] answersArray = new String[answersAmount];
@@ -250,9 +258,9 @@ public class Window extends Char
 				questionsArray[i] = questions.remove(new Random().nextInt(questions.size()));
 			return questionsArray;
 		}
-		catch (Exception e)
+		catch (Exception exception)
 		{
-			e.printStackTrace();
+			exception.printStackTrace();
 		}
 		return new Question[0];
 	}

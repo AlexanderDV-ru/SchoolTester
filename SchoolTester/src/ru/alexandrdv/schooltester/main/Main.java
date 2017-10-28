@@ -23,13 +23,27 @@ import javax.swing.Timer;
 import ru.alexandrdv.schooltester.util.Question;
 
 /**
+ * Main
  * 
  * @author AlexandrDV
  *
  */
 public class Main
 {
-	public static final String programName = "SchoolTester v1.1.2a by AlexandrDV";
+	public static final String programName = "SchoolTester v1.2.1a by AlexandrDV";
+	public static StartBlank c;
+	private boolean paused = false, canPause;
+	private int var = -1;
+	private ButtonX[] btns = new ButtonX[6];
+	private ActionListener answersButtonsListener;
+	private int toPauseTime = 0;
+	private boolean finished = false;
+	private int maxResult;
+	private int maxTime = 20 * 60;
+	private float allTime = 0, timeOfWork = 0;
+	private int result = 0;
+	private int questionNumber = 0;
+	private final Question[] objs;
 
 	/**
 	 * 
@@ -41,12 +55,10 @@ public class Main
 		for (int i = 0; i < 6; i++)
 			if (s.toCharArray()[i] != new char[] { '1', '2', '3', '6', '5', '4' }[i])
 				return;
-		c = new Window('0');
+		c = new StartBlank('0');
 		c.getByChar().c.cc = s.toCharArray();
 		// new Main(null, null, null, "", "", "", "", 0, true);
 	}
-
-	static Window c;
 
 	/**
 	 * 
@@ -71,10 +83,6 @@ public class Main
 		}
 	}
 
-	boolean paused = false, canPause;
-	int var = 0;
-	ButtonX[] btns = new ButtonX[6];
-
 	/**
 	 * 
 	 * @param parentLoc
@@ -87,7 +95,8 @@ public class Main
 	 * @param maxTime
 	 * @param canPause
 	 */
-	public Main(Point parentLoc, Dimension parentSize, Question[] q, String _class, String surname, String name, String secondName, int maxTime, boolean canPause)
+	public Main(Point parentLoc, Dimension parentSize, Question[] q, String _class, String surname, String name, String secondName, int maxTime,
+			boolean canPause)
 	{
 		this.canPause = canPause;
 		this.maxTime = maxTime;
@@ -106,7 +115,11 @@ public class Main
 		// TODO Add theme with errors in words
 		Color bg = new Color(200, 70, 0);
 		Color fr = new Color(200, 0, 0);
-		ButtonX question = new ButtonX(bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, "Выверите дату путешествия Магеллана", new boolean[] { true, false, false, true });
+		ButtonX question = new ButtonX(bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, "Выверите дату путешествия Магеллана", new boolean[] {
+				true,
+				false,
+				false,
+				true });
 		question.setFont(new Font("Comic Sans Ms", 0, 16));
 		question.setTextColor(Color.black);
 		question.setBounds(10, 11, 414, 50);
@@ -201,7 +214,7 @@ public class Main
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				if (canPause && toPauseTime <= 0)
+				if (Main.this.canPause && toPauseTime <= 0)
 				{
 					question.setVisible(paused);
 					next.setVisible(paused);
@@ -242,9 +255,9 @@ public class Main
 					{
 						result += objs[questionNumber].getAwards()[var];
 					}
-					catch (Exception e)
+					catch (Exception exception)
 					{
-						e.printStackTrace();
+						exception.printStackTrace();
 					}
 					questionNumber++;
 					if (questionNumber == objs.length - 1)
@@ -276,7 +289,7 @@ public class Main
 				if (finished)
 				{
 					if (c.cc[4] != '5')
-						Window.check(Long.MAX_VALUE);
+						StartBlank.check(Long.MAX_VALUE);
 					else return;
 				}
 
@@ -284,18 +297,14 @@ public class Main
 					timeOfWork += 0.002f;
 				allTime += 0.002f;
 				toPauseTime--;
-				timer.setText(!(finished = c.cc[4] != '5') ? toSize((maxTime - (int) timeOfWork) / 60, 2) + ":" + toSize((maxTime - (int) timeOfWork) % 60, 2) : "");
+				timer.setText(!(finished = c.cc[4] != '5') ? toSize((maxTime - (int) timeOfWork) / 60, 2) + ":" + toSize((maxTime - (int) timeOfWork) % 60, 2)
+						: "");
 				if (timeOfWork >= maxTime)
 					finish(window, _class, surname, name, secondName);
-				Window.check(Calendar.getInstance().getTimeInMillis());
+				StartBlank.check(Calendar.getInstance().getTimeInMillis());
 			}
 		}).start();
 	}
-
-	ActionListener answersButtonsListener;
-
-	int toPauseTime = 0;
-	boolean finished = false;
 
 	/**
 	 * 
@@ -342,7 +351,8 @@ public class Main
 		text += "\nMax time: " + toSize(maxTime / 60, 2) + ":" + toSize(maxTime % 60, 2);
 		text += "\nAll time: " + toSize((int) allTime / 60, 2) + ":" + toSize((int) allTime % 60, 2);
 		Calendar c = Calendar.getInstance();
-		File f = new File("Result From " + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".txt");
+		File f = new File("Result From " + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE),
+				2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".txt");
 		try
 		{
 			f.createNewFile();
@@ -360,9 +370,6 @@ public class Main
 		d.setVisible(true);
 	}
 
-	int maxResult;
-	int maxTime = 20 * 60;
-
 	/**
 	 * 
 	 * @param i
@@ -376,8 +383,6 @@ public class Main
 			s = "0" + s;
 		return s;
 	}
-
-	float allTime = 0, timeOfWork = 0;
 
 	/**
 	 * 
@@ -397,14 +402,10 @@ public class Main
 			btns[i].setFont(new Font(btns[i].getFont().getFontName(), btns[i].getFont().getStyle(), objs[questionNumber].getFontSizes()[i]));
 			btns[i].setClicked(false);
 		}
+		var = -1;
 		info.setText("1/3");
 		question.setText(objs[questionNumber].getQuestion());
 	}
-
-	int result = 0;
-
-	int questionNumber = 0;
-	final Question[] objs;
 
 	/**
 	 * 
@@ -432,9 +433,12 @@ public class Main
 		 * @param text
 		 * @param rect
 		 */
-		public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, Color frameNormalColor, Color frameSelectedColor, Color framePressedColor, Color frameClickedColor, Color frameClickedSelectedColor, Color frameClickedPressedColor, String text, boolean[] rect)
+		public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor,
+				Color frameNormalColor, Color frameSelectedColor, Color framePressedColor, Color frameClickedColor, Color frameClickedSelectedColor,
+				Color frameClickedPressedColor, String text, boolean[] rect)
 		{
-			super(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, frameNormalColor, frameSelectedColor, framePressedColor, frameClickedColor, frameClickedSelectedColor, frameClickedPressedColor, text, rect);
+			super(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, frameNormalColor, frameSelectedColor,
+					framePressedColor, frameClickedColor, frameClickedSelectedColor, frameClickedPressedColor, text, rect);
 		}
 
 		/**
@@ -449,7 +453,8 @@ public class Main
 		 * @param hasFrame
 		 * @param rect
 		 */
-		public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, String text, boolean hasFrame, boolean[] rect)
+		public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor,
+				String text, boolean hasFrame, boolean[] rect)
 		{
 			super(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, text, hasFrame, rect);
 		}

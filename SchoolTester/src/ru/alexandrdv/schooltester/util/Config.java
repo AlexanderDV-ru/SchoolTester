@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import ru.alexandrdv.schooltester.main.Main;
 
 /**
+ * Config
  * 
  * @author AlexandrDV
  *
@@ -20,8 +21,10 @@ public class Config
 	private File file;
 
 	/**
+	 * Creates new Config from file
 	 * 
 	 * @param file
+	 *            - file using how configuration
 	 */
 	public Config(File file)
 	{
@@ -29,9 +32,11 @@ public class Config
 	}
 
 	/**
+	 * Returns value from path in configuration file
 	 * 
 	 * @param path
-	 * @return value at path in configuration
+	 *            - path to value in configuration file
+	 * @return value at path in configuration file
 	 */
 	public String getValue(String path)
 	{
@@ -52,8 +57,10 @@ public class Config
 	}
 
 	/**
+	 * Check and return true if configuration constrains value in path, else return false
 	 * 
 	 * @param path
+	 *            - path to value in configuration file
 	 * @return true if configuration has value in path, else false
 	 */
 	public boolean hasValue(String path)
@@ -71,14 +78,16 @@ public class Config
 		{
 			if (!text.contains(dirs[i]))
 			{
-				print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?") + "\n must be typeof Integer");
+				print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?")
+						+ "\n must be typeof Integer");
 				System.exit(8);
 				return false;
 			}
 			for (String line : text.substring(1, text.indexOf(dirs[i])).split("\n"))
 				if (!line.contains(tabs) && line.contains(":"))
 				{
-					print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?") + "\n must be typeof Integer");
+					print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?")
+							+ "\n must be typeof Integer");
 					System.exit(8);
 					return false;
 				}
@@ -135,7 +144,7 @@ public class Config
 	/**
 	 * 
 	 * @param path
-	 * @return integer value at path in configuration
+	 * @return Integer value at path in configuration file
 	 */
 	public int getInteger(String path)
 	{
@@ -153,8 +162,9 @@ public class Config
 	}
 
 	/**
+	 * Returns text of configuration file
 	 * 
-	 * @return text of configuration
+	 * @return text of configuration file
 	 */
 	public String read()
 	{
@@ -176,43 +186,46 @@ public class Config
 	}
 
 	/**
+	 * Prints Object 'object' to console and show Object 'object' in {@link javax.swing.JDialog}
 	 * 
-	 * @param s
+	 * @param object
 	 */
-	public void print(String s)
+	public void print(Object object)
 	{
-		System.err.println(s);
-		JOptionPane.showMessageDialog(null, s, Main.programName, 0);
+		System.err.println(object.toString());
+		JOptionPane.showMessageDialog(null, object, Main.programName, 0);
 	}
 
 	/**
+	 * Returns String 'toParse' parsed to Integer
 	 * 
-	 * @param s
-	 * @return string parsed to integer
+	 * @param toParse
+	 * @return Integer parsed from String 'toParse'
 	 */
-	public int parseI(String s)
+	public int parseI(String toParse)
 	{
-		return (int) parseD(s);
+		return (int) parseD(toParse);
 	}
 
 	/**
+	 * Returns String 'toParse' parsed to Double
 	 * 
-	 * @param s
-	 * @return string parsed to double
+	 * @param toParse
+	 * @return Double parsed from String 'toParse'
 	 */
-	public double parseD(String s)
+	public double parseD(String toParse)
 	{
-		s = s.replace(" ", "").replace("\t", "");
+		toParse = toParse.replace(" ", "").replace("\t", "");
 		String num = "";
-		if (s.startsWith("-"))
+		if (toParse.startsWith("-"))
 		{
-			s = s.substring(1);
+			toParse = toParse.substring(1);
 			num = "-";
 		}
-		if (s.startsWith("+"))
-			s = s.substring(1);
+		if (toParse.startsWith("+"))
+			toParse = toParse.substring(1);
 		boolean hasDot = false;
-		for (char c : s.toCharArray())
+		for (char c : toParse.toCharArray())
 			if (c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9')
 				num += c;
 			else if (c == '.' || c == ',')

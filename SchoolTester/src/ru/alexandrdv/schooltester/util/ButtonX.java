@@ -12,6 +12,12 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+/**
+ * ButtonX
+ * 
+ * @author AlexandrDV
+ *
+ */
 public class ButtonX extends JPanel
 {
 
@@ -27,71 +33,38 @@ public class ButtonX extends JPanel
 
 	/**
 	 * 
-	 * @param text
-	 * @param font
-	 * @return
-	 */
-	private int width(String text, Font font)
-	{
-		return (int) font.getStringBounds(text, new FontRenderContext(null, true, true)).getWidth();
-	}
-
-	/**
-	 * 
-	 * @param text
-	 * @param font
-	 * @return
-	 */
-	private int height(String text, Font font)
-	{
-		return (int) font.getStringBounds(text, new FontRenderContext(null, true, true)).getHeight();
-	}
-
-	/**
-	 * 
-	 * @param g
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 * @param round
-	 */
-	void fillRoundedRect(Graphics g, int x1, int y1, int x2, int y2, int round)
-	{
-		if (rect[0])
-			g.fillRect(x1, y1, (x2 - x1) / 2, (y2 - y1) / 2);
-		else g.fillOval(x1, y1, round * 2, round * 2);
-		if (rect[1])
-			g.fillRect(x1, (y2 - y1) / 2 + y1, (x2 - x1) / 2, (y2 - y1) / 2);
-		else g.fillOval(x1, y2 - round * 2, round * 2, round * 2);
-		if (rect[2])
-			g.fillRect((x2 - x1) / 2 + x1, (y2 - y1) / 2 + y1, (x2 - x1) / 2, (y2 - y1) / 2);
-		else g.fillOval(x2 - round * 2, y2 - round * 2, round * 2, round * 2);
-		if (rect[3])
-			g.fillRect((x2 - x1) / 2 + x1 + 1, y1, (x2 - x1) / 2, (y2 - y1) / 2);
-		else g.fillOval(x2 - round * 2, y1, round * 2, round * 2);
-		g.fillRect(x1 + round, y1, x2 - round * 2 - x1, y2 - y1 + 1);
-		g.fillRect(x1, y1 + round, x2 - x1 + 1, y2 - round * 2 - y1);
-	}
-
-	/**
-	 * 
 	 * @param normalColor
+	 *            - background color of ButtonX in standard state
 	 * @param selectedColor
+	 *            - background color of ButtonX in selected state
 	 * @param pressedColor
+	 *            - background color of ButtonX in pressed state
 	 * @param clickedColor
+	 *            - background color of ButtonX in standard after click
 	 * @param clickedSelectedColor
+	 *            - background color of ButtonX in selected state after click
 	 * @param clickedPressedColor
+	 *            - background color of ButtonX in pressed state after click
 	 * @param frameNormalColor
+	 *            - frame color of ButtonX in standard state
 	 * @param frameSelectedColor
+	 *            - frame color of ButtonX in selected state
 	 * @param framePressedColor
+	 *            - frame color of ButtonX in pressed state
 	 * @param frameClickedColor
+	 *            - frame color of ButtonX in standard state after click
 	 * @param frameClickedSelectedColor
+	 *            - frame color of ButtonX in selected state after click
 	 * @param frameClickedPressedColor
+	 *            - frame color of ButtonX in pressed state after click
 	 * @param text
+	 *            - text printed in ButtonX
 	 * @param rect
+	 *            - angles' types of ButtonX rectangle
 	 */
-	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, Color frameNormalColor, Color frameSelectedColor, Color framePressedColor, Color frameClickedColor, Color frameClickedSelectedColor, Color frameClickedPressedColor, String text, boolean[] rect)
+	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor,
+			Color frameNormalColor, Color frameSelectedColor, Color framePressedColor, Color frameClickedColor, Color frameClickedSelectedColor,
+			Color frameClickedPressedColor, String text, boolean[] rect)
 	{
 		rounding = 15;
 		actionListeners = new ArrayList<ActionListener>();
@@ -150,42 +123,67 @@ public class ButtonX extends JPanel
 	/**
 	 * 
 	 * @param normalColor
+	 *            - background color of ButtonX in standard state
 	 * @param selectedColor
+	 *            - background color of ButtonX in selected state
 	 * @param pressedColor
+	 *            - background color of ButtonX in pressed state
 	 * @param clickedColor
+	 *            - background color of ButtonX in standard after click
 	 * @param clickedSelectedColor
+	 *            - background color of ButtonX in selected state after click
 	 * @param clickedPressedColor
+	 *            - background color of ButtonX in pressed state after click
 	 * @param text
-	 * @param hasFrame
+	 *            - text printed in ButtonX
+	 * @param frameSize
+	 *            - size of ButtonX frame
 	 * @param rect
+	 *            - angles' types of ButtonX rectangle
 	 */
-	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, String text, boolean hasFrame, boolean[] rect)
+	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor,
+			String text, int frameSize, boolean[] rect)
+	{
+		this(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, reduceBrightness(normalColor, frameSize),
+				reduceBrightness(selectedColor, frameSize), reduceBrightness(pressedColor, frameSize), reduceBrightness(clickedColor, frameSize),
+				reduceBrightness(clickedSelectedColor, frameSize), reduceBrightness(clickedPressedColor, frameSize), text, rect);
+	}
+
+	/**
+	 * 
+	 * @param normalColor
+	 *            - background color of ButtonX in standard state
+	 * @param selectedColor
+	 *            - background color of ButtonX in selected state
+	 * @param pressedColor
+	 *            - background color of ButtonX in pressed state
+	 * @param clickedColor
+	 *            - background color of ButtonX in standard after click
+	 * @param clickedSelectedColor
+	 *            - background color of ButtonX in selected state after click
+	 * @param clickedPressedColor
+	 *            - background color of ButtonX in pressed state after click
+	 * @param text
+	 *            - text printed in ButtonX
+	 * @param hasFrame
+	 *            - indicates frame presence
+	 * @param rect
+	 *            - angles' types of ButtonX rectangle
+	 */
+	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor,
+			String text, boolean hasFrame, boolean[] rect)
 	{
 		this(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, text, hasFrame ? 20 : 0, rect);
 	}
 
 	/**
 	 * 
-	 * @param normalColor
-	 * @param selectedColor
-	 * @param pressedColor
-	 * @param clickedColor
-	 * @param clickedSelectedColor
-	 * @param clickedPressedColor
 	 * @param text
-	 * @param framePower
-	 * @param rect
-	 */
-	public ButtonX(Color normalColor, Color selectedColor, Color pressedColor, Color clickedColor, Color clickedSelectedColor, Color clickedPressedColor, String text, int framePower, boolean[] rect)
-	{
-		this(normalColor, selectedColor, pressedColor, clickedColor, clickedSelectedColor, clickedPressedColor, night(normalColor, framePower), night(selectedColor, framePower), night(pressedColor, framePower), night(clickedColor, framePower), night(clickedSelectedColor, framePower), night(clickedPressedColor, framePower), text, rect);
-	}
-
-	/**
-	 * 
-	 * @param text
+	 *            - text printed in ButtonX
 	 * @param hasFrame
+	 *            - indicates frame presence
 	 * @param rect
+	 *            - angles' types of ButtonX rectangle
 	 */
 	public ButtonX(String text, boolean hasFrame, boolean[] rect)
 	{
@@ -194,13 +192,75 @@ public class ButtonX extends JPanel
 
 	/**
 	 * 
-	 * @param c
-	 * @param power
+	 * @param text
+	 *            - text
+	 * @param font
+	 *            - font
 	 * @return
 	 */
-	public static Color night(Color c, int power)
+	private int width(String text, Font font)
 	{
-		return new Color(clamp(0, c.getRed() - power, 255), clamp(0, c.getGreen() - power, 255), clamp(0, c.getBlue() - power, 255));
+		return (int) font.getStringBounds(text, new FontRenderContext(null, true, true)).getWidth();
+	}
+
+	/**
+	 * 
+	 * @param text
+	 *            - text
+	 * @param font
+	 *            - font
+	 * @return
+	 */
+	private int height(String text, Font font)
+	{
+		return (int) font.getStringBounds(text, new FontRenderContext(null, true, true)).getHeight();
+	}
+
+	/**
+	 * 
+	 * @param g
+	 *            - Graphics
+	 * @param x1
+	 *            - first x
+	 * @param y1
+	 *            - first y
+	 * @param x2
+	 *            - second x
+	 * @param y2
+	 *            - second y
+	 * @param rounding
+	 *            - power of rounding angles of rectangle
+	 */
+	void fillRoundedRect(Graphics g, int x1, int y1, int x2, int y2, int rounding)
+	{
+		if (rect[0])
+			g.fillRect(x1, y1, (x2 - x1) / 2, (y2 - y1) / 2);
+		else g.fillOval(x1, y1, rounding * 2, rounding * 2);
+		if (rect[1])
+			g.fillRect(x1, (y2 - y1) / 2 + y1, (x2 - x1) / 2, (y2 - y1) / 2);
+		else g.fillOval(x1, y2 - rounding * 2, rounding * 2, rounding * 2);
+		if (rect[2])
+			g.fillRect((x2 - x1) / 2 + x1, (y2 - y1) / 2 + y1, (x2 - x1) / 2, (y2 - y1) / 2);
+		else g.fillOval(x2 - rounding * 2, y2 - rounding * 2, rounding * 2, rounding * 2);
+		if (rect[3])
+			g.fillRect((x2 - x1) / 2 + x1 + 1, y1, (x2 - x1) / 2, (y2 - y1) / 2);
+		else g.fillOval(x2 - rounding * 2, y1, rounding * 2, rounding * 2);
+		g.fillRect(x1 + rounding, y1, x2 - rounding * 2 - x1, y2 - y1 + 1);
+		g.fillRect(x1, y1 + rounding, x2 - x1 + 1, y2 - rounding * 2 - y1);
+	}
+
+	/**
+	 * Returns 'color' with reduced using power brightness
+	 * 
+	 * @param color
+	 *            - color to reducing brightness
+	 * @param power
+	 *            - power of brightness reducing
+	 * @return Color 'color' with brightness reduced using power
+	 */
+	public static Color reduceBrightness(Color color, int power)
+	{
+		return new Color(clamp(0, color.getRed() - power, 255), clamp(0, color.getGreen() - power, 255), clamp(0, color.getBlue() - power, 255));
 	}
 
 	/**
@@ -210,7 +270,6 @@ public class ButtonX extends JPanel
 	@Override
 	public void paint(Graphics g)
 	{
-		// Drawing rounded rectangle for message
 		g.setColor(frameColor);
 		fillRoundedRect(g, 1, 1, getWidth() - 1, getHeight() - 1 - 3, rounding);
 		g.setColor(backgroundColor);
@@ -225,12 +284,14 @@ public class ButtonX extends JPanel
 	}
 
 	/**
-	 * 
+	 * Updates color of ButtonX background and color of ButtonX frame
 	 */
 	public void update()
 	{
-		setBackground(isPressed() ? (isClicked() ? clickedPressedColor : pressedColor) : (isClicked() ? (isSelected() ? clickedSelectedColor : clickedColor) : (isSelected() ? selectedColor : normalColor)));
-		setFrame(isPressed() ? (isClicked() ? frameClickedPressedColor : framePressedColor) : (isClicked() ? (isSelected() ? frameClickedSelectedColor : frameClickedColor) : (isSelected() ? frameSelectedColor : frameNormalColor)));
+		setBackground(isPressed() ? (isClicked() ? clickedPressedColor : pressedColor)
+				: (isClicked() ? (isSelected() ? clickedSelectedColor : clickedColor) : (isSelected() ? selectedColor : normalColor)));
+		setFrame(isPressed() ? (isClicked() ? frameClickedPressedColor : framePressedColor)
+				: (isClicked() ? (isSelected() ? frameClickedSelectedColor : frameClickedColor) : (isSelected() ? frameSelectedColor : frameNormalColor)));
 	}
 
 	/**
@@ -255,7 +316,7 @@ public class ButtonX extends JPanel
 	}
 
 	/**
-	 * 
+	 * Clears action listeners list
 	 */
 	public void clearActionListeners()
 	{
@@ -263,8 +324,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX frame to 'frameColor'
+	 * 
 	 * @param frameColor
-	 *            the frameColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrame(Color frameColor)
 	{
@@ -281,8 +344,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX background to 'backgroundColor'
+	 * 
 	 * @param backgroundColor
-	 *            the backgroundColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setBackgroundColor(Color backgroundColor)
 	{
@@ -299,8 +364,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameColor
-	 *            the frameColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameColor(Color frameColor)
 	{
@@ -317,8 +384,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameClickedColor
-	 *            the frameClickedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameClickedColor(Color frameClickedColor)
 	{
@@ -335,8 +404,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param framePressedColor
-	 *            the framePressedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFramePressedColor(Color framePressedColor)
 	{
@@ -353,8 +424,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameNormalColor
-	 *            the frameNormalColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameNormalColor(Color frameNormalColor)
 	{
@@ -371,8 +444,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameSelectedColor
-	 *            the frameSelectedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameSelectedColor(Color frameSelectedColor)
 	{
@@ -389,8 +464,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameClickedSelectedColor
-	 *            the frameClickedSelectedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameClickedSelectedColor(Color frameClickedSelectedColor)
 	{
@@ -407,8 +484,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param frameClickedPressedColor
-	 *            the frameClickedPressedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setFrameClickedPressedColor(Color frameClickedPressedColor)
 	{
@@ -425,8 +504,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param text
-	 *            the text to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setText(String text)
 	{
@@ -443,8 +524,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param rounding
-	 *            the rounding to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setRounding(int rounding)
 	{
@@ -453,7 +536,7 @@ public class ButtonX extends JPanel
 	}
 
 	/**
-	 * @return the framesize
+	 * @return the frameSize
 	 */
 	public int getFramesize()
 	{
@@ -461,12 +544,14 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param framesize
-	 *            the framesize to set
+	 *            - color using to set color of ButtonX text
 	 */
-	public void setFramesize(int framesize)
+	public void setFramesize(int frameSize)
 	{
-		this.framesize = framesize;
+		this.framesize = frameSize;
 		update();
 	}
 
@@ -479,8 +564,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param selected
-	 *            the selected to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setSelected(boolean selected)
 	{
@@ -497,8 +584,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param clicked
-	 *            the clicked to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setClicked(boolean clicked)
 	{
@@ -515,8 +604,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param pressed
-	 *            the pressed to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setPressed(boolean pressed)
 	{
@@ -533,8 +624,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param selectedColor
-	 *            the selectedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setSelectedColor(Color selectedColor)
 	{
@@ -551,8 +644,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param pressedColor
-	 *            the pressedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setPressedColor(Color pressedColor)
 	{
@@ -569,8 +664,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param normalColor
-	 *            the normalColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setNormalColor(Color normalColor)
 	{
@@ -587,8 +684,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedColor'
+	 * 
 	 * @param clickedColor
-	 *            the clickedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setClickedColor(Color clickedColor)
 	{
@@ -605,8 +704,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX selected state after click to 'clickedSelectedColor'
+	 * 
 	 * @param clickedSelectedColor
-	 *            the clickedSelectedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setClickedSelectedColor(Color clickedSelectedColor)
 	{
@@ -623,8 +724,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX pressed state after click to 'clickedPressedColor'
+	 * 
 	 * @param clickedPressedColor
-	 *            the clickedPressedColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setClickedPressedColor(Color clickedPressedColor)
 	{
@@ -641,8 +744,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets color of ButtonX text to 'textColor'
+	 * 
 	 * @param textColor
-	 *            the textColor to set
+	 *            - color using to set color of ButtonX text
 	 */
 	public void setTextColor(Color textColor)
 	{
@@ -651,8 +756,10 @@ public class ButtonX extends JPanel
 	}
 
 	/**
+	 * Sets ButtonX background to 'backgroundColor'
+	 * 
 	 * @param backgroundColor
-	 *            the backgroundColor to set
+	 *            - the backgroundColor to set
 	 */
 	@Override
 	public void setBackground(Color backgroundColor)

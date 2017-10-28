@@ -1,6 +1,7 @@
 package ru.alexandrdv.schooltester.util;
 
 /**
+ * Question
  * 
  * @author AlexandrDV
  *
@@ -38,7 +39,7 @@ public class Question
 
 	/**
 	 * @param question
-	 *            the question to set
+	 *            - question to set
 	 */
 	public void setQuestion(String question)
 	{
