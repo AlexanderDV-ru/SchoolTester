@@ -1,6 +1,7 @@
 package ru.alexandrdv.schooltester.main;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -9,17 +10,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import ru.alexandrdv.schooltester.server.Server;
 import ru.alexandrdv.schooltester.util.Question;
 
 /**
@@ -30,7 +41,9 @@ import ru.alexandrdv.schooltester.util.Question;
  */
 public class Main
 {
-	public static final String programName = "SchoolTester v1.2.1a by AlexandrDV";
+	public static final String version = "1.4.0a";
+	public static final String autors = "AlexandrDV";
+	public static final String programName = "SchoolTester v" + version + " by " + autors;
 	public static StartBlank c;
 	private boolean paused = false, canPause;
 	private int var = -1;
@@ -43,7 +56,38 @@ public class Main
 	private float allTime = 0, timeOfWork = 0;
 	private int result = 0;
 	private int questionNumber = 0;
+	private long lastTime=0;
 	private final Question[] objs;
+
+	/**
+	 * 
+	 * @param uriStr
+	 */
+	private static void launchBrowser(String uriStr)
+	{
+		Desktop desktop;
+		if (Desktop.isDesktopSupported())
+		{
+			desktop = Desktop.getDesktop();
+			if (desktop.isSupported(Desktop.Action.BROWSE))
+			{
+				URI uri;
+				try
+				{
+					uri = new URI(uriStr);
+					desktop.browse(uri);
+				}
+				catch (IOException ioe)
+				{
+					ioe.printStackTrace();
+				}
+				catch (URISyntaxException use)
+				{
+					use.printStackTrace();
+				}
+			}
+		}
+	}
 
 	/**
 	 * 
@@ -51,11 +95,56 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
+		// Check for updates
+		{
+			try
+			{
+				DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) + 10000);
+				socket.setSoTimeout(1000);
+				{
+					byte[] data = Server.writeToByteArray(new Server.Pack("checkUpdates",null));
+					socket.send(new DatagramPacket(data, 0, data.length, InetAddress.getByName("94.181.44.135"), 21577));// отправление пакета
+				}
+				{
+					byte[] data2 = new byte[256];
+					DatagramPacket pac = new DatagramPacket(data2, data2.length);
+					socket.receive(pac);
+					String s = ((Server.Pack) Server.readByteArray(data2)).str;
+					String s2 = ((Server.Pack) Server.readByteArray(data2)).str2;
+					if (!s.equals(version))
+					{
+						JOptionPane.showMessageDialog(null, "Please, update your program to version " + s);
+						launchBrowser(s2);
+					}
+				}
+			}
+			catch (UnknownHostException e)
+			{
+				e.printStackTrace();// неверный адрес получателя
+			}
+			catch (SocketException e)
+			{
+				e.printStackTrace();// возникли ошибки при передаче данных
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace(); // не найден отправляемый файл
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+
 		String s = JOptionPane.showInputDialog(null, "Enter Password", programName, 2);
 		for (int i = 0; i < 6; i++)
 			if (s.toCharArray()[i] != new char[] { '1', '2', '3', '6', '5', '4' }[i])
 				return;
-		c = new StartBlank('0');
+		c = new StartBlank('0', args);
 		c.getByChar().c.cc = s.toCharArray();
 		// new Main(null, null, null, "", "", "", "", 0, true);
 	}
@@ -280,11 +369,8 @@ public class Main
 			});
 			openQuestion(question, info, questionNumber);
 		}
-		new Timer(1, new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
+		lastTime=Calendar.getInstance().getTimeInMillis();
+		new Timer(1, (e)->
 			{
 				if (finished)
 				{
@@ -294,16 +380,17 @@ public class Main
 				}
 
 				if (!paused)
-					timeOfWork += 0.002f;
-				allTime += 0.002f;
+					timeOfWork += 0.002f;//((float)(Calendar.getInstance().getTimeInMillis()-lastTime))/1000f;
+				allTime += 0.002f;//((float)(Calendar.getInstance().getTimeInMillis()-lastTime))/1000f;
 				toPauseTime--;
 				timer.setText(!(finished = c.cc[4] != '5') ? toSize((maxTime - (int) timeOfWork) / 60, 2) + ":" + toSize((maxTime - (int) timeOfWork) % 60, 2)
 						: "");
 				if (timeOfWork >= maxTime)
 					finish(window, _class, surname, name, secondName);
 				StartBlank.check(Calendar.getInstance().getTimeInMillis());
+				lastTime=Calendar.getInstance().getTimeInMillis();
 			}
-		}).start();
+		).start();
 	}
 
 	/**
@@ -317,14 +404,8 @@ public class Main
 	public void finish(JFrame window, String _class, String surname, String name, String secondName)
 	{
 		finished = true;
-		try
-		{
-			result += objs[questionNumber].getAwards()[var];
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		if (var != -1)
+			result += objs[questionNumber].getAward() + objs[questionNumber].getAwards()[var];
 		showResult(window, _class, surname, name, secondName);
 		window.setVisible(false);
 		System.exit(0);
@@ -403,7 +484,7 @@ public class Main
 			btns[i].setClicked(false);
 		}
 		var = -1;
-		info.setText("1/3");
+		info.setText((questionNumber+1)+"/"+objs.length);
 		question.setText(objs[questionNumber].getQuestion());
 	}
 
@@ -412,7 +493,7 @@ public class Main
 	 * @author AlexandrDV
 	 *
 	 */
-	static class ButtonX extends ru.alexandrdv.schooltester.util.ButtonX
+	static class ButtonX extends ru.alexandrdv.components.ButtonX
 	{
 		private static final long serialVersionUID = -7097051178021598223L;
 

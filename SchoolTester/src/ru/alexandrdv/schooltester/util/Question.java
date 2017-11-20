@@ -8,10 +8,11 @@ package ru.alexandrdv.schooltester.util;
  */
 public class Question
 {
-	String question;
-	String[] answers;
-	int[] awards;
-	int[] fontSizes;
+	private String question;
+	private String[] answers;
+	private int award;
+	private int[] awards;
+	private int[] fontSizes;
 
 	/**
 	 * 
@@ -20,10 +21,11 @@ public class Question
 	 * @param awards
 	 * @param fontSizes
 	 */
-	public Question(String question, String[] answers, int[] awards, int[] fontSizes)
+	public Question(String question, int award, String[] answers, int[] awards, int[] fontSizes)
 	{
 		super();
 		this.question = question;
+		this.award = award;
 		this.answers = answers;
 		this.awards = awards;
 		this.fontSizes = fontSizes;
@@ -95,5 +97,14 @@ public class Question
 	public void setFontSizes(int[] fontSizes)
 	{
 		this.fontSizes = fontSizes;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getAward()
+	{
+		return this.award;
 	}
 }

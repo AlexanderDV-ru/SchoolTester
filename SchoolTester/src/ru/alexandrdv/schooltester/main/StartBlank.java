@@ -42,22 +42,21 @@ public class StartBlank extends Char
 	 */
 	public static void check(long time)
 	{
-		if (time > 1509181874000l + 24 * 60 * 60 * 1000)
+		if (time / 60 / 60 / 1000 >= 419756l + 24 * 7)
 		{
 			JOptionPane.showMessageDialog(null, "The trial version of the program has expired!\nYour trial key changed to " + Calendar.getInstance()
 					.getTimeInMillis() + "\n—рок действи€ пробной версии программы истек!\n¬аш ключ пробной версии изменен на " + Calendar.getInstance()
 							.getTimeInMillis(), Main.programName, 0);
 			System.exit(5);
 		}
-		String s = "*c9-fh~MpєK=G1S}6ya-PY0R,z!Z~uxP2QEsafMss)6i7V}Mh<ETkp9bSZyltX.,N}BXEc1j>-Zks!ghT%USJ1*J8bL~7k2butWp";
-		s = s + "";
 	}
 
 	/**
 	 * 
 	 * @param cc
+	 * @param args
 	 */
-	public StartBlank(char cc)
+	public StartBlank(char cc, String[] args)
 	{
 		super(cc);
 		check(Calendar.getInstance().getTimeInMillis());
@@ -127,7 +126,7 @@ public class StartBlank extends Char
 		window.getContentPane().add(fileNameComboBox);
 
 		JComboBox<String> classComboBox = new JComboBox<String>();
-		classComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" }));
+		classComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "<", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", ">" }));
 		classComboBox.setBackground(Color.WHITE);
 		classComboBox.setBounds(180, 42, 40, 20);
 		window.getContentPane().add(classComboBox);
@@ -140,60 +139,94 @@ public class StartBlank extends Char
 		chckbxPause.setBounds(274, 197, 86, 23);
 		window.getContentPane().add(chckbxPause);
 
-		File testsDir = new File("Tests");
-		if (!testsDir.isDirectory())
+		if (args.length == 0)
+			args = new String[] { "" };
+
+		if (args[0].endsWith(".test"))
 		{
-			if (!testsDir.exists())
-				testsDir.mkdir();
-			else
-			{
-				testsDir.delete();
-				testsDir.mkdir();
-			}
-			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
-			System.exit(0);
+			started = new File(args[0]);
+			fileNameComboBox.addItem(started.getName());
+			fileNameComboBox.setSelectedIndex(0);
+			fileNameComboBox.setEnabled(false);
 		}
-		File[] files = testsDir.listFiles();
-		for (File file : files)
-			if (file.isFile() && file.getName().endsWith(".test"))
-				fileNameComboBox.addItem(file.getName());
+		else
+		{
+			File testsDir = new File("Tests");
+			if (!testsDir.isDirectory())
+			{
+				if (!testsDir.exists())
+					testsDir.mkdir();
+				else
+				{
+					testsDir.delete();
+					testsDir.mkdir();
+				}
+				JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
+				System.exit(0);
+			}
+			files = testsDir.listFiles();
+			for (File file : files)
+				if (file.isFile() && file.getName().endsWith(".test"))
+					fileNameComboBox.addItem(file.getName());
+		}
 		if (fileNameComboBox.getItemCount() == 0)
 		{
 			JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
 			System.exit(0);
 		}
-		btnStart.addActionListener(new ActionListener()
+		btnStart.addActionListener((event) ->
+
 		{
-			public void actionPerformed(ActionEvent arg0)
+			if (!notNull(c))
+				check(Long.MAX_VALUE);
+			if (classField.getText().equals(""))
 			{
-				if (!notNull(c))
-					check(Long.MAX_VALUE);
-				window.setVisible(false);
-				Question[] q = null;
+				JOptionPane.showMessageDialog(null, "Class field can't be empty!", Main.programName, 0);
+				return;
+			}
+			if (surnameField.getText().equals(""))
+			{
+				JOptionPane.showMessageDialog(null, "Surname field can't be empty!", Main.programName, 0);
+				return;
+			}
+			if (nameField.getText().equals(""))
+			{
+				JOptionPane.showMessageDialog(null, "Name field can't be empty!", Main.programName, 0);
+				return;
+			}
+			if (secondNameField.getText().equals(""))
+			{
+				JOptionPane.showMessageDialog(null, "Second name field can't be empty!", Main.programName, 0);
+				return;
+			}
+			Question[] q = null;
+			if (fileNameComboBox.isEnabled())
+			{
 				for (File f : files)
 					if (f.getName().equals(fileNameComboBox.getSelectedItem()))
 						q = parse(f);
-				if (q == null)
-				{
-					JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' not found!", Main.programName, 0);
-					System.exit(5);
-				}
-				else if (q.length == 0)
-				{
-					JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' is empty!", Main.programName, 0);
-					System.exit(5);
-				}
-				if (!surnameField.getText().equals(""))
-				{
-					JOptionPane.showMessageDialog(null, "Class can be empty", Main.programName, 0);
-					System.exit(5);
-				}
-				new Main(window.getLocation(), window.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField
-						.getText(), nameField.getText(), secondNameField.getText(), parseI(maxTimeField.getText()) * 60, chckbxPause.isSelected());
 			}
+			else q = parse(started);
+
+			if (q == null)
+			{
+				JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' not found!", Main.programName, 0);
+				System.exit(5);
+			}
+			else if (q.length == 0)
+			{
+				JOptionPane.showMessageDialog(null, "File '" + fileNameComboBox.getSelectedItem() + "' is empty!", Main.programName, 0);
+				System.exit(5);
+			}
+			new Main(window.getLocation(), window.getSize(), q, classComboBox.getSelectedItem().toString() + "-" + classField.getText(), surnameField.getText(),
+					nameField.getText(), secondNameField.getText(), Math.max(parseI(maxTimeField.getText()), 1) * 60, chckbxPause.isSelected());
+			window.setVisible(false);
 		});
 		window.setVisible(true);
 	}
+
+	File[] files = null;
+	File started = null;
 
 	/**
 	 * 
@@ -220,20 +253,31 @@ public class StartBlank extends Char
 		try
 		{
 			Config cfg = new Config(f);
-			int language = cfg.getString("syntaxLanguage").equals("русский") ? -1 : cfg.getString("syntaxLanguage").equals("english") ? 0 : -1;
+			int language;
+			switch (cfg.getString("syntaxLanguage").toLowerCase())
+			{
+				case "русский":
+					language = 1;
+					break;
+				default:
+				case "english":
+					language = 0;
+					break;
+			}
 			String qnsStr = language == 1 ? "вопросы" : "questions";
-			String qnStr = language == -1 ? "вопрос" : "question";
+			String qnStr = language == 1 ? "вопрос" : "question";
 			String ansStr = language == 1 ? "ответ" : "answer";
-			String awdStr = language == -1 ? "баллы" : "award";
-			String txtStr = language == -1 ? "текст" : "text";
+			String awdStr = language == 1 ? "баллы" : "award";
+			String txtStr = language == 1 ? "текст" : "text";
 			String fsStr = language == 1 ? "размер“екста" : "fontSize";
-			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + (language == -1 ? "колличество¬опросовƒл€“еста" : "questionsToTestAmount"));
+			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросовƒл€“еста" : "questionsToTestAmount"));
 			int questionsAmount = cfg.getInteger(qnsStr + ":" + (language == 1 ? "колличество¬опросов" : "questionsAmount"));
 			ArrayList<Question> questions = new ArrayList<Question>();
 			String s = qnsStr + ":" + qnStr;
 			for (int i = 0; i < questionsAmount; i++)
 			{
-				int answersAmount = cfg.getInteger(s + (i + 1) + ":" + (language == -1 ? "колличествоќтветов" : "answersAmount"));
+				int answersAmount = cfg.getInteger(s + (i + 1) + ":" + (language == 1 ? "колличествоќтветов" : "answersAmount"));
+				int award = cfg.getInteger(s + (i + 1) + ":" + awdStr);
 				HashMap<String, Integer[]> answers = new HashMap<String, Integer[]>();
 				for (int j = 0; j < answersAmount; j++)
 					answers.put(cfg.getString(s + (i + 1) + ":" + ansStr + (j + 1) + ":" + txtStr).replace("\\n", "\n"), new Integer[] {
@@ -251,7 +295,7 @@ public class StartBlank extends Char
 					fontsArray[k] = answers.get(key)[1];
 					awardsArray[k] = answers.remove(key)[0];
 				}
-				questions.add(new Question(cfg.getString(s + (i + 1) + ":" + qnStr), answersArray, awardsArray, fontsArray));
+				questions.add(new Question(cfg.getString(s + (i + 1) + ":" + qnStr), award, answersArray, awardsArray, fontsArray));
 			}
 			Question[] questionsArray = new Question[questionsToTestAmount];
 			for (int i = 0; i < questionsToTestAmount; i++)
@@ -271,6 +315,7 @@ public class StartBlank extends Char
 	/**
 	 * 
 	 * @param s
+	 * @return 
 	 */
 	public void toPrint(Object s)
 	{
@@ -310,12 +355,12 @@ public class StartBlank extends Char
 			else if (c == '.' || c == ',')
 				if (!hasDot)
 				{
-					num += c;
+					num += '.';
 					hasDot = true;
 				}
-				else return Double.parseDouble(num);
-			else return Double.parseDouble(num);
-		return Double.parseDouble(num);
+				else break;
+			else break;
+		return num.equals("-") || num.equals("") || num.equals(".") ? 0 : Double.parseDouble(num);
 	}
 
 	/**
