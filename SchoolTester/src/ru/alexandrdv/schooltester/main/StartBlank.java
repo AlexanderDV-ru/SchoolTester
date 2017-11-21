@@ -24,7 +24,7 @@ import ru.alexandrdv.schooltester.util.Config;
 import ru.alexandrdv.schooltester.util.Question;
 
 /**
- * StartBlank
+ * StartBlank v1.7.0a
  * 
  * @author AlexandrDV
  *
@@ -253,6 +253,7 @@ public class StartBlank extends Char
 		try
 		{
 			Config cfg = new Config(f);
+			cfg.getText(true);
 			int language;
 			switch (cfg.getString("syntaxLanguage").toLowerCase())
 			{
@@ -292,8 +293,8 @@ public class StartBlank extends Char
 				{
 					String key = (String) answers.keySet().toArray()[new Random().nextInt(answers.size())];
 					answersArray[k] = key;
-					fontsArray[k] = answers.get(key)[1];
-					awardsArray[k] = answers.remove(key)[0];
+					awardsArray[k] = answers.get(key)[0];
+					fontsArray[k] = answers.remove(key)[1];
 				}
 				questions.add(new Question(cfg.getString(s + (i + 1) + ":" + qnStr), award, answersArray, awardsArray, fontsArray));
 			}

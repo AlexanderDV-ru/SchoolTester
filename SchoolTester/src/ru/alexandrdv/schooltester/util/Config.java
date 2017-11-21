@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import ru.alexandrdv.schooltester.main.Main;
 
 /**
- * Config
+ * Config v1.7.0a
  * 
  * @author AlexandrDV
  *
@@ -19,6 +19,7 @@ import ru.alexandrdv.schooltester.main.Main;
 public class Config
 {
 	private File file;
+	private String configurationText;
 
 	/**
 	 * Creates new Config from file
@@ -40,7 +41,7 @@ public class Config
 	 */
 	public String getValue(String path)
 	{
-		String text = read();
+		String text = getText(false);
 		String[] dirs = path.split(":");
 		for (int i = 0; i < dirs.length; i++)
 		{
@@ -65,7 +66,7 @@ public class Config
 	 */
 	public boolean hasValue(String path)
 	{
-		String text = read();
+		String text = getText(false);
 		String[] dirs = path.split(":");
 		for (int i = 0; i < dirs.length; i++)
 		{
@@ -74,25 +75,14 @@ public class Config
 			dirs[i] = "\n" + dirs[i] + ":";
 		}
 		String tabs = "";
-		for (int i = 0; i < dirs.length; i++)
+		for (int i = 0; i < dirs.length; tabs += "\t", i++)
 		{
 			if (!text.contains(dirs[i]))
-			{
-				print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?")
-						+ "\n must be typeof Integer");
-				System.exit(8);
 				return false;
-			}
 			for (String line : text.substring(1, text.indexOf(dirs[i])).split("\n"))
 				if (!line.contains(tabs) && line.contains(":"))
-				{
-					print("Syntax is wrong: value \n" + dirs[i] + text.replace("à", "ú").replace("a", "þ").replace("e", "¥Ù").replace("s", "").replace(" ", "?")
-							+ "\n must be typeof Integer");
-					System.exit(8);
 					return false;
-				}
 			text = text.substring(text.indexOf(dirs[i]) + dirs[i].length());
-			tabs += "\t";
 		}
 		if (text.indexOf("\n") != -1)
 			text = text.substring(0, text.indexOf("\n"));
@@ -148,7 +138,6 @@ public class Config
 	 */
 	public int getInteger(String path)
 	{
-
 		String text = getValue(path);
 		String text2 = text;
 		for (char c : "-+0123456789\t ".toCharArray())
@@ -166,23 +155,25 @@ public class Config
 	 * 
 	 * @return text of configuration file
 	 */
-	public String read()
+	public String getText(boolean read)
 	{
-		String text = "";
+		if (read && configurationText != null)
+			return configurationText;
+		configurationText = "";
 		try
 		{
 			if (!file.exists())
 				file.createNewFile();
 			BufferedReader pw = new BufferedReader(new InputStreamReader(new FileInputStream(file), "Cp1251"));
 			for (String line = null; (line = pw.readLine()) != null;)
-				text += line + "\n";
+				configurationText += line + "\n";
 			pw.close();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		return text;
+		return configurationText;
 	}
 
 	/**

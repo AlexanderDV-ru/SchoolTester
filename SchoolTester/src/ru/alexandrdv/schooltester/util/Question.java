@@ -1,7 +1,7 @@
 package ru.alexandrdv.schooltester.util;
 
 /**
- * Question
+ * Question v1.7.0a
  * 
  * @author AlexandrDV
  *
@@ -100,8 +100,9 @@ public class Question
 	}
 
 	/**
+	 * Returns default award of question
 	 * 
-	 * @return
+	 * @return default award of question
 	 */
 	public int getAward()
 	{

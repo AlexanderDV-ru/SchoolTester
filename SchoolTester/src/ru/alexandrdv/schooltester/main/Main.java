@@ -34,14 +34,14 @@ import ru.alexandrdv.schooltester.server.Server;
 import ru.alexandrdv.schooltester.util.Question;
 
 /**
- * Main
+ * Main v1.7.0a
  * 
  * @author AlexandrDV
  *
  */
 public class Main
 {
-	public static final String version = "1.4.0a";
+	public static final String version = "1.7.0a";
 	public static final String autors = "AlexandrDV";
 	public static final String programName = "SchoolTester v" + version + " by " + autors;
 	public static StartBlank c;
@@ -50,13 +50,12 @@ public class Main
 	private ButtonX[] btns = new ButtonX[6];
 	private ActionListener answersButtonsListener;
 	private int toPauseTime = 0;
-	private boolean finished = false;
 	private int maxResult;
 	private int maxTime = 20 * 60;
 	private float allTime = 0, timeOfWork = 0;
 	private int result = 0;
 	private int questionNumber = 0;
-	private long lastTime=0;
+	private long lastTime = 0;
 	private final Question[] objs;
 
 	/**
@@ -90,6 +89,7 @@ public class Main
 	}
 
 	/**
+	 * The main method of class Main
 	 * 
 	 * @param args
 	 */
@@ -102,7 +102,7 @@ public class Main
 				DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) + 10000);
 				socket.setSoTimeout(1000);
 				{
-					byte[] data = Server.writeToByteArray(new Server.Pack("checkUpdates",null));
+					byte[] data = Server.writeToByteArray(new Server.Pack("checkUpdates", null));
 					socket.send(new DatagramPacket(data, 0, data.length, InetAddress.getByName("94.181.44.135"), 21577));// отправление пакета
 				}
 				{
@@ -117,6 +117,7 @@ public class Main
 						launchBrowser(s2);
 					}
 				}
+				socket.close();
 			}
 			catch (UnknownHostException e)
 			{
@@ -125,10 +126,6 @@ public class Main
 			catch (SocketException e)
 			{
 				e.printStackTrace();// возникли ошибки при передаче данных
-			}
-			catch (FileNotFoundException e)
-			{
-				e.printStackTrace(); // не найден отправляемый файл
 			}
 			catch (IOException e)
 			{
@@ -157,14 +154,13 @@ public class Main
 	static class Char
 	{
 		public final Char c;
+		char[] cc;
 
 		public Char(char c)
 		{
 			this.c = this;
 			cc = getByChar().cc = new char[] { c };
 		}
-
-		char[] cc;
 
 		public Char getByChar()
 		{
@@ -263,15 +259,11 @@ public class Main
 		btn5.setBounds(20, 431, 393, 60);
 
 		ArrayList<ButtonX> buttons = new ArrayList<ButtonX>();
-		answersButtonsListener = new ActionListener()
+		answersButtonsListener = e ->
 		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				var = buttons.indexOf((ButtonX) e.getSource());
-				for (ButtonX button : buttons)
-					button.setClicked(buttons.indexOf(button) == var);
-			}
+			var = buttons.indexOf((ButtonX) e.getSource());
+			for (ButtonX button : buttons)
+				button.setClicked(buttons.indexOf(button) == var);
 		};
 		for (ButtonX btn : btns)
 		{
@@ -297,34 +289,21 @@ public class Main
 		timer.setTextColor(Color.black);
 		timer.setBounds(20, 507, 120, 42);
 		timer.setRounding(10);
-		timer.addActionListener(new ActionListener()
+		timer.addActionListener(e ->
 		{
-
-			@Override
-			public void actionPerformed(ActionEvent arg0)
+			if (Main.this.canPause && toPauseTime <= 0)
 			{
-				if (Main.this.canPause && toPauseTime <= 0)
-				{
-					question.setVisible(paused);
-					next.setVisible(paused);
-					for (int i = 0; i < objs[questionNumber].getAnswers().length; i++)
-						btns[i].setVisible(paused);
-					paused = !paused;
-					toPauseTime = 300;
-				}
-				timer.setClicked(paused);
-
+				question.setVisible(paused);
+				next.setVisible(paused);
+				for (int i = 0; i < objs[questionNumber].getAnswers().length; i++)
+					btns[i].setVisible(paused);
+				paused = !paused;
+				toPauseTime = 300;
 			}
-		});
-		info.addActionListener(new ActionListener()
-		{
+			timer.setClicked(paused);
 
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				info.setClicked(false);
-			}
 		});
+		info.addActionListener(e -> info.setClicked(false));
 
 		next.setNormalColor(new Color(204, 255, 51));
 		window.getContentPane().add(next);
@@ -334,64 +313,51 @@ public class Main
 			btnNewButton.setTextColor(Color.black);
 			btnNewButton.setBounds(293, 507, 120, 42);
 
-			btnNewButton.addActionListener(new ActionListener()
+			btnNewButton.addActionListener(e ->
 			{
-
-				@Override
-				public void actionPerformed(ActionEvent arg0)
+				try
 				{
-					try
-					{
-						result += objs[questionNumber].getAwards()[var];
-					}
-					catch (Exception exception)
-					{
-						exception.printStackTrace();
-					}
-					questionNumber++;
-					if (questionNumber == objs.length - 1)
-					{
-						btnNewButton.clearActionListeners();
-						btnNewButton.setText("Finish");
-						btnNewButton.addActionListener(new ActionListener()
-						{
-
-							@Override
-							public void actionPerformed(ActionEvent arg0)
-							{
-								finish(window, _class, surname, name, secondName);
-							}
-						});
-					}
-					if (questionNumber < objs.length)
-						openQuestion(question, info, questionNumber);
+					result += objs[questionNumber].getAwards()[var];
 				}
+				catch (Exception exception)
+				{
+					exception.printStackTrace();
+				}
+				questionNumber++;
+				if (questionNumber == objs.length - 1)
+				{
+					btnNewButton.clearActionListeners();
+					btnNewButton.setText("Finish");
+					btnNewButton.addActionListener(ev -> finish(window, _class, surname, name, secondName));
+				}
+				if (questionNumber < objs.length)
+					openQuestion(question, info, questionNumber);
 			});
 			openQuestion(question, info, questionNumber);
 		}
-		lastTime=Calendar.getInstance().getTimeInMillis();
-		new Timer(1, (e)->
+		lastTime = Calendar.getInstance().getTimeInMillis();
+		new Timer(1, e ->
+		{
+			/*if (finished)
 			{
-				if (finished)
-				{
-					if (c.cc[4] != '5')
-						StartBlank.check(Long.MAX_VALUE);
-					else return;
-				}
+				if (c.cc[4] != '5')
+					StartBlank.check(Long.MAX_VALUE);
+				else return;
+			}*/
+			long time=Calendar.getInstance().getTimeInMillis();
 
-				if (!paused)
-					timeOfWork += 0.002f;//((float)(Calendar.getInstance().getTimeInMillis()-lastTime))/1000f;
-				allTime += 0.002f;//((float)(Calendar.getInstance().getTimeInMillis()-lastTime))/1000f;
-				toPauseTime--;
-				timer.setText(!(finished = c.cc[4] != '5') ? toSize((maxTime - (int) timeOfWork) / 60, 2) + ":" + toSize((maxTime - (int) timeOfWork) % 60, 2)
-						: "");
-				if (timeOfWork >= maxTime)
-					finish(window, _class, surname, name, secondName);
-				StartBlank.check(Calendar.getInstance().getTimeInMillis());
-				lastTime=Calendar.getInstance().getTimeInMillis();
-			}
-		).start();
+			if (!paused)
+				timeOfWork += ((float) (time - lastTime)) / 1000f;
+			allTime += ((float) (time - lastTime)) / 1000f;
+			toPauseTime--;
+			timer.setText(toSize((maxTime - (int) timeOfWork) / 60, 2) + ":" + toSize((maxTime - (int) timeOfWork) % 60, 2));
+			if (timeOfWork >= maxTime)
+				finish(window, _class, surname, name, secondName);
+			StartBlank.check(Calendar.getInstance().getTimeInMillis());
+			lastTime = Calendar.getInstance().getTimeInMillis();
+		}).start();
 	}
+	
 
 	/**
 	 * 
@@ -403,8 +369,7 @@ public class Main
 	 */
 	public void finish(JFrame window, String _class, String surname, String name, String secondName)
 	{
-		finished = true;
-		if (var != -1)
+		if (var >=0)
 			result += objs[questionNumber].getAward() + objs[questionNumber].getAwards()[var];
 		showResult(window, _class, surname, name, secondName);
 		window.setVisible(false);
@@ -484,7 +449,7 @@ public class Main
 			btns[i].setClicked(false);
 		}
 		var = -1;
-		info.setText((questionNumber+1)+"/"+objs.length);
+		info.setText((questionNumber + 1) + "/" + objs.length);
 		question.setText(objs[questionNumber].getQuestion());
 	}
 
