@@ -11,9 +11,10 @@ import javax.swing.JOptionPane;
 import ru.alexandrdv.schooltester.main.Main;
 
 /**
- * Config v1.7.0a
+ * Config
  * 
  * @author AlexandrDV
+ * @version 2.0.0a
  *
  */
 public class Config
@@ -228,6 +229,12 @@ public class Config
 				else return Double.parseDouble(num);
 			else return Double.parseDouble(num);
 		return Double.parseDouble(num);
+	}
+
+	public boolean getBoolean(String string)
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

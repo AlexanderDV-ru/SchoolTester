@@ -1,34 +1,43 @@
 package ru.alexandrdv.schooltester.util;
 
+import java.awt.Font;
+
 /**
- * Question v1.7.0a
+ * Question
  * 
  * @author AlexandrDV
+ * @version 2.0.0a
  *
  */
 public class Question
 {
-	private String question;
-	private String[] answers;
-	private int award;
-	private int[] awards;
-	private int[] fontSizes;
+	private final String question;
+	private final int award;
+	private final boolean pickOneType;
+	private final Answer[] answers;
 
 	/**
 	 * 
 	 * @param question
+	 * @param award
+	 * @param pickOneType
 	 * @param answers
-	 * @param awards
-	 * @param fontSizes
 	 */
-	public Question(String question, int award, String[] answers, int[] awards, int[] fontSizes)
+	public Question(String question, int award, boolean pickOneType, Answer[] answers)
 	{
 		super();
 		this.question = question;
 		this.award = award;
+		this.pickOneType = pickOneType;
 		this.answers = answers;
-		this.awards = awards;
-		this.fontSizes = fontSizes;
+	}
+
+	/**
+	 * @return the pickOneType
+	 */
+	public boolean isPickOneType()
+	{
+		return pickOneType;
 	}
 
 	/**
@@ -40,63 +49,11 @@ public class Question
 	}
 
 	/**
-	 * @param question
-	 *            - question to set
-	 */
-	public void setQuestion(String question)
-	{
-		this.question = question;
-	}
-
-	/**
 	 * @return the answers
 	 */
-	public String[] getAnswers()
+	public Answer[] getAnswers()
 	{
 		return answers;
-	}
-
-	/**
-	 * @param answers
-	 *            the answers to set
-	 */
-	public void setAnswers(String[] answers)
-	{
-		this.answers = answers;
-	}
-
-	/**
-	 * @return the awards
-	 */
-	public int[] getAwards()
-	{
-		return awards;
-	}
-
-	/**
-	 * @param awards
-	 *            the awards to set
-	 */
-	public void setAwards(int[] awards)
-	{
-		this.awards = awards;
-	}
-
-	/**
-	 * @return the fontSizes
-	 */
-	public int[] getFontSizes()
-	{
-		return fontSizes;
-	}
-
-	/**
-	 * @param fontSizes
-	 *            the fontSizes to set
-	 */
-	public void setFontSizes(int[] fontSizes)
-	{
-		this.fontSizes = fontSizes;
 	}
 
 	/**
@@ -107,5 +64,49 @@ public class Question
 	public int getAward()
 	{
 		return this.award;
+	}
+
+	public static class Answer
+	{
+		private final String text;
+		private final Font font;
+		private final int award;
+
+		/**
+		 * 
+		 * @param award
+		 * @param text
+		 * @param font
+		 */
+		public Answer(String text, Font font, int award)
+		{
+			this.text = text;
+			this.font = font;
+			this.award = award;
+		}
+
+		/**
+		 * @return the award
+		 */
+		public int getAward()
+		{
+			return award;
+		}
+
+		/**
+		 * @return the text
+		 */
+		public String getText()
+		{
+			return text;
+		}
+
+		/**
+		 * @return the font
+		 */
+		public Font getFont()
+		{
+			return font;
+		}
 	}
 }
