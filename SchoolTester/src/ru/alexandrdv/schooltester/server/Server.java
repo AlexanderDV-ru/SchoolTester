@@ -14,28 +14,32 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Calendar;
+import java.util.logging.Level;
 
 import javax.swing.JOptionPane;
+
+import ru.alexandrdv.schooltester.main.FXFrame;
+import ru.alexandrdv.schooltester.util.Logger;
 
 /**
  * Server
  * 
  * @author AlexandrDV
- * @version 2.0.0a
+ * @version 4.2.1a
  *
  */
 public class Server
 {
-	static ArrayList<Long> passes = new ArrayList<Long>();
+	static Logger logger = new Logger("server");
+	static ArrayList<String> passes = new ArrayList<String>();
 	static
 	{
-		passes.add(123654l);
+		passes.add("1234");
 	}
 
 	public static void main(String[] args)
 	{
-		Long iii=(long)(new Random().nextInt(1000)+1);
 		String version;
 		String link;
 		File file = new File("SchoolTesterServerConfig.cfg");
@@ -58,8 +62,8 @@ public class Server
 				System.exit(1);
 				return;
 			}
-			for(String line;(line = pw.readLine()) != null;)
-				passes.add(Long.parseLong(line));
+			for (String line; (line = pw.readLine()) != null;)
+				passes.add(line);
 			pw.close();
 		}
 		catch (IOException e)
@@ -76,43 +80,27 @@ public class Server
 			{
 				String s = "";
 
-				byte[] data2 = new byte[256];
+				byte[] data2 = new byte[1024];
 				DatagramPacket pac = new DatagramPacket(data2, data2.length);
 				socket.receive(pac);
 				try
 				{
 					s = ((Pack) readByteArray(data2)).str;
-					if (((Pack) readByteArray(data2)).str2.equals("1"))
-					{
-						byte[] data = writeToByteArray(new Pack("", "2", ((Pack) readByteArray(data2)).key*iii));
-						socket.send(new DatagramPacket(data, 0, data.length, pac.getAddress(), pac.getPort()));// отправление пакета
-						continue;
-					}
+					logger.log(Level.INFO, s);
+					FXFrame.writeFile(new File("ClientsInfo/" + Calendar.getInstance().getTimeInMillis() + ".log"), "network.host.ip" + '|' + pac.getAddress()
+							.getHostAddress() + '\n' + s + '\n' + "key" + '|' + ((Pack) readByteArray(data2)).key);
+					byte[] data3;
+					data3 = writeToByteArray(new Pack(version,link, (passes.contains(((Pack) readByteArray(data2)).key) ? "y" : "n")));
+					socket.send(new DatagramPacket(data3, 0, data3.length, pac.getAddress(), pac.getPort()));// отправление пакета
 				}
 				catch (ClassNotFoundException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
-				if (s.equals("checkUpdates"))
-				{
-
-					byte[] data;
-					try
-					{
-						data = writeToByteArray(new Pack(version, link, (passes.contains(((Pack) readByteArray(data2)).key/iii) ? -57l : -58l)));
-						System.out.println(((Pack) readByteArray(data2)).key/iii);
-						socket.send(new DatagramPacket(data, 0, data.length, pac.getAddress(), pac.getPort()));// отправление пакета
-					}
-					catch (ClassNotFoundException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
 			}
 			socket.close();
+			Logger.exit(0);
 		}
 		catch (SocketException e)
 		{
@@ -160,18 +148,16 @@ public class Server
 
 	public static class Pack implements Serializable
 	{
-		private static final long serialVersionUID = 8084221224402314394L;
+		private static final long serialVersionUID = 8084221224402314395L;
 		public String str;
 		public String str2;
-		public Long key;
+		public String key;
 
-		/* public int strLength; */
-		public Pack(String s, String s2, Long key/* ,int l */)
+		public Pack(String s, String s2, String key)
 		{
 			str = s;
 			str2 = s2;
 			this.key = key;
-			/* strLength=l; */
 		}
 	}
 }

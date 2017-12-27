@@ -6,15 +6,20 @@ import java.awt.Font;
  * Question
  * 
  * @author AlexandrDV
- * @version 2.0.0a
+ * @version 4.2.1a
  *
  */
 public class Question
 {
-	private final String question;
+	private final String text;
+	private final Font font;
 	private final int award;
-	private final boolean pickOneType;
+	private final int minResult;
+	private final QuestionType type;
 	private final Answer[] answers;
+	private final int maxAward;
+	private final String ignoredCharacters;
+	private final boolean ignoreCase;
 
 	/**
 	 * 
@@ -23,29 +28,68 @@ public class Question
 	 * @param pickOneType
 	 * @param answers
 	 */
-	public Question(String question, int award, boolean pickOneType, Answer[] answers)
+	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, String ignoredCharacters, boolean ignoreCase)
 	{
 		super();
-		this.question = question;
+		this.text = text;
+		this.font = font;
 		this.award = award;
-		this.pickOneType = pickOneType;
+		this.minResult = minResult;
+		this.type = type;
 		this.answers = answers;
+		this.ignoredCharacters = ignoredCharacters;
+		this.ignoreCase = ignoreCase;
+
+		int max = 0;
+		for (int i = 0; i < answers.length; i++)
+			if (type == QuestionType.PickOne)
+				max = Math.max(max, answers[i].getAward());
+			else if (type == QuestionType.SelectSome)
+				max += Math.max(0, answers[i].getAward());
+			else if (type == QuestionType.EnterText)
+				max = Math.max(max, answers[i].getAward());
+		maxAward = award + max;
+
 	}
 
 	/**
-	 * @return the pickOneType
+	 * @return the minResult
 	 */
-	public boolean isPickOneType()
+	public int getMinResult()
 	{
-		return pickOneType;
+		return minResult;
 	}
 
 	/**
-	 * @return the question
+	 * @return the maxAward
 	 */
-	public String getQuestion()
+	public int getMaxAward()
 	{
-		return question;
+		return maxAward;
+	}
+
+	/**
+	 * @return the type of question
+	 */
+	public QuestionType getType()
+	{
+		return type;
+	}
+
+	/**
+	 * @return the text of question
+	 */
+	public String getText()
+	{
+		return text;
+	}
+
+	/**
+	 * @return the font of text
+	 */
+	public Font getFont()
+	{
+		return font;
 	}
 
 	/**
@@ -64,6 +108,22 @@ public class Question
 	public int getAward()
 	{
 		return this.award;
+	}
+
+	/**
+	 * @return the ignoredCharacters
+	 */
+	public String getIgnoredCharacters()
+	{
+		return ignoredCharacters;
+	}
+
+	/**
+	 * @return the ignoreCase
+	 */
+	public boolean isIgnoreCase()
+	{
+		return ignoreCase;
 	}
 
 	public static class Answer
@@ -108,5 +168,12 @@ public class Question
 		{
 			return font;
 		}
+	}
+
+	public static enum QuestionType
+	{
+		PickOne,
+		SelectSome,
+		EnterText
 	}
 }
