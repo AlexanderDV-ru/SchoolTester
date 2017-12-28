@@ -47,17 +47,16 @@ import ru.alexandrdv.schooltester.util.Question.QuestionType;
  * Main
  * 
  * @author AlexandrDV
- * @version 4.2.1a
+ * @version 4.3.0a
  *
  */
 public class Main
 {
-	public static final String version = "4.2.1a";
+	public static final String version = "4.3.0a";
 	public static final String authors = "AlexandrDV";
 	public static final String programName = "SchoolTester v" + version + " by " + authors;
 	public static final MessageSystem msgSys = new MessageSystem("en_uk");
 	public static final Logger logger = new Logger(programName);
-	public static StartBlank c;
 	private boolean paused = false, canPause, indicateAnswerQuality, indicateAnswersQuality;
 	private boolean[] selectedAnswers = new boolean[6];
 	private ButtonX[] btns = new ButtonX[6];

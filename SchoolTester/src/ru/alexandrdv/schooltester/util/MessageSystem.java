@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV
- * @version 4.2.1a
+ * @version 4.3.0a
  *
  */
 public class MessageSystem
@@ -96,9 +96,7 @@ public class MessageSystem
 			messages.get(language).put("ignoredCharacters", "ignoredCharacters");
 			messages.get(language).put("minimalResult", "minimalResult");
 			messages.get(language).put("questionsToTestAmount", "questionsToTestAmount");
-			messages.get(language).put("questionsAmount", "questionsAmount");
 			messages.get(language).put("answerFontSize", "answerFontSize");
-			messages.get(language).put("answersAmount", "answersAmount");
 		}
 
 		messages.put("ru_ru", new HashMap<String, String>());
@@ -116,7 +114,7 @@ public class MessageSystem
 					+ "3.1 Настоящий продукт предоставляется на условиях \"как есть\", со всеми возможными неисправностями, при этом настоящее соглашение не "
 					+ "подразумевает обязательств или условий применимости для определенной цели, точности или полноты ответов и ли результатов работы, гарантии "
 					+ "высокой квалификации, отсутствия вирусов, отсутствия небрежности при изготовлении продукта. ");
-			messages.get(language).put("schoolTester", "Школьный тестер");
+			messages.get(language).put("schoolTester", "School Tester");
 			messages.get(language).put("badKey", "Ваш ключ недействителен!");
 			messages.get(language).put("updateMsg", "Ваша программа устарела, пожалуйста, обновите вашу программу до версии ");
 
@@ -192,14 +190,12 @@ public class MessageSystem
 			messages.get(language).put("ignoredCharacters", "игноруемыеСимволы");
 			messages.get(language).put("minimalResult", "минимальныйРезультат");
 			messages.get(language).put("questionsToTestAmount", "колличествоВопросовДляТеста");
-			messages.get(language).put("questionsAmount", "колличествоВопросов");
 			messages.get(language).put("answerFontSize", "размерШрифтаОтвета");
-			messages.get(language).put("answersAmount", "колличествоОтветов");
 		}
 		messages.get("ru_ru").put("usersManualText", "Инструкция по эксплуатации\n"
-				+ "Программа предназначена для тестирования знаний. Программа состоит из двух частей тестирующей и основной. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Основная часть. Сверху есть панель настроек со вкладками \""
+				+ "Программа предназначена для тестирования знаний. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
 				+ getMsg("window", "ru_ru") + "\", \"" + getMsg("settings", "ru_ru") + "\", \"" + getMsg("help", "ru_ru") + "\". Во вкладке \"" + getMsg("help",
-						"ru_ru") + "\" есть \"" + getMsg("privatePolicy", "ru_ru") + "\" и \"" + getMsg("usersManual", "ru_ru") + "\". Во вкладке \"" + getMsg(
+						"ru_ru") + "\" есть \"" + getMsg("privacyPolicy", "ru_ru") + "\" и \"" + getMsg("usersManual", "ru_ru") + "\". Во вкладке \"" + getMsg(
 								"settings", "ru_ru") + "\" есть вкладка \"" + getMsg("language", "ru_ru")
 				+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \"" + getMsg("window", "ru_ru")
 				+ "\" можно переключить режим работы программы: выберите \"" + getMsg("testMode", "ru_ru") + "\" или \"" + getMsg("statsMode", "ru_ru")
@@ -208,7 +204,7 @@ public class MessageSystem
 				+ getMsg("name", "ru_ru") + "\" и поле ввода \"" + getMsg("secondName", "ru_ru") + "\". В режиме тестирования появляется также поле ввода \""
 				+ getMsg("timeToTest", "ru_ru") + "\", кнопка \"" + getMsg("start", "ru_ru") + "\", переключатель \"" + getMsg("none", "ru_ru")
 				+ "\", переключатель \"" + getMsg("indicateAnswerQuality", "ru_ru") + "\", зависящий от него флажок \"" + getMsg("indicateAnswersQuality",
-						"ru_ru") + "\", переключатель \"" + getMsg("goToAllAnswers", "ru_ru") + "\", флажок \"" + getMsg("skipBtn", "ru_ru") + "\", флажок \""
+						"ru_ru") + "\", переключатель \"" + getMsg("goToAllQuestions", "ru_ru") + "\", флажок \"" + getMsg("skipBtn", "ru_ru") + "\", флажок \""
 				+ getMsg("pause", "ru_ru") + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", "ru_ru") + "\", кнопка \"" + getMsg(
 						"savePropsToDefault", "ru_ru") + "\".");
 	}

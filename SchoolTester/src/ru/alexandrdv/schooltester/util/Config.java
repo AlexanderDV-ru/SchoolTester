@@ -16,12 +16,11 @@ import ru.alexandrdv.schooltester.main.Main;
  * Config
  * 
  * @author AlexandrDV
- * @version 4.0.0a
+ * @version 4.3.0a
  *
  */
 public class Config
 {
-	private static final MessageSystem msgSys = Main.msgSys;
 	private static final Logger logger = Main.logger;
 	private static final HashMap<String, Config> configs = new HashMap<String, Config>();
 	private File file;
@@ -242,7 +241,7 @@ public class Config
 			String[] dirs = path.split(":");
 			for (int i = 0; i < dirs.length; i++)
 			{
-				for (int j = 1; j < i; j++)
+				for (int j = 0; j < i; j++)
 					dirs[i] = "\t" + dirs[i];
 				dirs[i] = "\n" + dirs[i] + ":";
 			}
@@ -260,6 +259,12 @@ public class Config
 				text = text.substring(0, text.indexOf("\n"));
 
 			return true;
+		}
+		
+		public boolean fals(String text)
+		{
+			System.out.println(text);
+			return false;
 		}
 
 		public String safetyGetValue(String text, String path, String safeValue)

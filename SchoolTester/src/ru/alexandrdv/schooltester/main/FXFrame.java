@@ -2,6 +2,7 @@ package ru.alexandrdv.schooltester.main;
 
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JDialog;
@@ -48,18 +50,21 @@ import ru.alexandrdv.schooltester.util.Config;
 import ru.alexandrdv.schooltester.util.Logger;
 import ru.alexandrdv.schooltester.util.MessageSystem;
 import ru.alexandrdv.schooltester.util.Question;
+import ru.alexandrdv.schooltester.util.Config.TabParser;
+import ru.alexandrdv.schooltester.util.Question.Answer;
+import ru.alexandrdv.schooltester.util.Question.QuestionType;
 
 /**
  * FXFrame
  * 
  * @author AlexandrDV
- * @version 4.2.1a
+ * @version 4.3.0a
  *
  */
 public class FXFrame extends Application
 {
 	private static final MessageSystem msgSys = Main.msgSys;
-	private static final Logger logger = Main.logger;
+	private static final Random random = new Random();
 
 	@FXML
 	private RadioMenuItem testMode, statsMode;
@@ -421,14 +426,14 @@ public class FXFrame extends Application
 				for (File f : files)
 					if (f.getName().equals(selectedFileName))
 					{
-						q = StartBlank.parse(f);
+						q = parse(f);
 						name = f.getName();
 						break;
 					}
 			}
 			else
 			{
-				q = StartBlank.parse(started);
+				q = parse(started);
 				name = started.getName();
 			}
 
@@ -715,5 +720,202 @@ public class FXFrame extends Application
 		d.setSize(512, 512);
 
 		d.setVisible(true);
+	}
+
+//	/**
+//	 * 
+//	 * @param f
+//	 * @return parsed to Question array configuration file
+//	 */
+//	public static Question[] _parse(File f)
+//	{
+//		if (!f.exists())
+//			return null;
+//		try
+//		{
+//			Config cfg = Config.getConfig(f);
+//			cfg.getText(true);
+//			if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage"))
+//			{
+//				TabParser.print("Syntax is wrong: .test file must have properties - 'syntaxLanguage' and 'version'!");
+//				Logger.exit(10);
+//			}
+//			String syntaxLanguage = cfg.getString("syntaxLanguage").toLowerCase();
+//			switch (syntaxLanguage)
+//			{
+//				case "ru_ru":
+//				case "en_uk":
+//					break;
+//				default:
+//					TabParser.print("Syntax language '" + syntaxLanguage + "' is not supported!");
+//					Logger.exit(11);
+//					break;
+//			}
+//			if (!cfg.getString("version").equals(Main.version))
+//				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+//			TabParser parser = new TabParser();
+//			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
+//			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
+//			String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
+//			String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
+//			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
+//			String potStr = MessageSystem.getMsg("questionType", syntaxLanguage);
+//			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
+//			String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
+//			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
+//			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
+//			String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
+//			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage));
+//			int questionsAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsAmount", syntaxLanguage));
+//			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 16);
+//			int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
+//			int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
+//			ArrayList<Question> questions = new ArrayList<Question>();
+//			String s = qnsStr + ":" + qnStr;
+//			String question = cfg.getObject(s + 1, true);
+//			for (int i = 0; i < questionsAmount; i++, question = cfg.getObject(s + (i + 1), true))
+//			{
+//				int dqaFont = parser.safetyGetInteger(question, anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont);
+//				int answersAmount = parser.getInteger(question, anrsStr + ":" + MessageSystem.getMsg("answersAmount", syntaxLanguage));
+//				ArrayList<Answer> answers = new ArrayList<Answer>();
+//				String answer = parser.getObject(question, anrsStr + ":" + ansStr + 1, true);
+//				for (int j = 0; j < answersAmount; j++, answer = parser.getObject(question, anrsStr + ":" + ansStr + (j + 1), true))
+//					answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
+//							fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
+//				QuestionType type;
+//				switch (parser.safetyGetString(question, potStr, "PickOne"))
+//				{
+//					case "EnterText":
+//						type = QuestionType.EnterText;
+//						break;
+//					case "PickOne":
+//						type = QuestionType.PickOne;
+//						break;
+//					case "SelectSome":
+//						type = QuestionType.SelectSome;
+//						break;
+//					default:
+//						TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
+//								+ " must be 'EnterText', 'PickOne' or 'SelectSome'!");
+//						Logger.exit(18);
+//						return null;
+//
+//				}
+//
+//				questions.add(new Question(parser.getString(question, txtStr), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(question, fsStr, dqFont)),
+//						parser.safetyGetInteger(question, awdStr, 0), parser.safetyGetInteger(question, minResStr, stMinRes), type, randomizeToArray(answers,
+//								new Answer[answersAmount]), parser.safetyGetString(question, igrdChrsStr, ""), parser.safetyGetBoolean(question, igreCaseStr,
+//										true)));
+//			}
+//			return randomizeToArray(questions, new Question[questionsToTestAmount]);
+//		}
+//		catch (Exception exception)
+//		{
+//			exception.printStackTrace();
+//			Logger.exit(-1);
+//		}
+//		return new Question[0];
+//	}
+
+	/**
+	 * 
+	 * @param f
+	 * @return parsed to Question array configuration file
+	 */
+	public static Question[] parse(File f)
+	{
+		if (!f.exists())
+			return null;
+		try
+		{
+			Config cfg = Config.getConfig(f);
+			cfg.getText(true);
+			if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage"))
+			{
+				TabParser.print("Syntax is wrong: .test file must have properties - 'syntaxLanguage' and 'version'!");
+				Logger.exit(10);
+			}
+			String syntaxLanguage = cfg.getString("syntaxLanguage").toLowerCase();
+			switch (syntaxLanguage)
+			{
+				case "ru_ru":
+				case "en_uk":
+					break;
+				default:
+					TabParser.print("Syntax language '" + syntaxLanguage + "' is not supported!");
+					Logger.exit(11);
+					break;
+			}
+			if (!cfg.getString("version").equals(Main.version))
+				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+			TabParser parser = new TabParser();
+			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
+			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
+			String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
+			String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
+			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
+			String potStr = MessageSystem.getMsg("questionType", syntaxLanguage);
+			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
+			String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
+			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
+			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
+			String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
+			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage));
+			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 10);
+			int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
+			int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
+			ArrayList<Question> questions = new ArrayList<Question>();
+			String s = qnsStr + ":" + qnStr;
+			String question = cfg.getObject(s + 1, true);
+			for (int i = 0; cfg.hasValue(s + (i + 1)); i++, question = cfg.getObject(s + (i + 1), true))
+			{
+				int dqaFont = parser.safetyGetInteger(question, anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont);
+				ArrayList<Answer> answers = new ArrayList<Answer>();
+				String answer = parser.getObject(question, anrsStr + ":" + ansStr + 1, true);
+				for (int j = 0; parser.hasValue(question, anrsStr + ":" + ansStr + (j + 1)); j++, answer = parser.getObject(question, anrsStr + ":" + ansStr + (j + 1), true))
+					answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
+							fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
+				QuestionType type;
+				switch (parser.safetyGetString(question, potStr, "PickOne"))
+				{
+					case "EnterText":
+						type = QuestionType.EnterText;
+						break;
+					case "PickOne":
+						type = QuestionType.PickOne;
+						break;
+					case "SelectSome":
+						type = QuestionType.SelectSome;
+						break;
+					default:
+						TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
+								+ " must be 'EnterText', 'PickOne' or 'SelectSome'!");
+						Logger.exit(18);
+						return null;
+
+				}
+
+				questions.add(new Question(parser.getString(question, txtStr), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(question, fsStr, dqFont)),
+						parser.safetyGetInteger(question, awdStr, 0), parser.safetyGetInteger(question, minResStr, stMinRes), type, randomizeToArray(answers,
+								new Answer[answers.size()]), parser.safetyGetString(question, igrdChrsStr, ""), parser.safetyGetBoolean(question, igreCaseStr,
+										true)));
+			}
+			return randomizeToArray(questions, new Question[questionsToTestAmount]);
+		}
+		catch (Exception exception)
+		{
+			exception.printStackTrace();
+			Logger.exit(-1);
+		}
+		return new Question[0];
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <Type> Type[] randomizeToArray(ArrayList<Type> list, Type[] array)
+	{
+		list = (ArrayList<Type>) list.clone();
+		for (int i = 0; i < array.length; i++)
+			array[i] = list.remove(random.nextInt(list.size()));
+		return array;
 	}
 }
