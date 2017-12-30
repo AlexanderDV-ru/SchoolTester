@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -41,19 +40,18 @@ import ru.alexandrdv.components.ButtonX;
 import ru.alexandrdv.schooltester.util.Logger;
 import ru.alexandrdv.schooltester.util.MessageSystem;
 import ru.alexandrdv.schooltester.util.Question;
-import ru.alexandrdv.schooltester.util.Question.Answer;
 import ru.alexandrdv.schooltester.util.Question.QuestionType;
 
 /**
  * Main
  * 
  * @author AlexandrDV
- * @version 4.3.2a
+ * @version 4.3.5a
  *
  */
 public class Main
 {
-	public static final String version = "4.3.2a";
+	public static final String version = "4.3.5a";
 	public static final String authors = "AlexandrDV";
 	public static final String programName = "SchoolTester v" + version + " by " + authors;
 	public static final MessageSystem msgSys = new MessageSystem("en_uk");

@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV
- * @version 4.3.2a
+ * @version 4.3.5a
  *
  */
 public class MessageSystem

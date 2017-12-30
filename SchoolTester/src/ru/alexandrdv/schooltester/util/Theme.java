@@ -2,6 +2,14 @@ package ru.alexandrdv.schooltester.util;
 
 import java.awt.Color;
 
+/**
+ * 
+ * Theme
+ * 
+ * @author AlexandrDV
+ * @version 4.3.5a
+ *
+ */
 public class Theme
 {
 	public Color windowBackground = new Color(255, 255, 220);

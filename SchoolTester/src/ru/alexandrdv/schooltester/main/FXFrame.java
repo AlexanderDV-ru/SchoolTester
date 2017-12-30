@@ -59,7 +59,7 @@ import ru.alexandrdv.schooltester.util.Theme;
  * FXFrame
  * 
  * @author AlexandrDV
- * @version 4.3.0a
+ * @version 4.3.5a
  *
  */
 public class FXFrame extends Application
@@ -832,9 +832,9 @@ public class FXFrame extends Application
 		{
 			Config cfg = Config.getConfig(f);
 			cfg.getText(true);
-			if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage"))
+			if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage") || !cfg.hasValue("colorType"))
 			{
-				TabParser.print("Syntax is wrong: .test file must have properties - 'syntaxLanguage' and 'version'!");
+				TabParser.print("Syntax is wrong: .test file must contains properties - 'syntaxLanguage', 'colorType' and 'version'!");
 				Logger.exit(10);
 			}
 			String syntaxLanguage = cfg.getString("syntaxLanguage").toLowerCase();
@@ -850,6 +850,8 @@ public class FXFrame extends Application
 			}
 			if (!cfg.getString("version").equals(Main.version))
 				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+			
+//			String colorType=cfg.getString("colorType");
 
 			Theme theme = new Theme();
 			String themeS = MessageSystem.getMsg("theme", syntaxLanguage) + ":";
