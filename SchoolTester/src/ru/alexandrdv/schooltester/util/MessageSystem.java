@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV
- * @version 4.3.0a
+ * @version 4.3.2a
  *
  */
 public class MessageSystem
@@ -19,8 +19,6 @@ public class MessageSystem
 		messages.put("en_uk", new HashMap<String, String>());
 		{
 			String language = "en_uk";
-			messages.get(language).put("privacyPolicyText", "Privacy Policy\n"
-					+ "In the event you read this Privacy Policy in any language other than Russian, you agree that in the event of any discrepancies, the Russian version shall prevail.");
 			messages.get(language).put("schoolTester", "School Tester");
 			messages.get(language).put("badKey", "Your key is invalid!");
 			messages.get(language).put("updateMsg", "Your program is out of date, please, update your program to version ");
@@ -33,6 +31,7 @@ public class MessageSystem
 			messages.get(language).put("testMode", "Test mode");
 			messages.get(language).put("language", "Language");
 			messages.get(language).put("privacyPolicy", "Privacy Policy");
+			messages.get(language).put("usersManual", "Users manual");
 
 			messages.get(language).put("testFileName", "Test file name");
 			messages.get(language).put("class", "Class");
@@ -97,23 +96,29 @@ public class MessageSystem
 			messages.get(language).put("minimalResult", "minimalResult");
 			messages.get(language).put("questionsToTestAmount", "questionsToTestAmount");
 			messages.get(language).put("answerFontSize", "answerFontSize");
+
+			messages.get(language).put("theme", "theme");
+			messages.get(language).put("window", "window");
+			messages.get(language).put("background", "background");
+			messages.get(language).put("foreground", "foreground");
+			messages.get(language).put("frame", "frame");
+			messages.get(language).put("red", "red");
+			messages.get(language).put("green", "green");
+			messages.get(language).put("blue", "blue");
+			messages.get(language).put("question", "question");
+			messages.get(language).put("answers", "answers");
+			messages.get(language).put("pickOne", "pickOne");
+			messages.get(language).put("selectSome", "selectSome");
+			messages.get(language).put("enterText", "enterText");
+			messages.get(language).put("questionSelect", "questionSelect");
+			messages.get(language).put("specialButtons", "specialButtons");
+			messages.get(language).put("normal", "normal");
+			messages.get(language).put("skipped", "skipped");
 		}
 
 		messages.put("ru_ru", new HashMap<String, String>());
 		{
 			String language = "ru_ru";
-			messages.get(language).put("privacyPolicyText", "Политика конфиденциальности\n"
-					+ "0.1 При использовании программы вы соглашаетесь с данными условиями.\n"
-					+ "0.2 Если вы читаете настоящую Политику конфиденциальности не на русском языке, вы соглашаетесь с тем, что, в случае любых разночтений, "
-					+ "преимущественную силу будет иметь русская версия.\n"
-					+ "1.1 Программа передает на сервер данные о вашем IP адресе, сетевом имени компьютера, Mac адресе, версии java, местонахождении java, "
-					+ "версии OC, названии OC, архитектуре OC, имени пользователя, версии программы и местонахождении программы\n"
-					+ "2.1 ЗАПРЕЩАЕТСЯ изучать технологию, эмулировать, создавать новые версии, изменять, декомпилировать, дизассемблировать, изучать код программы "
-					+ "другими способами. Распространение и применение программных продуктов, модифицирующих (изменяющих) исходный программный код программы "
-					+ "\"SchoolTester\" (за исключением официальных обновлений) влечет за собой ответственность.\n"
-					+ "3.1 Настоящий продукт предоставляется на условиях \"как есть\", со всеми возможными неисправностями, при этом настоящее соглашение не "
-					+ "подразумевает обязательств или условий применимости для определенной цели, точности или полноты ответов и ли результатов работы, гарантии "
-					+ "высокой квалификации, отсутствия вирусов, отсутствия небрежности при изготовлении продукта. ");
 			messages.get(language).put("schoolTester", "School Tester");
 			messages.get(language).put("badKey", "Ваш ключ недействителен!");
 			messages.get(language).put("updateMsg", "Ваша программа устарела, пожалуйста, обновите вашу программу до версии ");
@@ -191,9 +196,39 @@ public class MessageSystem
 			messages.get(language).put("minimalResult", "минимальныйРезультат");
 			messages.get(language).put("questionsToTestAmount", "колличествоВопросовДляТеста");
 			messages.get(language).put("answerFontSize", "размерШрифтаОтвета");
+			
+			messages.get(language).put("theme", "тема");
+			messages.get(language).put("window", "окно");
+			messages.get(language).put("background", "цветФона");
+			messages.get(language).put("foreground", "цветТекста");
+			messages.get(language).put("frame", "цветРамки");
+			messages.get(language).put("red", "красный");
+			messages.get(language).put("green", "зеленый");
+			messages.get(language).put("blue", "синий");
+			messages.get(language).put("question", "вопрос");
+			messages.get(language).put("answers", "ответы");
+			messages.get(language).put("pickOne", "выборОдного");
+			messages.get(language).put("selectSome", "выборНескольких");
+			messages.get(language).put("enterText", "вводТекста");
+			messages.get(language).put("questionSelect", "выборВопроса");
+			messages.get(language).put("specialButtons", "специальныеКнопки");
+			messages.get(language).put("normal", "нормальный");
+			messages.get(language).put("skipped", "пропущенный");
 		}
-		messages.get("ru_ru").put("usersManualText", "Инструкция по эксплуатации\n"
-				+ "Программа предназначена для тестирования знаний. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
+		messages.get("ru_ru").put("privacyPolicyText", getMsg("privacyPolicy", "ru_ru")+"\n"
+				+ "0.1 При использовании программы вы соглашаетесь с данными условиями.\n"
+				+ "0.2 Если вы читаете настоящую Политику конфиденциальности не на русском языке, вы соглашаетесь с тем, что, в случае любых разночтений, "
+				+ "преимущественную силу будет иметь русская версия.\n"
+				+ "1.1 Программа передает на сервер данные о вашем IP адресе, сетевом имени компьютера, Mac адресе, версии java, местонахождении java, "
+				+ "версии OC, названии OC, архитектуре OC, имени пользователя, версии программы и местонахождении программы\n"
+				+ "2.1 ЗАПРЕЩАЕТСЯ изучать технологию, эмулировать, создавать новые версии, изменять, декомпилировать, дизассемблировать, изучать код программы "
+				+ "другими способами. Распространение и применение программных продуктов, модифицирующих (изменяющих) исходный программный код программы "
+				+ "\"SchoolTester\" (за исключением официальных обновлений) влечет за собой ответственность.\n"
+				+ "3.1 Настоящий продукт предоставляется на условиях \"как есть\", со всеми возможными неисправностями, при этом настоящее соглашение не "
+				+ "подразумевает обязательств или условий применимости для определенной цели, точности или полноты ответов и ли результатов работы, гарантии "
+				+ "высокой квалификации, отсутствия вирусов, отсутствия небрежности при изготовлении продукта. ");
+		messages.get("ru_ru").put("usersManualText", getMsg("usersManual", "ru_ru")+"\n"
+				+ "Программа предназначена для тестирования учащихся. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
 				+ getMsg("window", "ru_ru") + "\", \"" + getMsg("settings", "ru_ru") + "\", \"" + getMsg("help", "ru_ru") + "\". Во вкладке \"" + getMsg("help",
 						"ru_ru") + "\" есть \"" + getMsg("privacyPolicy", "ru_ru") + "\" и \"" + getMsg("usersManual", "ru_ru") + "\". Во вкладке \"" + getMsg(
 								"settings", "ru_ru") + "\" есть вкладка \"" + getMsg("language", "ru_ru")
@@ -207,6 +242,23 @@ public class MessageSystem
 						"ru_ru") + "\", переключатель \"" + getMsg("goToAllQuestions", "ru_ru") + "\", флажок \"" + getMsg("skipBtn", "ru_ru") + "\", флажок \""
 				+ getMsg("pause", "ru_ru") + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", "ru_ru") + "\", кнопка \"" + getMsg(
 						"savePropsToDefault", "ru_ru") + "\".");
+		messages.get("en_uk").put("privacyPolicyText", getMsg("privacyPolicy", "en_uk")+"\n"
+				+ "In the event you read this Privacy Policy in any language other than Russian, you agree that in the event of any discrepancies, the Russian version shall prevail.");
+		messages.get("en_uk").put("usersManualText", getMsg("usersManual", "en_uk")+"\n"
+				+ "Программа предназначена для тестирования учащихся. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
+				+ getMsg("window", "en_uk") + "\", \"" + getMsg("settings", "en_uk") + "\", \"" + getMsg("help", "en_uk") + "\". Во вкладке \"" + getMsg("help",
+						"en_uk") + "\" есть \"" + getMsg("privacyPolicy", "en_uk") + "\" и \"" + getMsg("usersManual", "en_uk") + "\". Во вкладке \"" + getMsg(
+								"settings", "en_uk") + "\" есть вкладка \"" + getMsg("language", "en_uk")
+				+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \"" + getMsg("window", "en_uk")
+				+ "\" можно переключить режим работы программы: выберите \"" + getMsg("testMode", "en_uk") + "\" или \"" + getMsg("statsMode", "en_uk")
+				+ "\". В любом режиме работы программы под панелью настроек есть поле выбора \"" + getMsg("testFileName", "en_uk")
+				+ "\", поле выбора с полем ввода \"" + getMsg("class", "en_uk") + "\", поле ввода \"" + getMsg("surname", "en_uk") + "\", поле ввода \""
+				+ getMsg("name", "en_uk") + "\" и поле ввода \"" + getMsg("secondName", "en_uk") + "\". В режиме тестирования появляется также поле ввода \""
+				+ getMsg("timeToTest", "en_uk") + "\", кнопка \"" + getMsg("start", "en_uk") + "\", переключатель \"" + getMsg("none", "en_uk")
+				+ "\", переключатель \"" + getMsg("indicateAnswerQuality", "en_uk") + "\", зависящий от него флажок \"" + getMsg("indicateAnswersQuality",
+						"en_uk") + "\", переключатель \"" + getMsg("goToAllQuestions", "en_uk") + "\", флажок \"" + getMsg("skipBtn", "en_uk") + "\", флажок \""
+				+ getMsg("pause", "en_uk") + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", "en_uk") + "\", кнопка \"" + getMsg(
+						"savePropsToDefault", "en_uk") + "\".");
 	}
 
 	public MessageSystem(String language)

@@ -41,18 +41,19 @@ import ru.alexandrdv.components.ButtonX;
 import ru.alexandrdv.schooltester.util.Logger;
 import ru.alexandrdv.schooltester.util.MessageSystem;
 import ru.alexandrdv.schooltester.util.Question;
+import ru.alexandrdv.schooltester.util.Question.Answer;
 import ru.alexandrdv.schooltester.util.Question.QuestionType;
 
 /**
  * Main
  * 
  * @author AlexandrDV
- * @version 4.3.0a
+ * @version 4.3.2a
  *
  */
 public class Main
 {
-	public static final String version = "4.3.0a";
+	public static final String version = "4.3.2a";
 	public static final String authors = "AlexandrDV";
 	public static final String programName = "SchoolTester v" + version + " by " + authors;
 	public static final MessageSystem msgSys = new MessageSystem("en_uk");
@@ -752,16 +753,13 @@ public class Main
 		window.setSize(451, 664);
 		window.setLocation(parent.x + parent.width / 2 - window.getWidth() / 2, parent.y + parent.height / 2 - window.getHeight() / 2);
 		window.setTitle(programName);
-		ArrayList<Image> icons=new ArrayList<>();
+		ArrayList<Image> icons = new ArrayList<>();
 		icons.add(new ImageIcon(getClass().getResource("/Icon16x.png")).getImage());
 		icons.add(new ImageIcon(getClass().getResource("/Icon32x.png")).getImage());
 		icons.add(new ImageIcon(getClass().getResource("/Icon48x.png")).getImage());
 		window.setIconImages(icons);
 		window.setDefaultCloseOperation(3);
 		window.setVisible(true);
-
-		Color bg = new Color(200, 70, 0);
-		Color fr = new Color(200, 0, 0);
 
 		ArrayList<ButtonX> buttons = new ArrayList<ButtonX>();
 		answersButtonsListener = (e) ->
@@ -790,11 +788,11 @@ public class Main
 
 		JPanel content = new JPanel();
 		window.getContentPane().add(content);
-		content.setBackground(SystemColor.info);
+		content.setBackground(FXFrame.theme.windowBackground);
 		content.setLayout(null);
-		question_1 = new ButtonX(bg, bg, bg, bg, bg, bg, bg, fr, fr, fr, fr, fr, fr, fr, "", new boolean[] { true, false, false, true });
+		question_1 = new ButtonX("", true, new boolean[] { true, false, false, true });
+		question_1.setEnabled(false);
 		question_1.setFont(new Font("Comic Sans Ms", 0, 16));
-		question_1.setTextColor(Color.black);
 		question_1.setBounds(5, 5, 424, 60);
 		content.add(question_1);
 
@@ -803,7 +801,7 @@ public class Main
 		content.add(btn0);
 
 		btn0.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn0.setTextColor(Color.black);
+		// btn0.setTextColor(Color.black);
 		btn0.setBounds(20, 70, 393, 60);
 
 		ButtonX btn1 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -811,7 +809,7 @@ public class Main
 		content.add(btn1);
 
 		btn1.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn1.setTextColor(Color.black);
+		// btn1.setTextColor(Color.black);
 		btn1.setBounds(20, 135, 393, 60);
 
 		ButtonX btn2 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -819,7 +817,7 @@ public class Main
 		content.add(btn2);
 
 		btn2.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn2.setTextColor(Color.black);
+		// btn2.setTextColor(Color.black);
 		btn2.setBounds(20, 200, 393, 60);
 
 		ButtonX btn3 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -827,7 +825,7 @@ public class Main
 		content.add(btn3);
 
 		btn3.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn3.setTextColor(Color.black);
+		// btn3.setTextColor(Color.black);
 		btn3.setBounds(20, 265, 393, 60);
 
 		ButtonX btn4 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -835,7 +833,7 @@ public class Main
 		content.add(btn4);
 
 		btn4.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn4.setTextColor(Color.black);
+		// btn4.setTextColor(Color.black);
 		btn4.setBounds(20, 330, 393, 60);
 
 		ButtonX btn5 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -843,7 +841,7 @@ public class Main
 		content.add(btn5);
 
 		btn5.setFont(new Font("Comic Sans Ms", 0, 16));
-		btn5.setTextColor(Color.black);
+		// btn5.setTextColor(Color.black);
 		btn5.setBounds(20, 395, 393, 60);
 
 		info_1 = new ButtonX("", true, new boolean[] { false, false, false, false });
@@ -852,25 +850,12 @@ public class Main
 		content.add(info_1);
 
 		info_1.setFont(new Font("Arial Bold", 1, 16));
-		info_1.setTextColor(Color.black);
+		// info_1.setTextColor(Color.black);
 		info_1.setBounds(157, 460, 120, 42);
 		info_1.setRounding(10);
 		info_1.addActionListener(e ->
 		{
 			frame = new JFrame();
-			frame.addWindowFocusListener(new WindowFocusListener()
-			{
-
-				@Override
-				public void windowLostFocus(WindowEvent e)
-				{
-				}
-
-				@Override
-				public void windowGainedFocus(WindowEvent e)
-				{
-				}
-			});
 			frame.setUndecorated(true);
 			int width = 120, height = 42;
 			frame.setSize(width, (!canGoToAllQuestions ? skipped.size() : questions.length) * height);
@@ -883,9 +868,17 @@ public class Main
 					ButtonX buttonX = new ButtonX(i + 1 + "/" + questions.length, true, new boolean[] { false, false, false, false });
 					if (skipped.contains(i))
 					{
-						buttonX.setNormalColor(Color.yellow);
-						buttonX.setNormalFrameColor(new Color(150, 150, 0));
+						buttonX.setNormalColor(FXFrame.theme.questionSelectSkippedBackground);
+						buttonX.setNormalFrameColor(FXFrame.theme.questionSelectSkippedFrame);
+						buttonX.setForeground(FXFrame.theme.questionSelectSkippedForeground);
 					}
+					else
+					{
+						buttonX.setNormalColor(FXFrame.theme.questionSelectNormalBackground);
+						buttonX.setNormalFrameColor(FXFrame.theme.questionSelectNormalFrame);
+						buttonX.setForeground(FXFrame.theme.questionSelectNormalForeground);
+					}
+
 					int q = i;
 					buttonX.addActionListener(event ->
 					{
@@ -906,7 +899,7 @@ public class Main
 		next.setRounding(10);
 		next.setNormalColor(new Color(204, 255, 51));
 		next.setFont(new Font("Comic Sans Ms", 0, 16));
-		next.setTextColor(Color.black);
+		// next.setTextColor(Color.black);
 		next.setBounds(293, 460, 120, 42);
 		next.addActionListener(e -> next());
 		content.add(next);
@@ -915,7 +908,7 @@ public class Main
 		finish.setRounding(10);
 		finish.setNormalColor(new Color(204, 255, 51));
 		finish.setFont(new Font("Comic Sans Ms", 0, 16));
-		finish.setTextColor(Color.black);
+		// finish.setTextColor(Color.black);
 		finish.setBounds(293, 460, 120, 42);
 		finish.addActionListener(e -> finish(window, _class, surname, name, secondName));
 		content.add(finish);
@@ -925,7 +918,7 @@ public class Main
 		skip.setRounding(10);
 		skip.setNormalColor(new Color(204, 255, 51));
 		skip.setFont(new Font("Comic Sans Ms", 0, 16));
-		skip.setTextColor(Color.black);
+		// skip.setTextColor(Color.black);
 		skip.setBounds(20, 510, 393, 42);
 		skip.addActionListener(e -> skip());
 		content.add(skip);
@@ -934,25 +927,10 @@ public class Main
 		content.add(timer);
 
 		timer.setFont(new Font("Arial Bold", 1, 16));
-		timer.setTextColor(Color.black);
+		// timer.setTextColor(Color.black);
 		timer.setBounds(20, 460, 120, 42);
 		timer.setRounding(10);
-		timer.addActionListener(e ->
-		{
-			if (Main.this.canPause && toPauseTime <= 0)
-			{
-				question_1.setVisible(paused);
-				next.setVisible(paused);
-				skip.setVisible(paused);
-				info_1.setVisible(paused);
-				for (int i = 0; i < questions[questionNumber].getAnswers().length; i++)
-					btns[i].setVisible(paused);
-				paused = !paused;
-				toPauseTime = 300;
-				timer.setClicked(paused);
-			}
-
-		});
+		timer.addActionListener(e -> pause());
 
 		window.addKeyListener(new KeyListener()
 		{
@@ -1077,6 +1055,24 @@ public class Main
 			}
 		}
 		changeLanguage();
+	}
+
+	public void pause()
+	{
+		if (Main.this.canPause && toPauseTime <= 0)
+		{
+			question_1.setVisible(paused);
+			next.setVisible(paused);
+			skip.setVisible(paused);
+			info_1.setVisible(paused);
+			if (questions[questionNumber].getType() == QuestionType.EnterText)
+				btns[0].setVisible(paused);
+			else for (int i = 0; i < questions[questionNumber].getAnswers().length; i++)
+				btns[i].setVisible(paused);
+			paused = !paused;
+			toPauseTime = 300;
+			timer.setClicked(paused);
+		}
 	}
 
 	/**
@@ -1304,10 +1300,66 @@ public class Main
 				btns[i].setClicked(false);
 			}
 		}
+		switch (questions[questionNumber].getType())
+		{
+			case PickOne:
+				question_1.setDisabledColor(FXFrame.theme.pickOneQuestionBackground);
+				question_1.setDisabledFrameColor(FXFrame.theme.pickOneQuestionFrame);
+				question_1.setDisabledTextColor(FXFrame.theme.pickOneQuestionForeground);
+
+				for (ButtonX answer : btns)
+				{
+					answer.setNormalColor(FXFrame.theme.pickOneAnswersBackground);
+					answer.setNormalFrameColor(FXFrame.theme.pickOneAnswersFrame);
+					answer.setForeground(FXFrame.theme.pickOneAnswersForeground);
+				}
+				break;
+			case SelectSome:
+				question_1.setDisabledColor(FXFrame.theme.selectSomeQuestionBackground);
+				question_1.setDisabledFrameColor(FXFrame.theme.selectSomeQuestionFrame);
+				question_1.setDisabledTextColor(FXFrame.theme.selectSomeQuestionForeground);
+
+				for (ButtonX answer : btns)
+				{
+					answer.setNormalColor(FXFrame.theme.selectSomeAnswersBackground);
+					answer.setNormalFrameColor(FXFrame.theme.selectSomeAnswersFrame);
+					answer.setForeground(FXFrame.theme.selectSomeAnswersForeground);
+				}
+				break;
+			case EnterText:
+				question_1.setDisabledColor(FXFrame.theme.enterTextQuestionBackground);
+				question_1.setDisabledFrameColor(FXFrame.theme.enterTextQuestionFrame);
+				question_1.setDisabledTextColor(FXFrame.theme.enterTextQuestionForeground);
+
+				for (ButtonX answer : btns)
+				{
+					answer.setNormalColor(FXFrame.theme.enterTextAnswersBackground);
+					answer.setNormalFrameColor(FXFrame.theme.enterTextAnswersFrame);
+					answer.setForeground(FXFrame.theme.enterTextAnswersForeground);
+				}
+				break;
+		}
+		timer.setNormalColor(FXFrame.theme.specialButtonsBackground);
+		timer.setNormalFrameColor(FXFrame.theme.specialButtonsFrame);
+		timer.setForeground(FXFrame.theme.specialButtonsForeground);
+		info_1.setNormalColor(FXFrame.theme.specialButtonsBackground);
+		info_1.setNormalFrameColor(FXFrame.theme.specialButtonsFrame);
+		info_1.setForeground(FXFrame.theme.specialButtonsForeground);
+		next.setNormalColor(FXFrame.theme.specialButtonsBackground);
+		next.setNormalFrameColor(FXFrame.theme.specialButtonsFrame);
+		next.setForeground(FXFrame.theme.specialButtonsForeground);
+		finish.setNormalColor(FXFrame.theme.specialButtonsBackground);
+		finish.setNormalFrameColor(FXFrame.theme.specialButtonsFrame);
+		finish.setForeground(FXFrame.theme.specialButtonsForeground);
+		skip.setNormalColor(FXFrame.theme.specialButtonsBackground);
+		skip.setNormalFrameColor(FXFrame.theme.specialButtonsFrame);
+		skip.setForeground(FXFrame.theme.specialButtonsForeground);
+
 		if (!skipped.contains(questionNumber))
 			lastNotSkipped = questionNumber;
 		selectedAnswers = new boolean[questions[questionNumber].getAnswers().length];
 		info.setText((questionNumber + 1) + "/" + questions.length);
+		question_1.setFont(new Font(question_1.getFont().getFontName(), question_1.getFont().getStyle(), questions[questionNumber].getFont().getSize()));
 		question_1.setText(questions[questionNumber].getText());
 
 		next.setVisible(!(questionNumber >= questions.length - 1));

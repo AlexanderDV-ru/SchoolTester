@@ -53,6 +53,7 @@ import ru.alexandrdv.schooltester.util.Question;
 import ru.alexandrdv.schooltester.util.Config.TabParser;
 import ru.alexandrdv.schooltester.util.Question.Answer;
 import ru.alexandrdv.schooltester.util.Question.QuestionType;
+import ru.alexandrdv.schooltester.util.Theme;
 
 /**
  * FXFrame
@@ -722,100 +723,101 @@ public class FXFrame extends Application
 		d.setVisible(true);
 	}
 
-//	/**
-//	 * 
-//	 * @param f
-//	 * @return parsed to Question array configuration file
-//	 */
-//	public static Question[] _parse(File f)
-//	{
-//		if (!f.exists())
-//			return null;
-//		try
-//		{
-//			Config cfg = Config.getConfig(f);
-//			cfg.getText(true);
-//			if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage"))
-//			{
-//				TabParser.print("Syntax is wrong: .test file must have properties - 'syntaxLanguage' and 'version'!");
-//				Logger.exit(10);
-//			}
-//			String syntaxLanguage = cfg.getString("syntaxLanguage").toLowerCase();
-//			switch (syntaxLanguage)
-//			{
-//				case "ru_ru":
-//				case "en_uk":
-//					break;
-//				default:
-//					TabParser.print("Syntax language '" + syntaxLanguage + "' is not supported!");
-//					Logger.exit(11);
-//					break;
-//			}
-//			if (!cfg.getString("version").equals(Main.version))
-//				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
-//			TabParser parser = new TabParser();
-//			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
-//			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
-//			String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
-//			String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
-//			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
-//			String potStr = MessageSystem.getMsg("questionType", syntaxLanguage);
-//			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
-//			String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
-//			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
-//			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
-//			String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
-//			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage));
-//			int questionsAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsAmount", syntaxLanguage));
-//			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 16);
-//			int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
-//			int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
-//			ArrayList<Question> questions = new ArrayList<Question>();
-//			String s = qnsStr + ":" + qnStr;
-//			String question = cfg.getObject(s + 1, true);
-//			for (int i = 0; i < questionsAmount; i++, question = cfg.getObject(s + (i + 1), true))
-//			{
-//				int dqaFont = parser.safetyGetInteger(question, anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont);
-//				int answersAmount = parser.getInteger(question, anrsStr + ":" + MessageSystem.getMsg("answersAmount", syntaxLanguage));
-//				ArrayList<Answer> answers = new ArrayList<Answer>();
-//				String answer = parser.getObject(question, anrsStr + ":" + ansStr + 1, true);
-//				for (int j = 0; j < answersAmount; j++, answer = parser.getObject(question, anrsStr + ":" + ansStr + (j + 1), true))
-//					answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
-//							fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
-//				QuestionType type;
-//				switch (parser.safetyGetString(question, potStr, "PickOne"))
-//				{
-//					case "EnterText":
-//						type = QuestionType.EnterText;
-//						break;
-//					case "PickOne":
-//						type = QuestionType.PickOne;
-//						break;
-//					case "SelectSome":
-//						type = QuestionType.SelectSome;
-//						break;
-//					default:
-//						TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
-//								+ " must be 'EnterText', 'PickOne' or 'SelectSome'!");
-//						Logger.exit(18);
-//						return null;
-//
-//				}
-//
-//				questions.add(new Question(parser.getString(question, txtStr), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(question, fsStr, dqFont)),
-//						parser.safetyGetInteger(question, awdStr, 0), parser.safetyGetInteger(question, minResStr, stMinRes), type, randomizeToArray(answers,
-//								new Answer[answersAmount]), parser.safetyGetString(question, igrdChrsStr, ""), parser.safetyGetBoolean(question, igreCaseStr,
-//										true)));
-//			}
-//			return randomizeToArray(questions, new Question[questionsToTestAmount]);
-//		}
-//		catch (Exception exception)
-//		{
-//			exception.printStackTrace();
-//			Logger.exit(-1);
-//		}
-//		return new Question[0];
-//	}
+	// /**
+	// *
+	// * @param f
+	// * @return parsed to Question array configuration file
+	// */
+	// public static Question[] _parse(File f)
+	// {
+	// if (!f.exists())
+	// return null;
+	// try
+	// {
+	// Config cfg = Config.getConfig(f);
+	// cfg.getText(true);
+	// if (!cfg.hasValue("version") || !cfg.hasValue("syntaxLanguage"))
+	// {
+	// TabParser.print("Syntax is wrong: .test file must have properties - 'syntaxLanguage' and 'version'!");
+	// Logger.exit(10);
+	// }
+	// String syntaxLanguage = cfg.getString("syntaxLanguage").toLowerCase();
+	// switch (syntaxLanguage)
+	// {
+	// case "ru_ru":
+	// case "en_uk":
+	// break;
+	// default:
+	// TabParser.print("Syntax language '" + syntaxLanguage + "' is not supported!");
+	// Logger.exit(11);
+	// break;
+	// }
+	// if (!cfg.getString("version").equals(Main.version))
+	// JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+	// TabParser parser = new TabParser();
+	// String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
+	// String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
+	// String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
+	// String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
+	// String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
+	// String potStr = MessageSystem.getMsg("questionType", syntaxLanguage);
+	// String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
+	// String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
+	// String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
+	// String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
+	// String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
+	// int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage));
+	// int questionsAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsAmount", syntaxLanguage));
+	// int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 16);
+	// int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
+	// int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
+	// ArrayList<Question> questions = new ArrayList<Question>();
+	// String s = qnsStr + ":" + qnStr;
+	// String question = cfg.getObject(s + 1, true);
+	// for (int i = 0; i < questionsAmount; i++, question = cfg.getObject(s + (i + 1), true))
+	// {
+	// int dqaFont = parser.safetyGetInteger(question, anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont);
+	// int answersAmount = parser.getInteger(question, anrsStr + ":" + MessageSystem.getMsg("answersAmount", syntaxLanguage));
+	// ArrayList<Answer> answers = new ArrayList<Answer>();
+	// String answer = parser.getObject(question, anrsStr + ":" + ansStr + 1, true);
+	// for (int j = 0; j < answersAmount; j++, answer = parser.getObject(question, anrsStr + ":" + ansStr + (j + 1), true))
+	// answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
+	// fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
+	// QuestionType type;
+	// switch (parser.safetyGetString(question, potStr, "PickOne"))
+	// {
+	// case "EnterText":
+	// type = QuestionType.EnterText;
+	// break;
+	// case "PickOne":
+	// type = QuestionType.PickOne;
+	// break;
+	// case "SelectSome":
+	// type = QuestionType.SelectSome;
+	// break;
+	// default:
+	// TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
+	// + " must be 'EnterText', 'PickOne' or 'SelectSome'!");
+	// Logger.exit(18);
+	// return null;
+	//
+	// }
+	//
+	// questions.add(new Question(parser.getString(question, txtStr), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(question, fsStr, dqFont)),
+	// parser.safetyGetInteger(question, awdStr, 0), parser.safetyGetInteger(question, minResStr, stMinRes), type, randomizeToArray(answers,
+	// new Answer[answersAmount]), parser.safetyGetString(question, igrdChrsStr, ""), parser.safetyGetBoolean(question, igreCaseStr,
+	// true)));
+	// }
+	// return randomizeToArray(questions, new Question[questionsToTestAmount]);
+	// }
+	// catch (Exception exception)
+	// {
+	// exception.printStackTrace();
+	// Logger.exit(-1);
+	// }
+	// return new Question[0];
+	// }
+	public static Theme theme;
 
 	/**
 	 * 
@@ -848,6 +850,118 @@ public class FXFrame extends Application
 			}
 			if (!cfg.getString("version").equals(Main.version))
 				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+
+			Theme theme = new Theme();
+			String themeS = MessageSystem.getMsg("theme", syntaxLanguage) + ":";
+			String windowS = MessageSystem.getMsg("window", syntaxLanguage) + ":";
+			String backgroundS = MessageSystem.getMsg("background", syntaxLanguage) + ":";
+			String foregroundS = MessageSystem.getMsg("foreground", syntaxLanguage) + ":";
+			String frameS = MessageSystem.getMsg("frame", syntaxLanguage) + ":";
+			String redS = MessageSystem.getMsg("red", syntaxLanguage);
+			String greenS = MessageSystem.getMsg("green", syntaxLanguage);
+			String blueS = MessageSystem.getMsg("blue", syntaxLanguage);
+			String questionS = MessageSystem.getMsg("question", syntaxLanguage) + ":";
+			String answersS = MessageSystem.getMsg("answers", syntaxLanguage) + ":";
+			String pickOneS = MessageSystem.getMsg("pickOne", syntaxLanguage) + ":";
+			String selectSomeS = MessageSystem.getMsg("selectSome", syntaxLanguage) + ":";
+			String enterTextS = MessageSystem.getMsg("enterText", syntaxLanguage) + ":";
+			String questionSelectS = MessageSystem.getMsg("questionSelect", syntaxLanguage) + ":";
+			String specialButtonsS = MessageSystem.getMsg("specialButtons", syntaxLanguage) + ":";
+			String normalS = MessageSystem.getMsg("normal", syntaxLanguage) + ":";
+			String skippedS = MessageSystem.getMsg("skipped", syntaxLanguage) + ":";
+
+			if (cfg.hasValue(themeS + windowS + backgroundS))
+				theme.windowBackground = new Color(cfg.getInteger(themeS + windowS + backgroundS + redS), cfg.getInteger(themeS + windowS + backgroundS
+						+ greenS), cfg.getInteger(themeS + windowS + backgroundS + blueS));
+
+			if (cfg.hasValue(themeS + pickOneS + questionS + backgroundS))
+				theme.pickOneQuestionBackground = new Color(cfg.getInteger(themeS + pickOneS + questionS + backgroundS + redS), cfg.getInteger(themeS + pickOneS
+						+ questionS + backgroundS + greenS), cfg.getInteger(themeS + pickOneS + questionS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + pickOneS + questionS + foregroundS))
+				theme.pickOneQuestionForeground = new Color(cfg.getInteger(themeS + pickOneS + questionS + foregroundS + redS), cfg.getInteger(themeS + pickOneS
+						+ questionS + foregroundS + greenS), cfg.getInteger(themeS + pickOneS + questionS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + pickOneS + questionS + frameS))
+				theme.pickOneQuestionFrame = new Color(cfg.getInteger(themeS + pickOneS + questionS + frameS + redS), cfg.getInteger(themeS + pickOneS
+						+ questionS + frameS + greenS), cfg.getInteger(themeS + pickOneS + questionS + frameS + blueS));
+			if (cfg.hasValue(themeS + pickOneS + answersS + backgroundS))
+				theme.pickOneAnswersBackground = new Color(cfg.getInteger(themeS + pickOneS + answersS + backgroundS + redS), cfg.getInteger(themeS + pickOneS
+						+ answersS + backgroundS + greenS), cfg.getInteger(themeS + pickOneS + answersS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + pickOneS + answersS + foregroundS))
+				theme.pickOneAnswersForeground = new Color(cfg.getInteger(themeS + pickOneS + answersS + foregroundS + redS), cfg.getInteger(themeS + pickOneS
+						+ answersS + foregroundS + greenS), cfg.getInteger(themeS + pickOneS + answersS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + pickOneS + answersS + frameS))
+				theme.pickOneAnswersFrame = new Color(cfg.getInteger(themeS + pickOneS + answersS + frameS + redS), cfg.getInteger(themeS + pickOneS + answersS
+						+ frameS + greenS), cfg.getInteger(themeS + pickOneS + answersS + frameS + blueS));
+
+			if (cfg.hasValue(themeS + selectSomeS + questionS + backgroundS))
+				theme.selectSomeQuestionBackground = new Color(cfg.getInteger(themeS + selectSomeS + questionS + backgroundS + redS), cfg.getInteger(themeS
+						+ selectSomeS + questionS + backgroundS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + selectSomeS + questionS + foregroundS))
+				theme.selectSomeQuestionForeground = new Color(cfg.getInteger(themeS + selectSomeS + questionS + foregroundS + redS), cfg.getInteger(themeS
+						+ selectSomeS + questionS + foregroundS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + selectSomeS + questionS + frameS))
+				theme.selectSomeQuestionFrame = new Color(cfg.getInteger(themeS + selectSomeS + questionS + frameS + redS), cfg.getInteger(themeS + selectSomeS
+						+ questionS + frameS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + frameS + blueS));
+			if (cfg.hasValue(themeS + selectSomeS + answersS + backgroundS))
+				theme.selectSomeAnswersBackground = new Color(cfg.getInteger(themeS + selectSomeS + answersS + backgroundS + redS), cfg.getInteger(themeS
+						+ selectSomeS + answersS + backgroundS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + selectSomeS + answersS + foregroundS))
+				theme.selectSomeAnswersForeground = new Color(cfg.getInteger(themeS + selectSomeS + answersS + foregroundS + redS), cfg.getInteger(themeS
+						+ selectSomeS + answersS + foregroundS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + selectSomeS + answersS + frameS))
+				theme.selectSomeAnswersFrame = new Color(cfg.getInteger(themeS + selectSomeS + answersS + frameS + redS), cfg.getInteger(themeS + selectSomeS
+						+ answersS + frameS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + frameS + blueS));
+
+			if (cfg.hasValue(themeS + enterTextS + questionS + backgroundS))
+				theme.enterTextQuestionBackground = new Color(cfg.getInteger(themeS + enterTextS + questionS + backgroundS + redS), cfg.getInteger(themeS
+						+ enterTextS + questionS + backgroundS + greenS), cfg.getInteger(themeS + enterTextS + questionS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + enterTextS + questionS + foregroundS))
+				theme.enterTextQuestionForeground = new Color(cfg.getInteger(themeS + enterTextS + questionS + foregroundS + redS), cfg.getInteger(themeS
+						+ enterTextS + questionS + foregroundS + greenS), cfg.getInteger(themeS + enterTextS + questionS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + enterTextS + questionS + frameS))
+				theme.enterTextQuestionFrame = new Color(cfg.getInteger(themeS + enterTextS + questionS + frameS + redS), cfg.getInteger(themeS + enterTextS
+						+ questionS + frameS + greenS), cfg.getInteger(themeS + enterTextS + questionS + frameS + blueS));
+			if (cfg.hasValue(themeS + enterTextS + answersS + backgroundS))
+				theme.enterTextAnswersBackground = new Color(cfg.getInteger(themeS + enterTextS + answersS + backgroundS + redS), cfg.getInteger(themeS
+						+ enterTextS + answersS + backgroundS + greenS), cfg.getInteger(themeS + enterTextS + answersS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + enterTextS + answersS + foregroundS))
+				theme.enterTextAnswersForeground = new Color(cfg.getInteger(themeS + enterTextS + answersS + foregroundS + redS), cfg.getInteger(themeS
+						+ enterTextS + answersS + foregroundS + greenS), cfg.getInteger(themeS + enterTextS + answersS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + enterTextS + answersS + frameS))
+				theme.enterTextAnswersFrame = new Color(cfg.getInteger(themeS + enterTextS + answersS + frameS + redS), cfg.getInteger(themeS + enterTextS
+						+ answersS + frameS + greenS), cfg.getInteger(themeS + enterTextS + answersS + frameS + blueS));
+
+			if (cfg.hasValue(themeS + specialButtonsS + backgroundS))
+				theme.specialButtonsBackground = new Color(cfg.getInteger(themeS + specialButtonsS + backgroundS + redS), cfg.getInteger(themeS
+						+ specialButtonsS + backgroundS + greenS), cfg.getInteger(themeS + specialButtonsS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + specialButtonsS + foregroundS))
+				theme.specialButtonsForeground = new Color(cfg.getInteger(themeS + specialButtonsS + foregroundS + redS), cfg.getInteger(themeS
+						+ specialButtonsS + foregroundS + greenS), cfg.getInteger(themeS + specialButtonsS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + specialButtonsS + frameS))
+				theme.specialButtonsFrame = new Color(cfg.getInteger(themeS + specialButtonsS + frameS + redS), cfg.getInteger(themeS + specialButtonsS + frameS
+						+ greenS), cfg.getInteger(themeS + specialButtonsS + frameS + blueS));
+
+			if (cfg.hasValue(themeS + questionSelectS + normalS + backgroundS))
+				theme.questionSelectNormalBackground = new Color(cfg.getInteger(themeS + questionSelectS + normalS + backgroundS + redS), cfg.getInteger(themeS
+						+ questionSelectS + normalS + backgroundS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + questionSelectS + normalS + foregroundS))
+				theme.questionSelectNormalForeground = new Color(cfg.getInteger(themeS + questionSelectS + normalS + foregroundS + redS), cfg.getInteger(themeS
+						+ questionSelectS + normalS + foregroundS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + questionSelectS + normalS + frameS))
+				theme.questionSelectNormalFrame = new Color(cfg.getInteger(themeS + questionSelectS + normalS + frameS + redS), cfg.getInteger(themeS
+						+ questionSelectS + normalS + frameS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + frameS + blueS));
+			if (cfg.hasValue(themeS + questionSelectS + skippedS + backgroundS))
+				theme.questionSelectSkippedBackground = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + backgroundS + redS), cfg.getInteger(
+						themeS + questionSelectS + skippedS + backgroundS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + backgroundS + blueS));
+			if (cfg.hasValue(themeS + questionSelectS + skippedS + foregroundS))
+				theme.questionSelectSkippedForeground = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + foregroundS + redS), cfg.getInteger(
+						themeS + questionSelectS + skippedS + foregroundS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + foregroundS + blueS));
+			if (cfg.hasValue(themeS + questionSelectS + skippedS + frameS))
+				theme.questionSelectSkippedFrame = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + frameS + redS), cfg.getInteger(themeS
+						+ questionSelectS + skippedS + frameS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + frameS + blueS));
+
+			FXFrame.theme = theme;
+
 			TabParser parser = new TabParser();
 			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
 			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
@@ -872,7 +986,8 @@ public class FXFrame extends Application
 				int dqaFont = parser.safetyGetInteger(question, anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont);
 				ArrayList<Answer> answers = new ArrayList<Answer>();
 				String answer = parser.getObject(question, anrsStr + ":" + ansStr + 1, true);
-				for (int j = 0; parser.hasValue(question, anrsStr + ":" + ansStr + (j + 1)); j++, answer = parser.getObject(question, anrsStr + ":" + ansStr + (j + 1), true))
+				for (int j = 0; parser.hasValue(question, anrsStr + ":" + ansStr + (j + 1)); j++, answer = parser.getObject(question, anrsStr + ":" + ansStr
+						+ (j + 1), true))
 					answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
 							fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
 				QuestionType type;
