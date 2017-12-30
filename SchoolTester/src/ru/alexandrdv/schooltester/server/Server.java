@@ -26,7 +26,7 @@ import ru.alexandrdv.schooltester.util.Logger;
  * Server
  * 
  * @author AlexandrDV
- * @version 4.2.1a
+ * @version 4.3.6a
  *
  */
 public class Server
@@ -90,7 +90,7 @@ public class Server
 					FXFrame.writeFile(new File("ClientsInfo/" + Calendar.getInstance().getTimeInMillis() + ".log"), "network.host.ip" + '|' + pac.getAddress()
 							.getHostAddress() + '\n' + s + '\n' + "key" + '|' + ((Pack) readByteArray(data2)).key);
 					byte[] data3;
-					data3 = writeToByteArray(new Pack(version,link, (passes.contains(((Pack) readByteArray(data2)).key) ? "y" : "n")));
+					data3 = writeToByteArray(new Pack(version, link, (passes.contains(((Pack) readByteArray(data2)).key) ? "y" : "n")));
 					socket.send(new DatagramPacket(data3, 0, data3.length, pac.getAddress(), pac.getPort()));// отправление пакета
 				}
 				catch (ClassNotFoundException e)

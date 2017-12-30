@@ -9,245 +9,460 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexandrdv.schooltester.main.FXFrame">
-   <children>
-      <MenuBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="400.0">
-         <cursor>
-            <Cursor fx:constant="DEFAULT" />
-         </cursor>
-         <menus>
-            <Menu fx:id="window" mnemonicParsing="false" text="Window">
-               <items>
-                  <RadioMenuItem fx:id="testMode" mnemonicParsing="false" selected="true" text="Test Mode">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="Mode" />
-                     </toggleGroup>
-                  </RadioMenuItem>
-                  <RadioMenuItem fx:id="statsMode" mnemonicParsing="false" text="Statistics Mode" toggleGroup="$Mode" />
-               </items>
-            </Menu>
-            <Menu fx:id="settings" mnemonicParsing="false" text="Settings">
-               <items>
-                  <Menu fx:id="language" mnemonicParsing="false" text="Language">
-                     <items>
-                        <RadioMenuItem fx:id="languageEN" mnemonicParsing="false" text="English (en_uk)">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="Language" />
-                           </toggleGroup>
-                        </RadioMenuItem>
-                        <RadioMenuItem fx:id="languageRU" mnemonicParsing="false" selected="true" text="Русский (ru_ru)" toggleGroup="$Language" />
-                     </items>
-                  </Menu>
-               </items>
-            </Menu>
-            <Menu fx:id="help" mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem fx:id="privacyPolicy" mnemonicParsing="false" text="Privacy Policy" />
-                  <MenuItem fx:id="usersManual" mnemonicParsing="false" text="Users manual" />
-               </items>
-            </Menu>
-         </menus>
-      </MenuBar>
-      <Pane layoutX="55.0" layoutY="40.0" maxWidth="290.0" minWidth="290.0" prefWidth="290.0">
-         <children>
-            <GridPane hgap="5.0" maxWidth="290.0" minWidth="290.0" nodeOrientation="LEFT_TO_RIGHT" prefWidth="290.0" vgap="15.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="20" prefWidth="20" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="20" prefWidth="20" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
-                <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
-                <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
-                  <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
-                  <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
-              </rowConstraints>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <children>
-                  <Label fx:id="fileNameLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="'.test' file name" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <ComboBox fx:id="fileNameComboBox" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </ComboBox>
-                  <Label fx:id="classLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="Class" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <GridPane maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <ComboBox fx:id="classComboBox" maxHeight="25.0" maxWidth="70.0" minHeight="25.0" minWidth="70.0" prefHeight="25.0" prefWidth="70.0" visibleRowCount="11">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                        </ComboBox>
-                        <TextField fx:id="classField" maxHeight="25.0" maxWidth="70.0" minHeight="25.0" minWidth="70.0" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1">
-                           <GridPane.margin>
-                              <Insets />
-                           </GridPane.margin>
-                        </TextField>
-                     </children>
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </GridPane>
-                  <Label fx:id="surnameLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="Surname" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField fx:id="surnameField" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label fx:id="nameLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="Name" GridPane.halignment="RIGHT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField fx:id="nameField" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </TextField>
-                  <Label fx:id="secondNameLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="Second name" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </Label>
-                  <TextField fx:id="secondNameField" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin>
-                  </TextField>
-               </children>
-            </GridPane>
-         </children>
-      </Pane>
-      <Pane fx:id="testPane" layoutX="55.0" layoutY="210.0" maxWidth="290.0" minWidth="290.0" prefHeight="385.0" prefWidth="290.0">
-         <children>
-            <Button fx:id="start" defaultButton="true" layoutX="46.0" layoutY="39.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Start test" />
-            <GridPane hgap="5.0" maxWidth="290.0" minWidth="290.0" prefWidth="290.0" vgap="15.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label fx:id="timeToTestLabel" alignment="CENTER" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0" text="Time to test" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin></Label>
-                  <TextField fx:id="timeToTestField" maxHeight="25.0" maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                     </GridPane.margin></TextField>
-               </children>
-            </GridPane>
-            <RadioButton fx:id="none" layoutY="75.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="None">
-               <toggleGroup>
-                  <ToggleGroup fx:id="testProps" />
-               </toggleGroup></RadioButton>
-            <RadioButton fx:id="indicateAnswerQuality" layoutY="100.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" prefHeight="17.0" prefWidth="290.0" text="Indicate answer quality" toggleGroup="$testProps" />
-            <CheckBox fx:id="indicateAnswersQuality" disable="true" layoutX="45.0" layoutY="120.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="247.0" text="Indicate all answers qualities" />
-            <RadioButton fx:id="goToAllQuestions" layoutX="1.0" layoutY="145.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="Go to all answers" toggleGroup="$testProps" />
-            <CheckBox fx:id="skip" layoutX="1.0" layoutY="170.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="Skip and return" />
-            <CheckBox fx:id="pause" layoutX="1.0" layoutY="195.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="Pause" />
-            <CheckBox fx:id="pauseOnUnfocus" disable="true" layoutX="45.0" layoutY="220.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="247.0" text="Pause on unfocus" />
-            <Button fx:id="savePropsToDefault" disable="true" layoutX="45.0" layoutY="245.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0" text="Save properties how default" />
-         </children>
-      </Pane>
-      <Pane fx:id="statsPane" layoutY="210.0" maxWidth="400.0" minWidth="290.0" prefHeight="385.0" prefWidth="400.0" visible="false">
-         <children>
-            <GridPane hgap="3.0" layoutX="36.0" layoutY="2.0" prefHeight="25.0" prefWidth="328.0" vgap="3.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="98.0" minWidth="10.0" prefWidth="91.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="141.0" minWidth="10.0" prefWidth="137.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="92.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <RadioButton fx:id="inPercents" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="237.0" selected="true" text="In percents">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="statsType" />
-                     </toggleGroup></RadioButton>
-                  <Button fx:id="getStats" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="Get stats" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <RadioButton fx:id="inFractions" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="116.0" text="In fractions" toggleGroup="$statsType" GridPane.columnIndex="2" />
-               </children>
-            </GridPane>
-            <TabPane fx:id="testsList" layoutY="178.0" prefHeight="206.0" prefWidth="400.0" tabClosingPolicy="ALL_TABS" />
-            <GridPane fx:id="statsTable" gridLinesVisible="true" layoutX="36.0" layoutY="43.0" prefHeight="135.0" prefWidth="328.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="78.0" minWidth="10.0" prefWidth="67.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="66.0" minWidth="10.0" prefWidth="48.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="84.0" minWidth="10.0" prefWidth="78.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="114.0" minWidth="10.0" prefWidth="72.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="10.0" prefWidth="59.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints maxHeight="51.0" minHeight="7.0" prefHeight="33.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="41.0" minHeight="0.0" prefHeight="20.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="40.0" minHeight="2.0" prefHeight="19.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="0.0" prefHeight="20.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="39.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="38.0" minHeight="10.0" prefHeight="22.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label fx:id="score" alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="59.0" text="Score" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <Label fx:id="rightAnswers" alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="84.0" text="Right&#10;Answers" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <Label fx:id="perfectAnswers" alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="111.0" text="Perfect&#10;Answers" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <Label fx:id="time" alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="45.0" text="Time" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <Label fx:id="smallest" alignment="CENTER" contentDisplay="CENTER" prefHeight="21.0" prefWidth="76.0" text="Smallest" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                  <Label fx:id="average" alignment="CENTER" contentDisplay="CENTER" prefHeight="21.0" prefWidth="75.0" text="Average" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Label fx:id="biggest" alignment="CENTER" contentDisplay="CENTER" prefHeight="23.0" prefWidth="74.0" text="Biggest" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-                  <Label fx:id="max" alignment="CENTER" contentDisplay="CENTER" prefHeight="21.0" prefWidth="81.0" text="Max" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-                  <Label fx:id="all" alignment="CENTER" contentDisplay="CENTER" prefHeight="22.0" prefWidth="97.0" text="All" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell11" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="135.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell21" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="139.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell31" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="212.0" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell41" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="118.0" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell12" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="161.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell22" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="249.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell32" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="195.0" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell42" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="173.0" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell13" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="324.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell23" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="308.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell33" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="222.0" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell43" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="181.0" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell14" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="371.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell24" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="436.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell34" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="279.0" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell44" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="317.0" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell15" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="481.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell25" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="307.0" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell35" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="364.0" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-                  <Label fx:id="cell45" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="245.0" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
-               </children>
-            </GridPane>
-         </children></Pane>
-      <CheckBox fx:id="fileNameCheckBox" layoutX="350.0" layoutY="40.0" mnemonicParsing="false" />
-      <CheckBox fx:id="classCheckBox" layoutX="350.0" layoutY="77.0" mnemonicParsing="false" />
-      <CheckBox fx:id="surnameCheckBox" layoutX="350.0" layoutY="112.0" mnemonicParsing="false" />
-      <CheckBox fx:id="nameCheckBox" layoutX="350.0" layoutY="147.0" mnemonicParsing="false" />
-      <CheckBox fx:id="secondNameCheckBox" layoutX="350.0" layoutY="183.0" mnemonicParsing="false" />
-   </children>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
+	minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+	prefWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="ru.alexandrdv.schooltester.main.FXFrame">
+	<children>
+		<MenuBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0"
+			prefWidth="400.0">
+			<cursor>
+				<Cursor fx:constant="DEFAULT" />
+			</cursor>
+			<menus>
+				<Menu fx:id="window" mnemonicParsing="false" text="Window">
+					<items>
+						<RadioMenuItem fx:id="testMode" mnemonicParsing="false"
+							selected="true" text="Test Mode">
+							<toggleGroup>
+								<ToggleGroup fx:id="Mode" />
+							</toggleGroup>
+						</RadioMenuItem>
+						<RadioMenuItem fx:id="statsMode" mnemonicParsing="false"
+							text="Statistics Mode" toggleGroup="$Mode" />
+					</items>
+				</Menu>
+				<Menu fx:id="settings" mnemonicParsing="false" text="Settings">
+					<items>
+						<Menu fx:id="language" mnemonicParsing="false" text="Language">
+							<items>
+								<RadioMenuItem fx:id="languageEN" mnemonicParsing="false"
+									text="English (en_uk)">
+									<toggleGroup>
+										<ToggleGroup fx:id="Language" />
+									</toggleGroup>
+								</RadioMenuItem>
+								<RadioMenuItem fx:id="languageRU" mnemonicParsing="false"
+									selected="true" text="Русский (ru_ru)" toggleGroup="$Language" />
+							</items>
+						</Menu>
+					</items>
+				</Menu>
+				<Menu fx:id="help" mnemonicParsing="false" text="Help">
+					<items>
+						<MenuItem fx:id="privacyPolicy" mnemonicParsing="false"
+							text="Privacy Policy" />
+						<MenuItem fx:id="usersManual" mnemonicParsing="false"
+							text="Users manual" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+		<Pane layoutX="55.0" layoutY="40.0" maxWidth="290.0" minWidth="290.0"
+			prefWidth="290.0">
+			<children>
+				<GridPane hgap="5.0" maxWidth="290.0" minWidth="290.0"
+					nodeOrientation="LEFT_TO_RIGHT" prefWidth="290.0" vgap="15.0">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="20"
+							prefWidth="20" />
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="20"
+							prefWidth="20" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints maxHeight="20.0" minHeight="20.0"
+							prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
+						<RowConstraints maxHeight="20.0" minHeight="20.0"
+							prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
+						<RowConstraints maxHeight="20.0" minHeight="20.0"
+							prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
+						<RowConstraints maxHeight="20.0" minHeight="20.0"
+							prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
+						<RowConstraints maxHeight="20.0" minHeight="20.0"
+							prefHeight="20.0" valignment="CENTER" vgrow="ALWAYS" />
+					</rowConstraints>
+					<opaqueInsets>
+						<Insets />
+					</opaqueInsets>
+					<children>
+						<Label fx:id="fileNameLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="'.test' file name" GridPane.halignment="RIGHT"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<ComboBox fx:id="fileNameComboBox" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0"
+							prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</ComboBox>
+						<Label fx:id="classLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="Class" GridPane.halignment="RIGHT" GridPane.rowIndex="1"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<GridPane maxHeight="25.0" maxWidth="140.0" minHeight="25.0"
+							minWidth="140.0" prefHeight="25.0" prefWidth="140.0"
+							GridPane.columnIndex="1" GridPane.rowIndex="1"
+							GridPane.valignment="CENTER">
+							<columnConstraints>
+								<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+									prefWidth="100.0" />
+								<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+									prefWidth="100.0" />
+							</columnConstraints>
+							<rowConstraints>
+								<RowConstraints minHeight="10.0" prefHeight="30.0"
+									vgrow="SOMETIMES" />
+							</rowConstraints>
+							<children>
+								<ComboBox fx:id="classComboBox" maxHeight="25.0"
+									maxWidth="70.0" minHeight="25.0" minWidth="70.0" prefHeight="25.0"
+									prefWidth="70.0" visibleRowCount="11">
+									<GridPane.margin>
+										<Insets />
+									</GridPane.margin>
+								</ComboBox>
+								<TextField fx:id="classField" maxHeight="25.0"
+									maxWidth="70.0" minHeight="25.0" minWidth="70.0" prefHeight="25.0"
+									prefWidth="70.0" GridPane.columnIndex="1">
+									<GridPane.margin>
+										<Insets />
+									</GridPane.margin>
+								</TextField>
+							</children>
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</GridPane>
+						<Label fx:id="surnameLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="Surname" GridPane.halignment="RIGHT" GridPane.rowIndex="2"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<TextField fx:id="surnameField" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0"
+							prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="2" GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</TextField>
+						<Label fx:id="nameLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="Name" GridPane.halignment="RIGHT" GridPane.rowIndex="3"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<TextField fx:id="nameField" maxHeight="25.0" maxWidth="140.0"
+							minHeight="25.0" minWidth="140.0" prefHeight="25.0" prefWidth="140.0"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="3" GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</TextField>
+						<Label fx:id="secondNameLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="Second name" GridPane.halignment="RIGHT" GridPane.rowIndex="4"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<TextField fx:id="secondNameField" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0"
+							prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="4" GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</TextField>
+					</children>
+				</GridPane>
+			</children>
+		</Pane>
+		<Pane fx:id="testPane" layoutX="55.0" layoutY="210.0" maxWidth="290.0"
+			minWidth="290.0" prefHeight="385.0" prefWidth="290.0">
+			<children>
+				<Button fx:id="start" defaultButton="true" layoutX="46.0"
+					layoutY="39.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="200.0"
+					text="Start test" />
+				<GridPane hgap="5.0" maxWidth="290.0" minWidth="290.0"
+					prefWidth="290.0" vgap="15.0">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+							prefWidth="100.0" />
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+							prefWidth="100.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints minHeight="10.0" prefHeight="30.0"
+							vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<Label fx:id="timeToTestLabel" alignment="CENTER" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="140.0"
+							text="Time to test" GridPane.halignment="RIGHT"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</Label>
+						<TextField fx:id="timeToTestField" maxHeight="25.0"
+							maxWidth="140.0" minHeight="25.0" minWidth="140.0" prefHeight="25.0"
+							prefWidth="140.0" GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER">
+							<GridPane.margin>
+								<Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+							</GridPane.margin>
+						</TextField>
+					</children>
+				</GridPane>
+				<RadioButton fx:id="none" layoutY="75.0"
+					mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="None">
+					<toggleGroup>
+						<ToggleGroup fx:id="testProps" />
+					</toggleGroup>
+				</RadioButton>
+				<RadioButton fx:id="indicateAnswerQuality" layoutY="100.0"
+					mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" prefHeight="17.0"
+					prefWidth="290.0" text="Indicate answer quality" toggleGroup="$testProps" />
+				<CheckBox fx:id="indicateAnswersQuality" disable="true"
+					layoutX="45.0" layoutY="120.0" mnemonicParsing="false" prefHeight="17.0"
+					prefWidth="247.0" text="Indicate all answers qualities" />
+				<RadioButton fx:id="goToAllQuestions" layoutX="1.0"
+					layoutY="145.0" mnemonicParsing="false" prefHeight="17.0"
+					prefWidth="290.0" text="Go to all answers" toggleGroup="$testProps" />
+				<CheckBox fx:id="skip" layoutX="1.0" layoutY="170.0"
+					mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0"
+					text="Skip and return" />
+				<CheckBox fx:id="pause" layoutX="1.0" layoutY="195.0"
+					mnemonicParsing="false" prefHeight="17.0" prefWidth="290.0" text="Pause" />
+				<CheckBox fx:id="pauseOnUnfocus" disable="true" layoutX="45.0"
+					layoutY="220.0" mnemonicParsing="false" prefHeight="17.0"
+					prefWidth="247.0" text="Pause on unfocus" />
+				<Button fx:id="savePropsToDefault" disable="true" layoutX="45.0"
+					layoutY="245.0" mnemonicParsing="false" prefHeight="25.0"
+					prefWidth="200.0" text="Save properties how default" />
+			</children>
+		</Pane>
+		<Pane fx:id="statsPane" layoutY="210.0" maxWidth="400.0"
+			minWidth="290.0" prefHeight="385.0" prefWidth="400.0" visible="false">
+			<children>
+				<GridPane hgap="3.0" layoutX="36.0" layoutY="2.0"
+					prefHeight="25.0" prefWidth="328.0" vgap="3.0">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="98.0"
+							minWidth="10.0" prefWidth="91.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="141.0"
+							minWidth="10.0" prefWidth="137.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0"
+							minWidth="10.0" prefWidth="92.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints minHeight="10.0" prefHeight="30.0"
+							vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<RadioButton fx:id="inPercents" mnemonicParsing="false"
+							nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="237.0"
+							selected="true" text="In percents">
+							<toggleGroup>
+								<ToggleGroup fx:id="statsType" />
+							</toggleGroup>
+						</RadioButton>
+						<Button fx:id="getStats" contentDisplay="CENTER"
+							mnemonicParsing="false" prefHeight="25.0" prefWidth="166.0" text="Get stats"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER" />
+						<RadioButton fx:id="inFractions" mnemonicParsing="false"
+							nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="116.0"
+							text="In fractions" toggleGroup="$statsType"
+							GridPane.columnIndex="2" />
+					</children>
+				</GridPane>
+				<TabPane fx:id="testsList" layoutY="178.0" prefHeight="206.0"
+					prefWidth="400.0" tabClosingPolicy="ALL_TABS" />
+				<GridPane fx:id="statsTable" gridLinesVisible="true"
+					layoutX="36.0" layoutY="43.0" prefHeight="135.0" prefWidth="328.0">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="78.0"
+							minWidth="10.0" prefWidth="67.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="66.0"
+							minWidth="10.0" prefWidth="48.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="84.0"
+							minWidth="10.0" prefWidth="78.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="114.0"
+							minWidth="10.0" prefWidth="72.0" />
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0"
+							minWidth="10.0" prefWidth="59.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints maxHeight="51.0" minHeight="7.0"
+							prefHeight="33.0" vgrow="SOMETIMES" />
+						<RowConstraints maxHeight="41.0" minHeight="0.0"
+							prefHeight="20.0" vgrow="SOMETIMES" />
+						<RowConstraints maxHeight="40.0" minHeight="2.0"
+							prefHeight="19.0" vgrow="SOMETIMES" />
+						<RowConstraints maxHeight="32.0" minHeight="0.0"
+							prefHeight="20.0" vgrow="SOMETIMES" />
+						<RowConstraints maxHeight="39.0" minHeight="10.0"
+							prefHeight="21.0" vgrow="SOMETIMES" />
+						<RowConstraints maxHeight="38.0" minHeight="10.0"
+							prefHeight="22.0" vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<Label fx:id="score" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="33.0" prefWidth="59.0" text="Score" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="rightAnswers" alignment="CENTER"
+							contentDisplay="CENTER" prefHeight="33.0" prefWidth="84.0"
+							text="Right&#10;Answers" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="perfectAnswers" alignment="CENTER"
+							contentDisplay="CENTER" prefHeight="33.0" prefWidth="111.0"
+							text="Perfect&#10;Answers" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="time" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="33.0" prefWidth="45.0" text="Time" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="smallest" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="21.0" prefWidth="76.0" text="Smallest"
+							GridPane.halignment="CENTER" GridPane.rowIndex="1"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="average" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="21.0" prefWidth="75.0" text="Average"
+							GridPane.halignment="CENTER" GridPane.rowIndex="2"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="biggest" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="23.0" prefWidth="74.0" text="Biggest"
+							GridPane.halignment="CENTER" GridPane.rowIndex="3"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="max" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="21.0" prefWidth="81.0" text="Max"
+							GridPane.halignment="CENTER" GridPane.rowIndex="4"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="all" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="22.0" prefWidth="97.0" text="All"
+							GridPane.halignment="CENTER" GridPane.rowIndex="5"
+							GridPane.valignment="CENTER" />
+						<Label fx:id="cell11" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="135.0" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+						<Label fx:id="cell21" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="139.0" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+						<Label fx:id="cell31" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="212.0" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+						<Label fx:id="cell41" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="118.0" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+						<Label fx:id="cell12" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="161.0" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+						<Label fx:id="cell22" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="249.0" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+						<Label fx:id="cell32" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="195.0" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+						<Label fx:id="cell42" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="173.0" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+						<Label fx:id="cell13" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="324.0" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+						<Label fx:id="cell23" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="308.0" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+						<Label fx:id="cell33" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="222.0" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+						<Label fx:id="cell43" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="181.0" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+						<Label fx:id="cell14" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="371.0" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+						<Label fx:id="cell24" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="436.0" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+						<Label fx:id="cell34" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="279.0" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+						<Label fx:id="cell44" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="317.0" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+						<Label fx:id="cell15" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="481.0" textAlignment="CENTER"
+							GridPane.columnIndex="1" GridPane.halignment="CENTER"
+							GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+						<Label fx:id="cell25" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="307.0" textAlignment="CENTER"
+							GridPane.columnIndex="2" GridPane.halignment="CENTER"
+							GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+						<Label fx:id="cell35" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="364.0" textAlignment="CENTER"
+							GridPane.columnIndex="3" GridPane.halignment="CENTER"
+							GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+						<Label fx:id="cell45" alignment="CENTER" contentDisplay="CENTER"
+							prefHeight="17.0" prefWidth="245.0" textAlignment="CENTER"
+							GridPane.columnIndex="4" GridPane.halignment="CENTER"
+							GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+					</children>
+				</GridPane>
+			</children>
+		</Pane>
+		<CheckBox fx:id="fileNameCheckBox" layoutX="350.0" layoutY="40.0"
+			mnemonicParsing="false" />
+		<CheckBox fx:id="classCheckBox" layoutX="350.0" layoutY="77.0"
+			mnemonicParsing="false" />
+		<CheckBox fx:id="surnameCheckBox" layoutX="350.0" layoutY="112.0"
+			mnemonicParsing="false" />
+		<CheckBox fx:id="nameCheckBox" layoutX="350.0" layoutY="147.0"
+			mnemonicParsing="false" />
+		<CheckBox fx:id="secondNameCheckBox" layoutX="350.0" layoutY="183.0"
+			mnemonicParsing="false" />
+	</children>
 </AnchorPane>

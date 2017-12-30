@@ -16,7 +16,7 @@ import ru.alexandrdv.schooltester.main.Main;
  * Config
  * 
  * @author AlexandrDV
- * @version 4.3.0a
+ * @version 4.3.6a
  *
  */
 public class Config
@@ -260,7 +260,7 @@ public class Config
 
 			return true;
 		}
-		
+
 		public boolean fals(String text)
 		{
 			System.out.println(text);

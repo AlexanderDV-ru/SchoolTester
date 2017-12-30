@@ -46,7 +46,7 @@ import ru.alexandrdv.schooltester.util.Question.QuestionType;
  * Main
  * 
  * @author AlexandrDV
- * @version 4.3.5a
+ * @version 4.3.6a
  *
  */
 public class Main

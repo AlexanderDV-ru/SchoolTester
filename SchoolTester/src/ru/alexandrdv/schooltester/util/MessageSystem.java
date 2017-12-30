@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV
- * @version 4.3.5a
+ * @version 4.3.6a
  *
  */
 public class MessageSystem
@@ -196,7 +196,7 @@ public class MessageSystem
 			messages.get(language).put("minimalResult", "минимальныйРезультат");
 			messages.get(language).put("questionsToTestAmount", "колличествоВопросовДляТеста");
 			messages.get(language).put("answerFontSize", "размерШрифтаОтвета");
-			
+
 			messages.get(language).put("theme", "тема");
 			messages.get(language).put("window", "окно");
 			messages.get(language).put("background", "цветФона");
@@ -215,7 +215,7 @@ public class MessageSystem
 			messages.get(language).put("normal", "нормальный");
 			messages.get(language).put("skipped", "пропущенный");
 		}
-		messages.get("ru_ru").put("privacyPolicyText", getMsg("privacyPolicy", "ru_ru")+"\n"
+		messages.get("ru_ru").put("privacyPolicyText", getMsg("privacyPolicy", "ru_ru") + "\n"
 				+ "0.1 При использовании программы вы соглашаетесь с данными условиями.\n"
 				+ "0.2 Если вы читаете настоящую Политику конфиденциальности не на русском языке, вы соглашаетесь с тем, что, в случае любых разночтений, "
 				+ "преимущественную силу будет иметь русская версия.\n"
@@ -227,7 +227,7 @@ public class MessageSystem
 				+ "3.1 Настоящий продукт предоставляется на условиях \"как есть\", со всеми возможными неисправностями, при этом настоящее соглашение не "
 				+ "подразумевает обязательств или условий применимости для определенной цели, точности или полноты ответов и ли результатов работы, гарантии "
 				+ "высокой квалификации, отсутствия вирусов, отсутствия небрежности при изготовлении продукта. ");
-		messages.get("ru_ru").put("usersManualText", getMsg("usersManual", "ru_ru")+"\n"
+		messages.get("ru_ru").put("usersManualText", getMsg("usersManual", "ru_ru") + "\n"
 				+ "Программа предназначена для тестирования учащихся. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
 				+ getMsg("window", "ru_ru") + "\", \"" + getMsg("settings", "ru_ru") + "\", \"" + getMsg("help", "ru_ru") + "\". Во вкладке \"" + getMsg("help",
 						"ru_ru") + "\" есть \"" + getMsg("privacyPolicy", "ru_ru") + "\" и \"" + getMsg("usersManual", "ru_ru") + "\". Во вкладке \"" + getMsg(
@@ -242,9 +242,9 @@ public class MessageSystem
 						"ru_ru") + "\", переключатель \"" + getMsg("goToAllQuestions", "ru_ru") + "\", флажок \"" + getMsg("skipBtn", "ru_ru") + "\", флажок \""
 				+ getMsg("pause", "ru_ru") + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", "ru_ru") + "\", кнопка \"" + getMsg(
 						"savePropsToDefault", "ru_ru") + "\".");
-		messages.get("en_uk").put("privacyPolicyText", getMsg("privacyPolicy", "en_uk")+"\n"
+		messages.get("en_uk").put("privacyPolicyText", getMsg("privacyPolicy", "en_uk") + "\n"
 				+ "In the event you read this Privacy Policy in any language other than Russian, you agree that in the event of any discrepancies, the Russian version shall prevail.");
-		messages.get("en_uk").put("usersManualText", getMsg("usersManual", "en_uk")+"\n"
+		messages.get("en_uk").put("usersManualText", getMsg("usersManual", "en_uk") + "\n"
 				+ "Программа предназначена для тестирования учащихся. Программа состоит из двух частей тестирующей и основной. Основная часть. Основная часть предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек со вкладками \""
 				+ getMsg("window", "en_uk") + "\", \"" + getMsg("settings", "en_uk") + "\", \"" + getMsg("help", "en_uk") + "\". Во вкладке \"" + getMsg("help",
 						"en_uk") + "\" есть \"" + getMsg("privacyPolicy", "en_uk") + "\" и \"" + getMsg("usersManual", "en_uk") + "\". Во вкладке \"" + getMsg(
