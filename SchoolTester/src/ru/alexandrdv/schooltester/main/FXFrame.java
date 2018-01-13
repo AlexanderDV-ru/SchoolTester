@@ -59,7 +59,7 @@ import ru.alexandrdv.schooltester.util.Theme;
  * FXFrame
  * 
  * @author AlexandrDV
- * @version 4.3.6a
+ * @version 4.4.5a
  *
  */
 public class FXFrame extends Application
@@ -90,7 +90,7 @@ public class FXFrame extends Application
 	@FXML
 	private RadioButton none, indicateAnswerQuality, goToAllQuestions;
 	@FXML
-	private CheckBox pause, pauseOnUnfocus, indicateAnswersQuality, skip;
+	private CheckBox pause, pauseOnUnfocus, indicateAnswersQuality, showRightAnswer, skip, anticntrlc, antiscreenshot;
 	@FXML
 	private Pane statsPane, testPane;
 	@FXML
@@ -158,14 +158,14 @@ public class FXFrame extends Application
 					Pack pack = ((Server.Pack) Server.readByteArray(data2));
 					if (pack.key.equals("n"))
 					{
-						JOptionPane.showMessageDialog(null, msgSys.getMsg("badKey"));
+						Logger.showMsgDialog(stage,msgSys.getMsg("badKey"),JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 						writeFile(new File("lock.cfg"), "locked: true");
 						Logger.exit(50);
 					}
 					else right = true;
 					if (!pack.str.equals(Main.version))
 					{
-						JOptionPane.showMessageDialog(null, msgSys.getMsg("updateMsg") + pack.str);
+						Logger.showMsgDialog(stage,msgSys.getMsg("updateMsg") + pack.str,JOptionPane.WARNING_MESSAGE,JOptionPane.DEFAULT_OPTION);
 						launchBrowser(pack.str2);
 					}
 					socket.close();
@@ -179,7 +179,7 @@ public class FXFrame extends Application
 				removeFile(new File("lock.cfg"));
 			else if (new File("lock.cfg").exists())
 			{
-				JOptionPane.showMessageDialog(null, msgSys.getMsg("badKey"));
+				Logger.showMsgDialog(stage,msgSys.getMsg("badKey"),JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				writeFile(new File("lock.cfg"), "locked: true");
 				Logger.exit(51);
 			}
@@ -269,21 +269,26 @@ public class FXFrame extends Application
 		File props = new File("properties.cfg");
 		EventHandler<ActionEvent> action = (e) -> savePropsToDefault.setDisable(false);
 		timeToTestField.setOnAction(action);
-		none.setOnAction(action);
-		indicateAnswerQuality.setOnAction(e ->
+		EventHandler<ActionEvent> testPropsAction = (e) ->
 		{
 			action.handle(new ActionEvent());
 			indicateAnswersQuality.setDisable(!indicateAnswerQuality.isSelected());
-		});
+			showRightAnswer.setDisable(!indicateAnswerQuality.isSelected());
+		};
+		none.setOnAction(testPropsAction);
+		indicateAnswerQuality.setOnAction(testPropsAction);
+		goToAllQuestions.setOnAction(testPropsAction);
 		indicateAnswersQuality.setOnAction(action);
+		showRightAnswer.setOnAction(action);
 		skip.setOnAction(action);
-		goToAllQuestions.setOnAction(action);
 		pause.setOnAction(e ->
 		{
 			action.handle(new ActionEvent());
 			pauseOnUnfocus.setDisable(!pause.isSelected());
 		});
 		pauseOnUnfocus.setOnAction(action);
+		anticntrlc.setOnAction(action);
+		antiscreenshot.setOnAction(action);
 		savePropsToDefault.setOnAction(event ->
 		{
 			try
@@ -294,9 +299,12 @@ public class FXFrame extends Application
 				String text = "";
 				text += "pause: " + pause.isSelected();
 				text += "\npauseOnUnfocus: " + pauseOnUnfocus.isSelected();
-				text += "\nindicateAnswersQuality: " + indicateAnswersQuality.isSelected();
 				text += "\ntestProps: " + "\"" + (goToAllQuestions.isSelected() ? "gtaq" : (indicateAnswerQuality.isSelected() ? "iaq" : "none")) + "\"";
+				text += "\nindicateAnswersQuality: " + indicateAnswersQuality.isSelected();
+				text += "\nshowRightAnswer: " + showRightAnswer.isSelected();
 				text += "\nskip: " + skip.isSelected();
+				text += "\nanticntrlc: " + anticntrlc.isSelected();
+				text += "\nantiscreenshot: " + antiscreenshot.isSelected();
 				text += "\ntimeToTest: \"" + timeToTestField.getText() + "\"";
 				writer.write(text);
 				writer.close();
@@ -308,20 +316,26 @@ public class FXFrame extends Application
 			}
 		});
 		Config cfg = Config.getConfig(props);
-		if (!cfg.getText().contains("pause") || !cfg.getText().contains("indicateAnswersQuality") || !cfg.getText().contains("skip") || !cfg.getText().contains(
-				"testProps") || !cfg.getText().contains("timeToTest") || !cfg.getText().contains("pauseOnUnfocus"))
-			savePropsToDefault.fire();
+		System.out.println(cfg.hasValue("showRightAnswer"));
+		if (!cfg.hasValue("pause") || !cfg.hasValue("indicateAnswersQuality") || !cfg.hasValue("showRightAnswer") || !cfg.hasValue("skip") || !cfg.hasValue(
+				"testProps") || !cfg.hasValue("timeToTest") || !cfg.hasValue("pauseOnUnfocus") || !cfg.hasValue("anticntrlc") || !cfg.hasValue(
+						"antiscreenshot"))
+			savePropsToDefault.getOnAction().handle(new ActionEvent());
 		cfg.getText(true);
-		pause.setSelected(cfg.getBoolean("pause"));
-		pauseOnUnfocus.setSelected(cfg.getBoolean("pauseOnUnfocus"));
-		pauseOnUnfocus.setDisable(!cfg.getBoolean("pause"));
 		none.setSelected(cfg.getString("testProps").equals("none"));
 		indicateAnswerQuality.setSelected(cfg.getString("testProps").equals("iaq"));
 		indicateAnswersQuality.setSelected(cfg.getBoolean("indicateAnswersQuality"));
-		indicateAnswersQuality.setDisable(!cfg.getString("testProps").equals("iaq"));
-		skip.setSelected(cfg.getBoolean("skip"));
+		indicateAnswersQuality.setDisable(!indicateAnswerQuality.isSelected());
+		showRightAnswer.setSelected(cfg.getBoolean("showRightAnswer"));
+		showRightAnswer.setDisable(!indicateAnswerQuality.isSelected());
 		goToAllQuestions.setSelected(cfg.getString("testProps").equals("gtaq"));
 		timeToTestField.setText(cfg.getString("timeToTest"));
+		skip.setSelected(cfg.getBoolean("skip"));
+		pause.setSelected(cfg.getBoolean("pause"));
+		pauseOnUnfocus.setSelected(cfg.getBoolean("pauseOnUnfocus"));
+		pauseOnUnfocus.setDisable(!pause.isSelected());
+		anticntrlc.setSelected(cfg.getBoolean("anticntrlc"));
+		antiscreenshot.setSelected(cfg.getBoolean("antiscreenshot"));
 		testMode.setOnAction(event ->
 		{
 			testPane.setVisible(true);
@@ -381,7 +395,7 @@ public class FXFrame extends Application
 						testsDir.delete();
 						testsDir.mkdir();
 					}
-					JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
+					Logger.showMsgDialog(stage,"In directory Tests not exists any files!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 					Logger.exit(0);
 				}
 				files = testsDir.listFiles();
@@ -392,7 +406,7 @@ public class FXFrame extends Application
 			}
 			if (fileNameComboBox.getItems().size() == 0)
 			{
-				JOptionPane.showMessageDialog(null, "In directory Tests not exists any files!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"In directory Tests not exists any files!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				Logger.exit(0);
 			}
 			fileNameComboBox.setPromptText(fileNameComboBox.getSelectionModel().getSelectedItem());
@@ -401,22 +415,22 @@ public class FXFrame extends Application
 		{
 			if (classField.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(null, "Class field can't be empty!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"Class field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (surnameField.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(null, "Surname field can't be empty!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"Surname field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (nameField.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(null, "Name field can't be empty!", Main.programName, 0);
+				Logger.showMsgDialog(stage, "Name field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (secondNameField.getText().equals(""))
 			{
-				JOptionPane.showMessageDialog(null, "Second name field can't be empty!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"Second name field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			Question[] q = null;
@@ -440,19 +454,20 @@ public class FXFrame extends Application
 
 			if (q == null)
 			{
-				JOptionPane.showMessageDialog(null, "File '" + selectedFileName + "' not found!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"File '" + selectedFileName + "' not found!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				Logger.exit(5);
 			}
 			else if (q.length == 0)
 			{
-				JOptionPane.showMessageDialog(null, "File '" + selectedFileName + "' is empty!", Main.programName, 0);
+				Logger.showMsgDialog(stage,"File '" + selectedFileName + "' is empty!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
 				Logger.exit(5);
 			}
 			new Main(new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), name.substring(0, name.length()
 					- 5), q, classComboBox.getSelectionModel().getSelectedItem() + classField.getText(), surnameField.getText(), nameField.getText(),
 					secondNameField.getText(), Integer.parseInt(timeToTestField.getText()) * 60, pause.isSelected(), indicateAnswerQuality.isSelected(),
-					indicateAnswersQuality.isSelected() && !indicateAnswersQuality.isDisable(), skip.isSelected(), goToAllQuestions.isSelected()
-							&& !goToAllQuestions.isDisable(), pauseOnUnfocus.isSelected());
+					indicateAnswersQuality.isSelected() && !indicateAnswersQuality.isDisable(), showRightAnswer.isSelected() && !showRightAnswer.isDisable(),
+					skip.isSelected(), goToAllQuestions.isSelected() && !goToAllQuestions.isDisable(), pauseOnUnfocus.isSelected(), anticntrlc.isSelected(),
+					antiscreenshot.isSelected());
 			stage.close();
 
 		});
@@ -474,9 +489,7 @@ public class FXFrame extends Application
 			stage.setResizable(false);
 			stage.sizeToScene();
 			stage.getIcons().clear();
-			stage.getIcons().add(new Image(getClass().getResource("/Icon16x.png").openStream()));
 			stage.getIcons().add(new Image(getClass().getResource("/Icon32x.png").openStream()));
-			stage.getIcons().add(new Image(getClass().getResource("/Icon48x.png").openStream()));
 			stage.setTitle(Main.programName);
 			stage.show();
 		}
@@ -501,7 +514,7 @@ public class FXFrame extends Application
 		{
 			testsList.getTabs().add(new Tab(cfg.getFile().getName().replace("Result From ", "").replace(".log", ""), new TextArea(cfg.getText(false))));
 
-			String language = cfg.getString("language");
+			String language = cfg.getString("syntaxLanguage");
 			result += cfg.getInteger(MessageSystem.getMsg("result", language));
 			minResult = Math.min(minResult, cfg.getInteger(MessageSystem.getMsg("result", language)));
 			maxResult = Math.max(maxResult, cfg.getInteger(MessageSystem.getMsg("result", language)));
@@ -644,13 +657,20 @@ public class FXFrame extends Application
 		time.setText(msgSys.getMsg("time"));
 
 		none.setText(msgSys.getMsg("none"));
-		skip.setText(msgSys.getMsg("skipBtn"));
-		goToAllQuestions.setText(msgSys.getMsg("goToAllQuestions"));
 		indicateAnswerQuality.setText(msgSys.getMsg("indicateAnswerQuality"));
-		indicateAnswersQuality.setText(msgSys.getMsg("indicateAnswersQuality"));
-		savePropsToDefault.setText(msgSys.getMsg("savePropsToDefault"));
+		{
+			indicateAnswersQuality.setText(msgSys.getMsg("indicateAnswersQuality"));
+			showRightAnswer.setText(msgSys.getMsg("showRightAnswer"));
+		}
+		goToAllQuestions.setText(msgSys.getMsg("goToAllQuestions"));
+		skip.setText(msgSys.getMsg("skipBtn"));
 		pause.setText(msgSys.getMsg("pause"));
-		pauseOnUnfocus.setText(msgSys.getMsg("pauseOnUnfocus"));
+		{
+			pauseOnUnfocus.setText(msgSys.getMsg("pauseOnUnfocus"));
+		}
+		anticntrlc.setText(msgSys.getMsg("anticopy"));
+		antiscreenshot.setText(msgSys.getMsg("antiscreenshot"));
+		savePropsToDefault.setText(msgSys.getMsg("savePropsToDefault"));
 
 		try
 		{
@@ -755,19 +775,16 @@ public class FXFrame extends Application
 					break;
 			}
 			if (!cfg.getString("version").equals(Main.version))
-				JOptionPane.showMessageDialog(null, ".test file version does not match with version of this program, this can create problems in work!");
+				Logger.showMsgDialog(stage,".test file version does not match with version of this program, this can create problems in work!",JOptionPane.WARNING_MESSAGE,JOptionPane.DEFAULT_OPTION);
 
-			// String colorType=cfg.getString("colorType");
+			String colorType = cfg.getString("colorType");
 
 			Theme theme = new Theme();
-			String themeS = MessageSystem.getMsg("theme", syntaxLanguage) + ":";
-			String windowS = MessageSystem.getMsg("window", syntaxLanguage) + ":";
+			String themeCfg = cfg.getObject(MessageSystem.getMsg("theme", syntaxLanguage), true);
+			String windowS = MessageSystem.getMsg("windowbackground", syntaxLanguage) + ":";
 			String backgroundS = MessageSystem.getMsg("background", syntaxLanguage) + ":";
 			String foregroundS = MessageSystem.getMsg("foreground", syntaxLanguage) + ":";
 			String frameS = MessageSystem.getMsg("frame", syntaxLanguage) + ":";
-			String redS = MessageSystem.getMsg("red", syntaxLanguage);
-			String greenS = MessageSystem.getMsg("green", syntaxLanguage);
-			String blueS = MessageSystem.getMsg("blue", syntaxLanguage);
 			String questionS = MessageSystem.getMsg("question", syntaxLanguage) + ":";
 			String answersS = MessageSystem.getMsg("answers", syntaxLanguage) + ":";
 			String pickOneS = MessageSystem.getMsg("pickOne", syntaxLanguage) + ":";
@@ -778,99 +795,45 @@ public class FXFrame extends Application
 			String normalS = MessageSystem.getMsg("normal", syntaxLanguage) + ":";
 			String skippedS = MessageSystem.getMsg("skipped", syntaxLanguage) + ":";
 
-			if (cfg.hasValue(themeS + windowS + backgroundS))
-				theme.windowBackground = new Color(cfg.getInteger(themeS + windowS + backgroundS + redS), cfg.getInteger(themeS + windowS + backgroundS
-						+ greenS), cfg.getInteger(themeS + windowS + backgroundS + blueS));
+			TabParser parser = new TabParser();
+			parser.setDefaultColorType(colorType);
 
-			if (cfg.hasValue(themeS + pickOneS + questionS + backgroundS))
-				theme.pickOneQuestionBackground = new Color(cfg.getInteger(themeS + pickOneS + questionS + backgroundS + redS), cfg.getInteger(themeS + pickOneS
-						+ questionS + backgroundS + greenS), cfg.getInteger(themeS + pickOneS + questionS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + pickOneS + questionS + foregroundS))
-				theme.pickOneQuestionForeground = new Color(cfg.getInteger(themeS + pickOneS + questionS + foregroundS + redS), cfg.getInteger(themeS + pickOneS
-						+ questionS + foregroundS + greenS), cfg.getInteger(themeS + pickOneS + questionS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + pickOneS + questionS + frameS))
-				theme.pickOneQuestionFrame = new Color(cfg.getInteger(themeS + pickOneS + questionS + frameS + redS), cfg.getInteger(themeS + pickOneS
-						+ questionS + frameS + greenS), cfg.getInteger(themeS + pickOneS + questionS + frameS + blueS));
-			if (cfg.hasValue(themeS + pickOneS + answersS + backgroundS))
-				theme.pickOneAnswersBackground = new Color(cfg.getInteger(themeS + pickOneS + answersS + backgroundS + redS), cfg.getInteger(themeS + pickOneS
-						+ answersS + backgroundS + greenS), cfg.getInteger(themeS + pickOneS + answersS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + pickOneS + answersS + foregroundS))
-				theme.pickOneAnswersForeground = new Color(cfg.getInteger(themeS + pickOneS + answersS + foregroundS + redS), cfg.getInteger(themeS + pickOneS
-						+ answersS + foregroundS + greenS), cfg.getInteger(themeS + pickOneS + answersS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + pickOneS + answersS + frameS))
-				theme.pickOneAnswersFrame = new Color(cfg.getInteger(themeS + pickOneS + answersS + frameS + redS), cfg.getInteger(themeS + pickOneS + answersS
-						+ frameS + greenS), cfg.getInteger(themeS + pickOneS + answersS + frameS + blueS));
+			theme.windowBackground = parser.safetyGetColor(themeCfg, windowS, new Color(255, 255, 220));
 
-			if (cfg.hasValue(themeS + selectSomeS + questionS + backgroundS))
-				theme.selectSomeQuestionBackground = new Color(cfg.getInteger(themeS + selectSomeS + questionS + backgroundS + redS), cfg.getInteger(themeS
-						+ selectSomeS + questionS + backgroundS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + selectSomeS + questionS + foregroundS))
-				theme.selectSomeQuestionForeground = new Color(cfg.getInteger(themeS + selectSomeS + questionS + foregroundS + redS), cfg.getInteger(themeS
-						+ selectSomeS + questionS + foregroundS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + selectSomeS + questionS + frameS))
-				theme.selectSomeQuestionFrame = new Color(cfg.getInteger(themeS + selectSomeS + questionS + frameS + redS), cfg.getInteger(themeS + selectSomeS
-						+ questionS + frameS + greenS), cfg.getInteger(themeS + selectSomeS + questionS + frameS + blueS));
-			if (cfg.hasValue(themeS + selectSomeS + answersS + backgroundS))
-				theme.selectSomeAnswersBackground = new Color(cfg.getInteger(themeS + selectSomeS + answersS + backgroundS + redS), cfg.getInteger(themeS
-						+ selectSomeS + answersS + backgroundS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + selectSomeS + answersS + foregroundS))
-				theme.selectSomeAnswersForeground = new Color(cfg.getInteger(themeS + selectSomeS + answersS + foregroundS + redS), cfg.getInteger(themeS
-						+ selectSomeS + answersS + foregroundS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + selectSomeS + answersS + frameS))
-				theme.selectSomeAnswersFrame = new Color(cfg.getInteger(themeS + selectSomeS + answersS + frameS + redS), cfg.getInteger(themeS + selectSomeS
-						+ answersS + frameS + greenS), cfg.getInteger(themeS + selectSomeS + answersS + frameS + blueS));
+			theme.pickOneQuestionBackground = parser.safetyGetColor(themeCfg, pickOneS + questionS + backgroundS, new Color(255, 150, 0));
+			theme.pickOneQuestionForeground = parser.safetyGetColor(themeCfg, pickOneS + questionS + foregroundS, new Color(0, 0, 0));
+			theme.pickOneQuestionFrame = parser.safetyGetColor(themeCfg, pickOneS + questionS + frameS, new Color(200, 100, 0));
+			theme.pickOneAnswersBackground = parser.safetyGetColor(themeCfg, pickOneS + answersS + backgroundS, new Color(250, 250, 250));
+			theme.pickOneAnswersForeground = parser.safetyGetColor(themeCfg, pickOneS + answersS + foregroundS, new Color(0, 0, 0));
+			theme.pickOneAnswersFrame = parser.safetyGetColor(themeCfg, pickOneS + answersS + frameS, new Color(200, 200, 200));
 
-			if (cfg.hasValue(themeS + enterTextS + questionS + backgroundS))
-				theme.enterTextQuestionBackground = new Color(cfg.getInteger(themeS + enterTextS + questionS + backgroundS + redS), cfg.getInteger(themeS
-						+ enterTextS + questionS + backgroundS + greenS), cfg.getInteger(themeS + enterTextS + questionS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + enterTextS + questionS + foregroundS))
-				theme.enterTextQuestionForeground = new Color(cfg.getInteger(themeS + enterTextS + questionS + foregroundS + redS), cfg.getInteger(themeS
-						+ enterTextS + questionS + foregroundS + greenS), cfg.getInteger(themeS + enterTextS + questionS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + enterTextS + questionS + frameS))
-				theme.enterTextQuestionFrame = new Color(cfg.getInteger(themeS + enterTextS + questionS + frameS + redS), cfg.getInteger(themeS + enterTextS
-						+ questionS + frameS + greenS), cfg.getInteger(themeS + enterTextS + questionS + frameS + blueS));
-			if (cfg.hasValue(themeS + enterTextS + answersS + backgroundS))
-				theme.enterTextAnswersBackground = new Color(cfg.getInteger(themeS + enterTextS + answersS + backgroundS + redS), cfg.getInteger(themeS
-						+ enterTextS + answersS + backgroundS + greenS), cfg.getInteger(themeS + enterTextS + answersS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + enterTextS + answersS + foregroundS))
-				theme.enterTextAnswersForeground = new Color(cfg.getInteger(themeS + enterTextS + answersS + foregroundS + redS), cfg.getInteger(themeS
-						+ enterTextS + answersS + foregroundS + greenS), cfg.getInteger(themeS + enterTextS + answersS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + enterTextS + answersS + frameS))
-				theme.enterTextAnswersFrame = new Color(cfg.getInteger(themeS + enterTextS + answersS + frameS + redS), cfg.getInteger(themeS + enterTextS
-						+ answersS + frameS + greenS), cfg.getInteger(themeS + enterTextS + answersS + frameS + blueS));
+			theme.selectSomeQuestionBackground = parser.safetyGetColor(themeCfg, selectSomeS + questionS + backgroundS, new Color(255, 150, 0));
+			theme.selectSomeQuestionForeground = parser.safetyGetColor(themeCfg, selectSomeS + questionS + foregroundS, new Color(0, 0, 0));
+			theme.selectSomeQuestionFrame = parser.safetyGetColor(themeCfg, selectSomeS + questionS + frameS, new Color(200, 100, 0));
+			theme.selectSomeAnswersBackground = parser.safetyGetColor(themeCfg, selectSomeS + answersS + backgroundS, new Color(250, 250, 250));
+			theme.selectSomeAnswersForeground = parser.safetyGetColor(themeCfg, selectSomeS + answersS + foregroundS, new Color(0, 0, 0));
+			theme.selectSomeAnswersFrame = parser.safetyGetColor(themeCfg, selectSomeS + answersS + frameS, new Color(200, 200, 200));
 
-			if (cfg.hasValue(themeS + specialButtonsS + backgroundS))
-				theme.specialButtonsBackground = new Color(cfg.getInteger(themeS + specialButtonsS + backgroundS + redS), cfg.getInteger(themeS
-						+ specialButtonsS + backgroundS + greenS), cfg.getInteger(themeS + specialButtonsS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + specialButtonsS + foregroundS))
-				theme.specialButtonsForeground = new Color(cfg.getInteger(themeS + specialButtonsS + foregroundS + redS), cfg.getInteger(themeS
-						+ specialButtonsS + foregroundS + greenS), cfg.getInteger(themeS + specialButtonsS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + specialButtonsS + frameS))
-				theme.specialButtonsFrame = new Color(cfg.getInteger(themeS + specialButtonsS + frameS + redS), cfg.getInteger(themeS + specialButtonsS + frameS
-						+ greenS), cfg.getInteger(themeS + specialButtonsS + frameS + blueS));
+			theme.enterTextQuestionBackground = parser.safetyGetColor(themeCfg, enterTextS + questionS + backgroundS, new Color(255, 150, 0));
+			theme.enterTextQuestionForeground = parser.safetyGetColor(themeCfg, enterTextS + questionS + foregroundS, new Color(0, 0, 0));
+			theme.enterTextQuestionFrame = parser.safetyGetColor(themeCfg, enterTextS + questionS + frameS, new Color(200, 100, 0));
+			theme.enterTextAnswersBackground = parser.safetyGetColor(themeCfg, enterTextS + answersS + backgroundS, new Color(250, 250, 250));
+			theme.enterTextAnswersForeground = parser.safetyGetColor(themeCfg, enterTextS + answersS + foregroundS, new Color(0, 0, 0));
+			theme.enterTextAnswersFrame = parser.safetyGetColor(themeCfg, enterTextS + answersS + frameS, new Color(200, 200, 200));
 
-			if (cfg.hasValue(themeS + questionSelectS + normalS + backgroundS))
-				theme.questionSelectNormalBackground = new Color(cfg.getInteger(themeS + questionSelectS + normalS + backgroundS + redS), cfg.getInteger(themeS
-						+ questionSelectS + normalS + backgroundS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + questionSelectS + normalS + foregroundS))
-				theme.questionSelectNormalForeground = new Color(cfg.getInteger(themeS + questionSelectS + normalS + foregroundS + redS), cfg.getInteger(themeS
-						+ questionSelectS + normalS + foregroundS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + questionSelectS + normalS + frameS))
-				theme.questionSelectNormalFrame = new Color(cfg.getInteger(themeS + questionSelectS + normalS + frameS + redS), cfg.getInteger(themeS
-						+ questionSelectS + normalS + frameS + greenS), cfg.getInteger(themeS + questionSelectS + normalS + frameS + blueS));
-			if (cfg.hasValue(themeS + questionSelectS + skippedS + backgroundS))
-				theme.questionSelectSkippedBackground = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + backgroundS + redS), cfg.getInteger(
-						themeS + questionSelectS + skippedS + backgroundS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + backgroundS + blueS));
-			if (cfg.hasValue(themeS + questionSelectS + skippedS + foregroundS))
-				theme.questionSelectSkippedForeground = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + foregroundS + redS), cfg.getInteger(
-						themeS + questionSelectS + skippedS + foregroundS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + foregroundS + blueS));
-			if (cfg.hasValue(themeS + questionSelectS + skippedS + frameS))
-				theme.questionSelectSkippedFrame = new Color(cfg.getInteger(themeS + questionSelectS + skippedS + frameS + redS), cfg.getInteger(themeS
-						+ questionSelectS + skippedS + frameS + greenS), cfg.getInteger(themeS + questionSelectS + skippedS + frameS + blueS));
+			theme.questionSelectNormalBackground = parser.safetyGetColor(themeCfg, questionSelectS + normalS + backgroundS, new Color(250, 250, 250));
+			theme.questionSelectNormalForeground = parser.safetyGetColor(themeCfg, questionSelectS + normalS + foregroundS, new Color(0, 0, 0));
+			theme.questionSelectNormalFrame = parser.safetyGetColor(themeCfg, questionSelectS + normalS + frameS, new Color(180, 180, 180));
+			theme.questionSelectSkippedBackground = parser.safetyGetColor(themeCfg, questionSelectS + skippedS + backgroundS, new Color(255, 255, 0));
+			theme.questionSelectSkippedForeground = parser.safetyGetColor(themeCfg, questionSelectS + skippedS + foregroundS, new Color(0, 0, 0));
+			theme.questionSelectSkippedFrame = parser.safetyGetColor(themeCfg, questionSelectS + skippedS + frameS, new Color(200, 180, 0));
+
+			theme.specialButtonsBackground = parser.safetyGetColor(themeCfg, specialButtonsS + backgroundS, new Color(150, 220, 30));
+			theme.specialButtonsForeground = parser.safetyGetColor(themeCfg, specialButtonsS + foregroundS, new Color(255, 255, 255));
+			theme.specialButtonsFrame = parser.safetyGetColor(themeCfg, specialButtonsS + frameS, new Color(110, 200, 50));
 
 			FXFrame.theme = theme;
 
-			TabParser parser = new TabParser();
 			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
 			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
 			String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
@@ -882,7 +845,6 @@ public class FXFrame extends Application
 			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
 			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
 			String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
-			int questionsToTestAmount = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage));
 			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 10);
 			int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
 			int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
@@ -898,32 +860,19 @@ public class FXFrame extends Application
 						+ (j + 1), true))
 					answers.add(new Answer(parser.getString(answer, txtStr).replace("\\n", "\n"), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(answer,
 							fsStr, dqaFont)), parser.safetyGetInteger(answer, awdStr, 0)));
-				QuestionType type;
-				switch (parser.safetyGetString(question, potStr, "PickOne"))
+				QuestionType type = QuestionType.valueOf(parser.safetyGetString(question, potStr, "PickOne"));
+				if (type == null)
 				{
-					case "EnterText":
-						type = QuestionType.EnterText;
-						break;
-					case "PickOne":
-						type = QuestionType.PickOne;
-						break;
-					case "SelectSome":
-						type = QuestionType.SelectSome;
-						break;
-					default:
-						TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
-								+ " must be 'EnterText', 'PickOne' or 'SelectSome'!");
-						Logger.exit(18);
-						return null;
-
+					TabParser.print("Wrong syntax: " + parser.safetyGetString(question, potStr, "PickOne")
+							+ " must be 'EnterText', 'PickOne' or 'SelectSome'!");
+					Logger.exit(18);
 				}
-
 				questions.add(new Question(parser.getString(question, txtStr), new Font("Ms Comic Sans", 0, parser.safetyGetInteger(question, fsStr, dqFont)),
 						parser.safetyGetInteger(question, awdStr, 0), parser.safetyGetInteger(question, minResStr, stMinRes), type, randomizeToArray(answers,
 								new Answer[answers.size()]), parser.safetyGetString(question, igrdChrsStr, ""), parser.safetyGetBoolean(question, igreCaseStr,
 										true)));
 			}
-			return randomizeToArray(questions, new Question[questionsToTestAmount]);
+			return randomizeToArray(questions, new Question[cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage))]);
 		}
 		catch (Exception exception)
 		{

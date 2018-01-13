@@ -1,5 +1,6 @@
 package ru.alexandrdv.schooltester.util;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +26,7 @@ public class Config
 	private static final HashMap<String, Config> configs = new HashMap<String, Config>();
 	private File file;
 	private String configurationText;
+	private TabParser tabParser;
 
 	public static Config getConfig(File file)
 	{
@@ -42,6 +44,7 @@ public class Config
 	private Config(File file)
 	{
 		this.file = file;
+		this.tabParser=new TabParser();
 	}
 
 	/**
@@ -54,7 +57,7 @@ public class Config
 
 	public String getObject(String path, boolean deleteTabs)
 	{
-		return new TabParser().getObject(getText(), path, deleteTabs);
+		return tabParser.getObject(getText(), path, deleteTabs);
 	}
 
 	public String getText()
@@ -64,82 +67,92 @@ public class Config
 
 	public String _getValue(String path)
 	{
-		return new TabParser()._getValue(getText(), path);
+		return tabParser._getValue(getText(), path);
 	}
 
 	public String getValue(String path)
 	{
-		return new TabParser().getValue(getText(), path);
+		return tabParser.getValue(getText(), path);
 	}
 
 	public boolean hasValue(String path)
 	{
-		return new TabParser().hasValue(getText(), path);
+		return tabParser.hasValue(getText(), path);
 	}
 
 	public String safetyGetValue(String path, String safeValue)
 	{
-		return new TabParser().safetyGetValue(getText(), path, safeValue);
+		return tabParser.safetyGetValue(getText(), path, safeValue);
 	}
 
 	public String safetyGetString(String path, String safeString)
 	{
-		return new TabParser().safetyGetString(getText(), path, safeString);
+		return tabParser.safetyGetString(getText(), path, safeString);
 	}
 
 	public double safetyGetDouble(String path, double safeDouble)
 	{
-		return new TabParser().safetyGetDouble(getText(), path, safeDouble);
+		return tabParser.safetyGetDouble(getText(), path, safeDouble);
 	}
 
 	public int safetyGetInteger(String path, int safeInteger)
 	{
-		return new TabParser().safetyGetInteger(getText(), path, safeInteger);
+		return tabParser.safetyGetInteger(getText(), path, safeInteger);
 	}
 
 	public int safetyGetTime(String path, int safeTime)
 	{
-		return new TabParser().safetyGetTime(getText(), path, safeTime);
+		return tabParser.safetyGetTime(getText(), path, safeTime);
 	}
 
 	public boolean safetyGetBoolean(String path, String language, boolean safeBoolean)
 	{
-		return new TabParser().safetyGetBoolean(getText(), path, safeBoolean);
+		return tabParser.safetyGetBoolean(getText(), path, safeBoolean);
 	}
 
 	public boolean safetyGetBoolean(String path, boolean safeBoolean)
 	{
-		return new TabParser().safetyGetBoolean(getText(), path, safeBoolean);
+		return tabParser.safetyGetBoolean(getText(), path, safeBoolean);
+	}
+
+	public Color safetyGetColor(String path, String type, Color safeColor)
+	{
+		return tabParser.safetyGetColor(getText(), path, type, safeColor);
 	}
 
 	public String getString(String path)
 	{
-		return new TabParser().getString(getText(), path);
+		return tabParser.getString(getText(), path);
 	}
 
 	public double getDouble(String path)
 	{
-		return new TabParser().getDouble(getText(), path);
+		return tabParser.getDouble(getText(), path);
 	}
 
 	public int getInteger(String path)
 	{
-		return new TabParser().getInteger(getText(), path);
+		return tabParser.getInteger(getText(), path);
 	}
 
 	public boolean getBoolean(String path, String language)
 	{
-		return new TabParser().getBoolean(getText(), path);
+		return tabParser.getBoolean(getText(), path);
 	}
 
 	public boolean getBoolean(String path)
 	{
-		return new TabParser().getBoolean(getText(), path);
+		return tabParser.getBoolean(getText(), path);
 	}
 
 	public int getTime(String path)
 	{
-		return new TabParser().getTime(getText(), path);
+		return tabParser.getTime(getText(), path);
+	}
+
+	public Color getColor(String path, String type)
+	{
+		return tabParser.getColor(getText(), path, type);
 	}
 
 	/**
@@ -172,6 +185,8 @@ public class Config
 
 	public static class TabParser
 	{
+		private String defaultColorType;
+		
 		public String getObject(String text, String path, boolean deleteTabs)
 		{
 			String[] dirs = path.split(":");
@@ -261,12 +276,6 @@ public class Config
 			return true;
 		}
 
-		public boolean fals(String text)
-		{
-			System.out.println(text);
-			return false;
-		}
-
 		public String safetyGetValue(String text, String path, String safeValue)
 		{
 			return hasValue(text, path) ? getValue(text, path) : safeValue;
@@ -300,6 +309,16 @@ public class Config
 		public boolean safetyGetBoolean(String text, String path, boolean safeBoolean)
 		{
 			return hasValue(text, path) ? getBoolean(text, path) : safeBoolean;
+		}
+
+		public Color safetyGetColor(String text, String path, String type, Color safeColor)
+		{
+			return hasValue(text, path) ? getColor(text, path, type) : safeColor;
+		}
+		
+		public Color safetyGetColor(String text, String path, Color safeColor)
+		{
+			return hasValue(text, path) ? getColor(text, path) : safeColor;
 		}
 
 		public String getString(String text, String path)
@@ -395,6 +414,30 @@ public class Config
 			return time;
 		}
 
+		public Color getColor(String text, String path, String type)
+		{
+			String[] chars = getValue(text, path).replace(",", ":").split(":");
+			if ((type.length() >= 3 ? (!type.contains("r") || !type.contains("g") || !type.contains("b")) : true) || type.length() == 4 ? (!type.contains("a"))
+					: false)
+			{
+				print("Color type syntax is wrong, color type must contain r,g,b and if length equal 4 then a");
+				Logger.exit(43);
+			}
+			if (chars.length != 3 && chars.length != 4)
+			{
+				print("Syntax is wrong: value '" + getValue(text, path).split(",") + "' in path '" + path + "' must have 2 or 3 ','");
+				Logger.exit(44);
+			}
+
+			return new Color(parseI(chars[type.indexOf('r')]), parseI(chars[type.indexOf('g')]), parseI(chars[type.indexOf('b')]), type.indexOf('a') != -1
+					? parseI(chars[type.indexOf('a')]) : 255);
+		}
+		
+		public Color getColor(String text, String path)
+		{
+			return getColor(text, path, getDefaultColorType());
+		}
+
 		/**
 		 * Prints Object 'object' to console and show Object 'object' in {@link javax.swing.JDialog}
 		 * 
@@ -402,7 +445,7 @@ public class Config
 		 */
 		public static void print(Object object)
 		{
-			logger.log(Level.INFO, "" + object.toString());
+			logger.log(Level.INFO, object.toString());
 			JOptionPane.showMessageDialog(null, object, Main.programName, 0);
 		}
 
@@ -447,6 +490,16 @@ public class Config
 					else return Double.parseDouble(num);
 				else return Double.parseDouble(num);
 			return Double.parseDouble(num);
+		}
+
+		public String getDefaultColorType()
+		{
+			return defaultColorType;
+		}
+
+		public void setDefaultColorType(String defaultColorType)
+		{
+			this.defaultColorType = defaultColorType;
 		}
 	}
 
