@@ -9,6 +9,7 @@ import java.awt.Font;
  * @version 4.2.1a
  *
  */
+@Deprecated
 public class Question
 {
 	private final String text;

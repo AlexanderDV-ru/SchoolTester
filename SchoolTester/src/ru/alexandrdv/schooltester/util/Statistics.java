@@ -1,10 +1,7 @@
-package ru.alexandrdv.schooltester.main;
+package ru.alexandrdv.schooltester.util;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import ru.alexandrdv.schooltester.util.Config;
-import ru.alexandrdv.schooltester.util.MessageSystem;
 
 /**
  * Statistics
@@ -12,6 +9,7 @@ import ru.alexandrdv.schooltester.util.MessageSystem;
  * @author AlexandrDV
  * @version 4.3.0a
  */
+@Deprecated
 public class Statistics
 {
 	public static ArrayList<Config> getStats(String test, String _class, String surname, String name, String secondName)

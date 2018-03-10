@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.student.s">
+   <children>
+      <ScrollPane fx:id="scrollPane" prefHeight="586.0" prefWidth="150.0">
+         <content>
+            <AnchorPane fx:id="questionSelectPanel" prefHeight="584.0" prefWidth="146.0" />
+         </content>
+      </ScrollPane>
+      <Pane fx:id="qualityIndicator" layoutX="170.0" layoutY="540.0" prefHeight="38.0" prefWidth="407.0" />
+      <Pane fx:id="answersPanel" layoutX="170.0" layoutY="154.0" prefHeight="331.0" prefWidth="407.0" />
+      <Pane fx:id="signPanel" layoutX="160.0" layoutY="14.0" prefHeight="130.0" prefWidth="428.0" />
+      <Pane fx:id="optionButtonsPanel" layoutX="170.0" layoutY="488.0" prefHeight="38.0" prefWidth="407.0" />
+   </children>
+</AnchorPane>

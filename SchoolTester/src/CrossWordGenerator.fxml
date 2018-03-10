@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.utils.InitCrossWordGeneratorPart">
+   <children>
+      <TextArea fx:id="words" layoutX="11.0" layoutY="424.0" prefHeight="79.0" prefWidth="400.0" promptText="Split word by ','" wrapText="true" />
+      <Pane fx:id="crossword" layoutX="11.0" layoutY="14.0" prefHeight="399.0" prefWidth="400.0" style="-fx-border-color: black;" />
+      <Button fx:id="copyInExcelFormat" layoutX="149.0" layoutY="511.0" mnemonicParsing="false" text="Copy in excel format" />
+      <CheckBox fx:id="digits" layoutX="91.0" layoutY="515.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" text="Digits" />
+      <CheckBox fx:id="splitToHorizontalAndVertical" layoutX="52.0" layoutY="542.0" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="17.0" prefWidth="91.0" text="Split to V&amp;H" />
+      <CheckBox fx:id="letters" layoutX="280.0" layoutY="515.0" mnemonicParsing="false" text="Letters" />
+      <GridPane hgap="5.0" layoutX="33.0" layoutY="568.0" prefHeight="117.0" prefWidth="356.0" vgap="5.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="74.0" prefWidth="229.0" text="Background of empty cell" textAlignment="CENTER" />
+            <ColorPicker fx:id="backgroundOfEmptyCell" prefHeight="122.0" prefWidth="247.0" GridPane.columnIndex="1" />
+            <ColorPicker fx:id="foregroundOfEmptyCell" prefHeight="73.0" prefWidth="196.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="148.0" prefWidth="427.0" text="Foreground of empty cell" textAlignment="CENTER" GridPane.rowIndex="1" />
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="127.0" prefWidth="376.0" text="Background of crossword cell" textAlignment="CENTER" GridPane.rowIndex="2" />
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="101.0" prefWidth="328.0" text="Foreground of crossword cell" textAlignment="CENTER" GridPane.rowIndex="3" />
+            <ColorPicker fx:id="backgroundOfCrosswordCell" prefHeight="90.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ColorPicker fx:id="foregroundOfCrosswordCell" prefHeight="65.0" prefWidth="184.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

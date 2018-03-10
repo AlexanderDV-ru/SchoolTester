@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="530.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.InitAccountsPart">
+  <children>
+      <TextField fx:id="loginField" layoutX="231.0" layoutY="8.0" promptText="Login" />
+      <ComboBox fx:id="accountTypeCombobox" layoutX="387.0" layoutY="8.0" prefHeight="25.0" prefWidth="149.0" />
+      <PasswordField fx:id="passwordField" layoutX="231.0" layoutY="41.0" promptText="Password" />
+      <TabPane fx:id="tabPane" layoutY="103.0" prefHeight="425.0" prefWidth="610.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="profileTab" text="Profile">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0">
+                     <children>
+                        <TabPane fx:id="profileTabs" prefHeight="355.0" prefWidth="610.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab fx:id="securityTab" text="Security">
+                                 <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <PasswordField fx:id="newPasswordRepeatField" layoutX="231.0" layoutY="44.0" promptText="Repeat password" />
+                                          <PasswordField fx:id="newPasswordField" layoutX="231.0" layoutY="13.0" promptText="New password" />
+                                          <Button fx:id="changePasswordButton" layoutX="231.0" layoutY="77.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Change password" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                              <Tab fx:id="mainTab" text="Main">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <GridPane hgap="5.0" layoutX="50.0" layoutY="48.0" prefHeight="226.0" prefWidth="510.0" vgap="5.0">
+                                             <children>
+                                                <TextField fx:id="surnameField" prefHeight="25.0" prefWidth="131.0" promptText="Surname" />
+                                                <TextField fx:id="nameField" prefHeight="25.0" prefWidth="149.0" promptText="Name" GridPane.columnIndex="1" />
+                                                <TextField fx:id="secondNameField" prefHeight="25.0" prefWidth="142.0" promptText="Second name" GridPane.columnIndex="2" />
+                                                <TextField fx:id="countryField" promptText="Country" GridPane.rowIndex="2" />
+                                                <TextField fx:id="regionField" promptText="Region" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <TextField fx:id="cityField" promptText="City" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                <TextField fx:id="schoolField" promptText="School" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                <MenuButton fx:id="subjectsCombobox" mnemonicParsing="false" prefHeight="78.0" prefWidth="167.0" text="Select your subjects" textOverrun="CLIP" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                   <items>
+                                                      <MenuItem mnemonicParsing="false" text="Action 1" />
+                                                      <MenuItem mnemonicParsing="false" text="Action 2" />
+                                                   </items>
+                                                </MenuButton>
+                                             </children>
+                                             <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                             </columnConstraints>
+                                             <rowConstraints>
+                                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+                                             </rowConstraints>
+                                          </GridPane>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </Tab>
+                              <Tab fx:id="familyTab" text="Family">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <GridPane fx:id="familyFields" hgap="5.0" layoutX="112.0" layoutY="8.0" prefHeight="255.0" prefWidth="387.0" vgap="5.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label fx:id="maritalStatusLabel" prefHeight="64.0" prefWidth="215.0" text="Semeinoe polozhenie " />
+                                                <Label fx:id="parentsLabel" prefHeight="99.0" prefWidth="450.0" text="Parents" GridPane.rowIndex="1" />
+                                                <Label fx:id="grandParentsLabel" prefHeight="88.0" prefWidth="355.0" text="GrandParents" GridPane.rowIndex="2" />
+                                                <Label fx:id="childrenLabel" prefHeight="110.0" prefWidth="386.0" text="Childrens" GridPane.rowIndex="3" />
+                                                <Label fx:id="grandChildrenLabel" prefHeight="96.0" prefWidth="389.0" text="GrandChildrens" GridPane.rowIndex="4" />
+                                                <Label fx:id="siblingsLabel" prefHeight="75.0" prefWidth="426.0" text="Brothers and sisters" GridPane.rowIndex="5" />
+                                                <Label fx:id="exSpousesLabel" prefHeight="99.0" prefWidth="392.0" text="BivshieSuprugi" GridPane.rowIndex="6" />
+                                                <Label fx:id="spouseLabel" prefHeight="115.0" prefWidth="518.0" text="Suprug" GridPane.rowIndex="7" />
+                                                <Label fx:id="otherRelativesLabel" prefHeight="88.0" prefWidth="377.0" text="Other rodstvenniki" GridPane.rowIndex="8" />
+                                                <TextField fx:id="maritalStatusField" prefHeight="87.0" prefWidth="286.0" GridPane.columnIndex="1" />
+                                                <TextField fx:id="spouseField" prefHeight="49.0" prefWidth="219.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                             </children>
+                                          </GridPane>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </Tab>
+                              <Tab fx:id="contactsTab" text="Contacts">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <GridPane fx:id="contactsFields" hgap="5.0" layoutX="180.0" layoutY="59.0" prefHeight="147.0" prefWidth="251.0" vgap="5.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label fx:id="emailsLabel" prefHeight="135.0" prefWidth="314.0" text="Emails" />
+                                                <Label fx:id="phoneNumbersLabel" prefHeight="88.0" prefWidth="188.0" text="Phonenumbers" GridPane.rowIndex="1" />
+                                                <Label fx:id="personalSitesLabel" prefHeight="109.0" prefWidth="256.0" text="sites" GridPane.rowIndex="2" />
+                                                <Label fx:id="otherSitesLabel" prefHeight="62.0" prefWidth="166.0" text="OtherSites" GridPane.rowIndex="3" />
+                                                <Label fx:id="otherContactsLabel" prefHeight="91.0" prefWidth="192.0" text="OtherContacts" GridPane.rowIndex="4" />
+                                             </children>
+                                          </GridPane>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </Tab>
+                              <Tab fx:id="lifeTab" text="Life">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <GridPane fx:id="lifeFields" hgap="5.0" layoutX="174.0" prefHeight="108.0" prefWidth="262.0" vgap="5.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label fx:id="ageLabel" prefHeight="109.0" prefWidth="294.0" text="Age" />
+                                                <Label fx:id="genderLabel" prefHeight="95.0" prefWidth="266.0" text="gender" GridPane.rowIndex="1" />
+                                                <Label fx:id="mainLanguagesLabel" prefHeight="83.0" prefWidth="206.0" text="mainlanguages" GridPane.rowIndex="2" />
+                                                <Label fx:id="otherLanguagesLabel" prefHeight="125.0" prefWidth="242.0" text="otherlanguages" GridPane.rowIndex="3" />
+                                                <TextField fx:id="ageField" GridPane.columnIndex="1" />
+                                                <ComboBox fx:id="genderCombobox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                             </children>
+                                          </GridPane>
+                                          <GridPane hgap="5.0" layoutX="65.0" layoutY="144.0" prefHeight="180.0" prefWidth="480.0" vgap="5.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label fx:id="educationLabel" prefHeight="154.0" prefWidth="394.0" text="education" />
+                                                <Label fx:id="careerLabel" prefHeight="150.0" prefWidth="393.0" text="carriere" GridPane.rowIndex="1" />
+                                                <TextArea fx:id="educationArea" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
+                                                <TextArea fx:id="careerArea" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                             </children>
+                                          </GridPane>
+                                       </children></AnchorPane>
+                                </content>
+                              </Tab>
+                              <Tab fx:id="ideasTab" text="Ideas">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <ScrollPane hbarPolicy="NEVER" layoutX="1.0" layoutY="3.0" prefHeight="322.0" prefWidth="610.0">
+                                            <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="720.0" prefWidth="603.0">
+                                                   <children>
+                                                      <GridPane fx:id="ideasFields" hgap="5.0" layoutX="30.0" layoutY="13.0" prefHeight="695.0" prefWidth="550.0" vgap="5.0">
+                                                        <columnConstraints>
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="242.0" minWidth="10.0" prefWidth="166.0" />
+                                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="328.0" minWidth="10.0" prefWidth="328.0" />
+                                                        </columnConstraints>
+                                                        <rowConstraints>
+                                                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                        </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="worldOutlookLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="mirovozrenie" textAlignment="CENTER" />
+                                                            <Label fx:id="politicalViewsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="politika" textAlignment="CENTER" GridPane.rowIndex="1" />
+                                                            <Label fx:id="mainInLifeLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="maininlife" textAlignment="CENTER" GridPane.rowIndex="2" />
+                                                            <Label fx:id="mainInPeopleLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="maininpeoples" textAlignment="CENTER" GridPane.rowIndex="3" />
+                                                            <Label fx:id="aboutSmokingLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="aboutsmoking" textAlignment="CENTER" GridPane.rowIndex="4" />
+                                                            <Label fx:id="aboutAlhogolLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="aboutalhogol" textAlignment="CENTER" GridPane.rowIndex="5" />
+                                                            <Label fx:id="aboutNarcoticsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="aboutnarcotics" textAlignment="CENTER" GridPane.rowIndex="6" />
+                                                            <Label fx:id="interestsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="interests" textAlignment="CENTER" GridPane.rowIndex="7" />
+                                                            <Label fx:id="favouriteMusicLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likemusic" textAlignment="CENTER" GridPane.rowIndex="8" />
+                                                            <Label fx:id="favouriteFilmsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likefilms" textAlignment="CENTER" GridPane.rowIndex="9" />
+                                                            <Label fx:id="favouriteShowsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likeshows" textAlignment="CENTER" GridPane.rowIndex="10" />
+                                                            <Label fx:id="favouriteBlogsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likeblogs" textAlignment="CENTER" GridPane.rowIndex="11" />
+                                                            <Label fx:id="favouriteBooksLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likebooks" textAlignment="CENTER" GridPane.rowIndex="12" />
+                                                            <Label fx:id="favouriteGamesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="ikegames" textAlignment="CENTER" GridPane.rowIndex="13" />
+                                                            <Label fx:id="favouriteComputerGamesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likecomputergames" textAlignment="CENTER" GridPane.rowIndex="14" />
+                                                            <Label fx:id="favouritePeopleLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="likepeoples" textAlignment="CENTER" GridPane.rowIndex="15" />
+                                                            <Label fx:id="inspirationLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="vdohnovlenie" textAlignment="CENTER" GridPane.rowIndex="16" />
+                                                            <Label fx:id="favouriteQuotesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="quotes" textAlignment="CENTER" GridPane.rowIndex="17" />
+                                                            <Label fx:id="ideasLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="ideas" textAlignment="CENTER" GridPane.rowIndex="18" />
+                                                            <Label fx:id="otherViewsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="300.0" text="othervsglyadi" textAlignment="CENTER" GridPane.rowIndex="19" />
+                                                            <TextField fx:id="worldOutlookField" GridPane.columnIndex="1" />
+                                                            <TextField fx:id="politicalViewsField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="mainInLifeField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <TextField fx:id="mainInPeopleField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                            <TextField fx:id="aboutSmokingField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                            <TextField fx:id="aboutAlhogolField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                            <TextField fx:id="aboutNarcoticsField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                            <TextField fx:id="interestsField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                                            <TextField fx:id="favouriteMusicField" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                                            <TextField fx:id="favouriteFilmsField" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                                                            <TextField fx:id="favouriteShowsField" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                                                            <TextField fx:id="favouriteBlogsField" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                                                            <TextField fx:id="favouriteBooksField" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                                                            <TextField fx:id="favouriteGamesField" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                                                            <TextField fx:id="favouriteComputerGamesField" GridPane.columnIndex="1" GridPane.rowIndex="14" />
+                                                            <TextField fx:id="favouritePeopleField" GridPane.columnIndex="1" GridPane.rowIndex="15" />
+                                                            <TextField fx:id="inspirationField" GridPane.columnIndex="1" GridPane.rowIndex="16" />
+                                                            <TextField fx:id="favouriteQuotesField" GridPane.columnIndex="1" GridPane.rowIndex="17" />
+                                                            <TextField fx:id="ideasField" GridPane.columnIndex="1" GridPane.rowIndex="18" />
+                                                            <TextField fx:id="otherViewsField" GridPane.columnIndex="1" GridPane.rowIndex="19" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </children>
+                                                </AnchorPane>
+                                            </content>
+                                          </ScrollPane>
+                                       </children></AnchorPane>
+                                </content>
+                              </Tab>
+                              <Tab fx:id="aboutYouTab" text="About you">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <GridPane hgap="5.0" layoutX="99.0" layoutY="14.0" prefHeight="268.0" prefWidth="412.0" vgap="5.0">
+                                            <columnConstraints>
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                              <RowConstraints maxHeight="228.0" minHeight="30.0" prefHeight="184.0" vgrow="SOMETIMES" />
+                                              <RowConstraints maxHeight="97.0" minHeight="30.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                                              <RowConstraints maxHeight="105.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="55.0" minHeight="30.0" prefHeight="26.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <Label fx:id="biografyLabel" prefHeight="226.0" prefWidth="268.0" text="Biografy" />
+                                                <Label fx:id="homeCountryLabel" prefHeight="94.0" prefWidth="414.0" text="Rcountry" GridPane.rowIndex="1" />
+                                                <Label fx:id="homeRegionLabel" prefHeight="80.0" prefWidth="383.0" text="Rregion" GridPane.rowIndex="2" />
+                                                <Label fx:id="homeCityLabel" prefHeight="88.0" prefWidth="503.0" text="rcity" GridPane.rowIndex="3" />
+                                                <TextArea fx:id="biografyArea" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
+                                                <TextField fx:id="homeCountryField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <TextField fx:id="homeRegionField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <TextField fx:id="homeCityField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                             </children>
+                                          </GridPane>
+                                       </children></AnchorPane>
+                                </content>
+                              </Tab>
+                          </tabs>
+                        </TabPane>
+                        <Button fx:id="saveButton" layoutX="243.0" layoutY="355.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="124.0" text="Save" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab fx:id="signUpTab" text="Sign Up">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="signUpButton" layoutX="228.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Up" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab fx:id="deleteAccountTab" text="Delete account">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="deleteAccountButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Delete account" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab fx:id="signInTab" text="Sign In">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="signInButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign In" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab fx:id="signOutTab" text="Sign Out">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="signOutButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Out" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <PasswordField fx:id="passwordRepeatField" layoutX="231.0" layoutY="72.0" promptText="Password repeat" />
+   </children>
+</AnchorPane>

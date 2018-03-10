@@ -1,15 +1,10 @@
 package ru.alexandrdv.schooltester.server;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -21,14 +16,16 @@ import javax.swing.JOptionPane;
 
 import ru.alexandrdv.schooltester.main.FXFrame;
 import ru.alexandrdv.schooltester.util.Logger;
+import ru.alexandrdv.schooltester.util.NetUtils;
 
 /**
  * Server
  * 
  * @author AlexandrDV
- * @version 4.3.6a
+ * @version 4.5.1a
  *
  */
+@Deprecated
 public class Server
 {
 	static Logger logger = new Logger("server");
@@ -36,6 +33,16 @@ public class Server
 	static
 	{
 		passes.add("1234");
+	}
+	static ArrayList<String> ipblacklist = new ArrayList<String>();
+	static
+	{
+		// ipblacklist.add("94.181.44.135");
+	}
+	static ArrayList<String> macblacklist = new ArrayList<String>();
+	static
+	{
+		// macblacklist.add("00-23-54-3D-9B-6C");
 	}
 
 	public static void main(String[] args)
@@ -85,12 +92,23 @@ public class Server
 				socket.receive(pac);
 				try
 				{
-					s = ((Pack) readByteArray(data2)).str;
+					s = ((NetUtils.Pack) NetUtils.readByteArray(data2)).str;
 					logger.log(Level.INFO, s);
 					FXFrame.writeFile(new File("ClientsInfo/" + Calendar.getInstance().getTimeInMillis() + ".log"), "network.host.ip" + '|' + pac.getAddress()
-							.getHostAddress() + '\n' + s + '\n' + "key" + '|' + ((Pack) readByteArray(data2)).key);
+							.getHostAddress() + '\n' + s + '\n' + "key" + '|' + ((NetUtils.Pack) NetUtils.readByteArray(data2)).key);
 					byte[] data3;
-					data3 = writeToByteArray(new Pack(version, link, (passes.contains(((Pack) readByteArray(data2)).key) ? "y" : "n")));
+					String a = "";
+					String mac = s.substring(s.indexOf("network.mac|") + "network.mac|".length()).substring(0, s.substring(s.indexOf("network.mac" + '|'))
+							.indexOf("\n"));
+					if ((!ipblacklist.contains(pac.getAddress().getHostAddress()) && !macblacklist.contains(mac) && passes.contains(((NetUtils.Pack) NetUtils.readByteArray(
+							data2)).key)))
+						a = "y";
+					else a = "n";
+					String s2;
+					if(ipblacklist.contains(pac.getAddress().getHostAddress()) ||macblacklist.contains(mac))
+						s2="blacklist";
+					else s2=link;
+					data3 = NetUtils.writeToByteArray(new NetUtils.Pack(version, s2, a));
 					socket.send(new DatagramPacket(data3, 0, data3.length, pac.getAddress(), pac.getPort()));// отправление пакета
 				}
 				catch (ClassNotFoundException e)
@@ -109,55 +127,6 @@ public class Server
 		catch (IOException e)
 		{
 			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 
-	 * @param object
-	 * @return
-	 * @throws IOException
-	 */
-	public static byte[] writeToByteArray(Object object) throws IOException
-	{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream out = new ObjectOutputStream(baos);
-		out.writeObject(object);
-		byte[] bytes = baos.toByteArray();
-		out.close();
-		baos.close();
-		return bytes;
-	}
-
-	/**
-	 * 
-	 * @param bytes
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	public static Object readByteArray(byte[] bytes) throws IOException, ClassNotFoundException
-	{
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		ObjectInputStream in = new ObjectInputStream(bais);
-		Object packet = in.readObject();
-		in.close();
-		bais.close();
-		return packet;
-	}
-
-	public static class Pack implements Serializable
-	{
-		private static final long serialVersionUID = 8084221224402314395L;
-		public String str;
-		public String str2;
-		public String key;
-
-		public Pack(String s, String s2, String key)
-		{
-			str = s;
-			str2 = s2;
-			this.key = key;
 		}
 	}
 }

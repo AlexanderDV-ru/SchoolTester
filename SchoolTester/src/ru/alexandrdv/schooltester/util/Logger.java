@@ -23,6 +23,7 @@ import ru.alexandrdv.schooltester.main.Main;
  * @author AlexandrDV
  * @version 4.4.5a
  */
+@Deprecated
 public class Logger extends java.util.logging.Logger
 {
 	public static String log = "";

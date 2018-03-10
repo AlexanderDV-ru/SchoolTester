@@ -10,6 +10,7 @@ import java.util.HashMap;
  * @version 4.4.5a
  *
  */
+@Deprecated
 public class MessageSystem
 {
 	private String language;
@@ -22,6 +23,7 @@ public class MessageSystem
 			messages.get(language).put("schoolTester", "School Tester");
 			messages.get(language).put("badKey", "Your key is invalid!");
 			messages.get(language).put("updateMsg", "Your program is out of date, please, update your program to version ");
+			messages.get(language).put("youinblacklist", "You are in blacklist!");
 
 			messages.get(language).put("window", "Window");
 			messages.get(language).put("settings", "Settings");
@@ -154,6 +156,7 @@ public class MessageSystem
 			messages.get(language).put("schoolTester", "School Tester");
 			messages.get(language).put("badKey", "¬аш ключ недействителен!");
 			messages.get(language).put("updateMsg", "¬аша программа устарела, пожалуйста, обновите вашу программу до версии ");
+			messages.get(language).put("youinblacklist", "¬ы находитесь в черном списке!");
 
 			messages.get(language).put("window", "ќкно");
 			messages.get(language).put("settings", "Ќастройки");
@@ -227,10 +230,10 @@ public class MessageSystem
 			messages.get(language).put("questionType", "тип¬опроса");
 			messages.get(language).put("text", "текст");
 			messages.get(language).put("fontSize", "размерЎрифта");
-			messages.get(language).put("ignoreCase", "инорировать–егистр");
+			messages.get(language).put("ignoreCase", "игнорировать–егистр");
 			messages.get(language).put("ignoredCharacters", "игноруемые—имволы");
 			messages.get(language).put("minimalResult", "минимальный–езультат");
-			messages.get(language).put("questionsToTestAmount", "колличество¬опросовƒл€“еста");
+			messages.get(language).put("questionsToTestAmount", "количество¬опросовƒл€“еста");
 			messages.get(language).put("answerFontSize", "размерЎрифтаќтвета");
 
 			messages.get(language).put("theme", "тема");

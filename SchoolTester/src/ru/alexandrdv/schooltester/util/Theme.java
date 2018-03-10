@@ -10,6 +10,7 @@ import java.awt.Color;
  * @version 4.4.0a
  *
  */
+@Deprecated
 public class Theme
 {
 	public Color windowBackground;

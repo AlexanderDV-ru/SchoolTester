@@ -1,6 +1,7 @@
 package ru.alexandrdv.schooltester.main;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -44,13 +45,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import ru.alexandrdv.schooltester.server.Server;
-import ru.alexandrdv.schooltester.server.Server.Pack;
 import ru.alexandrdv.schooltester.util.Config;
+import ru.alexandrdv.schooltester.util.Config.TabParser;
 import ru.alexandrdv.schooltester.util.Logger;
 import ru.alexandrdv.schooltester.util.MessageSystem;
+import ru.alexandrdv.schooltester.util.NetUtils;
 import ru.alexandrdv.schooltester.util.Question;
-import ru.alexandrdv.schooltester.util.Config.TabParser;
+import ru.alexandrdv.schooltester.util.Statistics;
 import ru.alexandrdv.schooltester.util.Question.Answer;
 import ru.alexandrdv.schooltester.util.Question.QuestionType;
 import ru.alexandrdv.schooltester.util.Theme;
@@ -59,13 +60,15 @@ import ru.alexandrdv.schooltester.util.Theme;
  * FXFrame
  * 
  * @author AlexandrDV
- * @version 4.4.5a
+ * @version 4.5.1a
  *
  */
+@Deprecated
 public class FXFrame extends Application
 {
 	private static final MessageSystem msgSys = Main.msgSys;
 	private static final Random random = new Random();
+	private static final boolean testModeEnabled = false;
 
 	@FXML
 	private RadioMenuItem testMode, statsMode;
@@ -111,10 +114,13 @@ public class FXFrame extends Application
 	private Label cell14, cell24, cell34, cell44;
 	@FXML
 	private Label cell15, cell25, cell35, cell45;
-
+	
 	private static String[] args;
-
-	private static final boolean testModeEnabled = false;
+	private static AnchorPane panel;
+	private static Scene scene;
+	private static Stage stage;
+	private static JDialog d;
+	private static Theme theme;
 
 	public static void main(String[] args)
 	{
@@ -149,23 +155,26 @@ public class FXFrame extends Application
 					dataStr += "user.dir" + '|' + System.getProperty("user.dir");
 					DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) + 10000);
 					socket.setSoTimeout(1000);
-					byte[] data = Server.writeToByteArray(new Server.Pack(dataStr, null, JOptionPane.showInputDialog("Enter key:")));
+					byte[] data = NetUtils.writeToByteArray(new NetUtils.Pack(dataStr, null, JOptionPane.showInputDialog("Enter key:")));
 					socket.send(new DatagramPacket(data, 0, data.length, InetAddress.getByName("94.181.44.135"), 21577));
 
 					byte[] data2 = new byte[1024];
 					DatagramPacket pac = new DatagramPacket(data2, data2.length);
 					socket.receive(pac);
-					Pack pack = ((Server.Pack) Server.readByteArray(data2));
-					if (pack.key.equals("n"))
+					NetUtils.Pack pack = ((NetUtils.Pack) NetUtils.readByteArray(data2));
+					right = pack.key.equals("y");
+					if (!right)
 					{
-						Logger.showMsgDialog(stage,msgSys.getMsg("badKey"),JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+						if (!pack.str2.equals("blacklist"))
+							Logger.showMsgDialog((Component) null, msgSys.getMsg("badKey"), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
+						else Logger.showMsgDialog((Component) null, msgSys.getMsg("youinblacklist"), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 						writeFile(new File("lock.cfg"), "locked: true");
+						socket.close();
 						Logger.exit(50);
 					}
-					else right = true;
 					if (!pack.str.equals(Main.version))
 					{
-						Logger.showMsgDialog(stage,msgSys.getMsg("updateMsg") + pack.str,JOptionPane.WARNING_MESSAGE,JOptionPane.DEFAULT_OPTION);
+						Logger.showMsgDialog((Component) null, msgSys.getMsg("updateMsg") + pack.str, JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION);
 						launchBrowser(pack.str2);
 					}
 					socket.close();
@@ -176,10 +185,12 @@ public class FXFrame extends Application
 				}
 
 			if (right)
+			{
 				removeFile(new File("lock.cfg"));
+			}
 			else if (new File("lock.cfg").exists())
 			{
-				Logger.showMsgDialog(stage,msgSys.getMsg("badKey"),JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, msgSys.getMsg("badKey"), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				writeFile(new File("lock.cfg"), "locked: true");
 				Logger.exit(51);
 			}
@@ -316,10 +327,8 @@ public class FXFrame extends Application
 			}
 		});
 		Config cfg = Config.getConfig(props);
-		System.out.println(cfg.hasValue("showRightAnswer"));
-		if (!cfg.hasValue("pause") || !cfg.hasValue("indicateAnswersQuality") || !cfg.hasValue("showRightAnswer") || !cfg.hasValue("skip") || !cfg.hasValue(
-				"testProps") || !cfg.hasValue("timeToTest") || !cfg.hasValue("pauseOnUnfocus") || !cfg.hasValue("anticntrlc") || !cfg.hasValue(
-						"antiscreenshot"))
+		if (!cfg.hasValue("pause") || !cfg.hasValue("pauseOnUnfocus") || !cfg.hasValue("testProps") || !cfg.hasValue("indicateAnswersQuality") || !cfg.hasValue(
+				"showRightAnswer") || !cfg.hasValue("skip") || !cfg.hasValue("anticntrlc") || !cfg.hasValue("antiscreenshot") || !cfg.hasValue("timeToTest"))
 			savePropsToDefault.getOnAction().handle(new ActionEvent());
 		cfg.getText(true);
 		none.setSelected(cfg.getString("testProps").equals("none"));
@@ -395,7 +404,7 @@ public class FXFrame extends Application
 						testsDir.delete();
 						testsDir.mkdir();
 					}
-					Logger.showMsgDialog(stage,"In directory Tests not exists any files!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+					Logger.showMsgDialog(stage, "In directory Tests not exists any files!", JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 					Logger.exit(0);
 				}
 				files = testsDir.listFiles();
@@ -406,7 +415,7 @@ public class FXFrame extends Application
 			}
 			if (fileNameComboBox.getItems().size() == 0)
 			{
-				Logger.showMsgDialog(stage,"In directory Tests not exists any files!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "In directory Tests not exists any files!", JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				Logger.exit(0);
 			}
 			fileNameComboBox.setPromptText(fileNameComboBox.getSelectionModel().getSelectedItem());
@@ -415,22 +424,22 @@ public class FXFrame extends Application
 		{
 			if (classField.getText().equals(""))
 			{
-				Logger.showMsgDialog(stage,"Class field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "Class field can't be empty!", JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (surnameField.getText().equals(""))
 			{
-				Logger.showMsgDialog(stage,"Surname field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "Surname field can't be empty!", JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (nameField.getText().equals(""))
 			{
-				Logger.showMsgDialog(stage, "Name field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "Name field can't be empty!", JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			if (secondNameField.getText().equals(""))
 			{
-				Logger.showMsgDialog(stage,"Second name field can't be empty!",JOptionPane.INFORMATION_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "Second name field can't be empty!", JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				return;
 			}
 			Question[] q = null;
@@ -454,15 +463,15 @@ public class FXFrame extends Application
 
 			if (q == null)
 			{
-				Logger.showMsgDialog(stage,"File '" + selectedFileName + "' not found!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "File '" + selectedFileName + "' not found!", JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				Logger.exit(5);
 			}
 			else if (q.length == 0)
 			{
-				Logger.showMsgDialog(stage,"File '" + selectedFileName + "' is empty!",JOptionPane.ERROR_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, "File '" + selectedFileName + "' is empty!", JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				Logger.exit(5);
 			}
-			new Main(new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), name.substring(0, name.length()
+			new Main(theme,new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), name.substring(0, name.length()
 					- 5), q, classComboBox.getSelectionModel().getSelectedItem() + classField.getText(), surnameField.getText(), nameField.getText(),
 					secondNameField.getText(), Integer.parseInt(timeToTestField.getText()) * 60, pause.isSelected(), indicateAnswerQuality.isSelected(),
 					indicateAnswersQuality.isSelected() && !indicateAnswersQuality.isDisable(), showRightAnswer.isSelected() && !showRightAnswer.isDisable(),
@@ -472,10 +481,6 @@ public class FXFrame extends Application
 
 		});
 	}
-
-	private static AnchorPane panel;
-	private static Scene scene;
-	private static Stage stage;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -689,8 +694,6 @@ public class FXFrame extends Application
 		}
 	}
 
-	static JDialog d;
-
 	public static void openPrivacyPolicyWindow()
 	{
 		Color color = new Color(220, 220, 230);
@@ -743,8 +746,6 @@ public class FXFrame extends Application
 		d.setVisible(true);
 	}
 
-	public static Theme theme;
-
 	/**
 	 * 
 	 * @param f
@@ -775,7 +776,8 @@ public class FXFrame extends Application
 					break;
 			}
 			if (!cfg.getString("version").equals(Main.version))
-				Logger.showMsgDialog(stage,".test file version does not match with version of this program, this can create problems in work!",JOptionPane.WARNING_MESSAGE,JOptionPane.DEFAULT_OPTION);
+				Logger.showMsgDialog(stage, ".test file version does not match with version of this program, this can create problems in work!",
+						JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION);
 
 			String colorType = cfg.getString("colorType");
 
@@ -845,7 +847,7 @@ public class FXFrame extends Application
 			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
 			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
 			String igrdChrsStr = MessageSystem.getMsg("ingnoredCharacters", syntaxLanguage);
-			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 10);
+			int dqFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 16);
 			int daFont = cfg.safetyGetInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 16);
 			int stMinRes = cfg.safetyGetInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE);
 			ArrayList<Question> questions = new ArrayList<Question>();
