@@ -27,7 +27,7 @@ import ru.alexanderdv.schooltester.utilities.TableSelection;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class CrossWordGeneratorPart extends ProtectedFXWindow
 {
@@ -155,8 +155,8 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 				str += "\n";
 			}
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new TableSelection(str, elements.backgroundOfEmptyCell.getValue().toString(),
-					elements.backgroundOfCrosswordCell.getValue().toString(), elements.foregroundOfEmptyCell.getValue().toString(),
-					elements.foregroundOfCrosswordCell.getValue().toString()), null);
+					elements.backgroundOfCrosswordCell.getValue().toString(), elements.borderOfEmptyCell.getValue().toString(),
+					elements.borderOfCrosswordCell.getValue().toString()), null);
 		});
 	}
 
@@ -174,6 +174,20 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 		for (C c : s)
 			i = Math.max(c.y, i);
 		return i;
+	}
+	@Override
+	public void updateLabelsInPart()
+	{
+		super.updateLabelsInPart();
+		InitCrossWordGeneratorPart.instance.words.setPromptText(msgSys.getMsg("splitByComma"));
+		InitCrossWordGeneratorPart.instance.digits.setText(msgSys.getMsg("digits"));
+		InitCrossWordGeneratorPart.instance.letters.setText(msgSys.getMsg("letters"));
+		InitCrossWordGeneratorPart.instance.splitToHorizontalAndVertical.setText(msgSys.getMsg("splitToH&V"));
+		InitCrossWordGeneratorPart.instance.copyInExcelFormat.setText(msgSys.getMsg("copyTable"));
+		InitCrossWordGeneratorPart.instance.backgroundOfEmptyCellLabel.setText(msgSys.getMsg("backgroundOfEmptyCell"));
+		InitCrossWordGeneratorPart.instance.borderOfEmptyCellLabel.setText(msgSys.getMsg("borderOfEmptyCell"));
+		InitCrossWordGeneratorPart.instance.backgroundOfCrosswordCellLabel.setText(msgSys.getMsg("backgroundOfCrosswordCell"));
+		InitCrossWordGeneratorPart.instance.borderOfCrosswordCellLabel.setText(msgSys.getMsg("borderOfCrosswordCell"));
 	}
 
 	private boolean q(int x, int y, int i, ArrayList<C> s, ArrayList<String> array)

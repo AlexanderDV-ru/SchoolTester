@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.student.s">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="656.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.student.InitStudentsTestingPart">
    <children>
-      <ScrollPane fx:id="scrollPane" prefHeight="586.0" prefWidth="150.0">
+      <ScrollPane fx:id="scrollPane" prefHeight="656.0" prefWidth="151.0">
          <content>
-            <AnchorPane fx:id="questionSelectPanel" prefHeight="584.0" prefWidth="146.0" />
+            <AnchorPane fx:id="questionSelectPanel" prefHeight="653.0" prefWidth="146.0" />
          </content>
       </ScrollPane>
       <Pane fx:id="qualityIndicator" layoutX="170.0" layoutY="540.0" prefHeight="38.0" prefWidth="407.0" />
       <Pane fx:id="answersPanel" layoutX="170.0" layoutY="154.0" prefHeight="331.0" prefWidth="407.0" />
       <Pane fx:id="signPanel" layoutX="160.0" layoutY="14.0" prefHeight="130.0" prefWidth="428.0" />
-      <Pane fx:id="optionButtonsPanel" layoutX="170.0" layoutY="488.0" prefHeight="38.0" prefWidth="407.0" />
+      <Pane fx:id="optionButtonsPanel" layoutX="170.0" layoutY="490.0" prefHeight="38.0" prefWidth="407.0" />
+      <Pane layoutX="154.0" layoutY="592.0" prefHeight="62.0" prefWidth="443.0">
+         <children>
+            <Label fx:id="questionInfoTextfield" prefHeight="62.0" prefWidth="443.0" style="-fx-background-color: cornsilk; -fx-border-color: gray; -fx-background-radius: 3; -fx-border-radius: 3;" wrapText="true">
+               <padding>
+                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+               </padding>
+            </Label>
+         </children>
+      </Pane>
    </children>
 </AnchorPane>

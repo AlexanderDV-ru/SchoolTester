@@ -9,12 +9,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * SystemUtils - the utils class used to interaction with system
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.0.0a
+ * @version 5.8.0a
  */
 public class SystemUtils
 {
@@ -54,7 +57,7 @@ public class SystemUtils
 	 * @param text
 	 *            - the text to writing to file
 	 */
-	public static void writeFile(File file, String text, String charset)
+	public static void writeFile(File file, String text, Charset charset)
 	{
 		try
 		{
@@ -74,6 +77,10 @@ public class SystemUtils
 		{
 			e.printStackTrace();
 		}
+	}
+	public static void writeFile(File file, String text, String charset)
+	{
+		writeFile(file, text, Charset.forName(charset));
 	}
 
 	/**
@@ -165,7 +172,6 @@ public class SystemUtils
 			{
 				FileInputStream fis = new FileInputStream(file);
 				byte[] bs = new byte[fis.available()];
-				// char[] bs = new char[1500000];
 				fis.read(bs);
 				fis.close();
 				return bs;
@@ -175,5 +181,24 @@ public class SystemUtils
 				e.printStackTrace();
 			}
 		return null;
+	}
+
+	public static String readFile(File file, Charset charset)
+	{
+		if (file!=null&&file.exists()&&file.isFile())
+			try
+			{
+				return String.join("\n", Files.readAllLines(Paths.get(file.toURI()), charset));
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		return null;
+	}
+
+	public static String readFile(File file, String charset)
+	{
+		return readFile(file, Charset.forName(charset));
 	}
 }

@@ -16,7 +16,7 @@ import ru.alexanderdv.schooltester.utilities.Person.Rodstvennik;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class Database
 {
@@ -198,7 +198,7 @@ public class Database
 
 		pst.setString(i++, account.getAccountType().toString());
 		pst.setString(i++, account.getLogin());
-		pst.setInt(i++, account.getPasswordHash());
+		pst.setInt(i++, account.getPassword().hashCode());
 		if (update)
 			pst.setString(i++, account.getLogin());
 	}
@@ -250,7 +250,8 @@ public class Database
 
 	private static Account fillAccount(Connection con, ResultSet rs) throws SQLException
 	{
-		Account account = new Account(AccountType.valueOf(rs.getString("_accounttype")), rs.getString("_login"), rs.getInt("_passwordhash"));
+		Account account = new Account(AccountType.valueOf(rs.getString("_accounttype")), rs.getString("_login"));
+		account._setPasswordHash(rs.getInt("_passwordhash"));
 		account.setActive(rs.getBoolean("_Active"));
 		account.setDeleted(rs.getBoolean("_Deleted"));
 		account.setSurname(rs.getString("_Surname"));

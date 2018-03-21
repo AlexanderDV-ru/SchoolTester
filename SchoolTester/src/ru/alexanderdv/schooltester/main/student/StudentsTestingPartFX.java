@@ -7,11 +7,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,23 +17,21 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import ru.alexanderdv.fxutilities.components.ButtonFX;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.main.StartPart;
-import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart.Test;
 import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
@@ -45,21 +39,27 @@ import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.Question;
 import ru.alexanderdv.schooltester.utilities.Question.Answer;
 import ru.alexanderdv.schooltester.utilities.Question.QuestionType;
+import ru.alexanderdv.schooltester.utilities.SystemUtils;
+import ru.alexanderdv.schooltester.utilities.Test;
+import ru.alexanderdv.schooltester.utilities.Theme;
 import ru.alexanderdv.schooltester.utilities.UserAnswer;
+import ru.alexanderdv.simpleutilities.Entry;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class StudentsTestingPartFX extends ProtectedFXWindow
 {
 
 	private static final MessageSystem msgSys = StartPart.msgSys;
 	private Test test;
+	private Theme theme;
 	private UserAnswer[] answers;
 	private int[] buttonsArrangement;
+	private ArrayList<Integer>[] buttonsArrangementForDistribution;
 	private ArrayList<Integer> skippedQuestions;
 	private int currentQuestionNumber;
 	private int lastNotSkippedQuestion;
@@ -84,7 +84,7 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 
 	/**
 	 * 
-	 * @param test.getTheme()
+	 * @param theme
 	 * @param parentPosition
 	 * @param testName
 	 * @param test.getQuestions()
@@ -104,10 +104,10 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 	 * @param anticopy
 	 * @param antiscreenshot
 	 */
-	public StudentsTestingPartFX(String secondaryTitle, URL url, Rectangle parentPosition, final Test test, String classNumber, String classLetter,
-			String surname, String name, String secondName, boolean indicateQualityOfLastAnswer, boolean indicateQualityOfAllAnswers, boolean showRightAnswer,
-			boolean canGoToAllQuestions, boolean skipButtonOption, boolean pauseOption, boolean pauseOnUnfocus, boolean anticopy, boolean antiscreenshot,
-			boolean fixedQSelectBtnHeight, boolean hide)
+	public StudentsTestingPartFX(String secondaryTitle, URL url, Rectangle parentPosition, final Test test, final Theme theme, String classNumber,
+			String classLetter, String surname, String name, String secondName, boolean indicateQualityOfLastAnswer, boolean indicateQualityOfAllAnswers,
+			boolean showRightAnswer, boolean canGoToAllQuestions, boolean skipButtonOption, boolean pauseOption, boolean pauseOnUnfocus, boolean anticopy,
+			boolean antiscreenshot, boolean fixedQSelectBtnHeight, boolean hide, int spaceText, boolean fillAllHeight, boolean maxHeight)
 	{
 		super(secondaryTitle, url, 0, 1);
 
@@ -126,6 +126,7 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 		answers = new UserAnswer[test.getQuestions().length];
 		this.timeToTest = test.getMaxTestTime();
 		this.test = test;
+		this.theme = theme;
 		this.indicateQualityOfLastAnswer = indicateQualityOfLastAnswer;
 		this.indicateQualityOfAllAnswers = indicateQualityOfAllAnswers;
 		this.showRightAnswer = showRightAnswer;
@@ -135,6 +136,11 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 		this.pauseOnUnfocus = pauseOnUnfocus;
 		this.fixedQSelectBtnHeight = fixedQSelectBtnHeight;
 		this.hide = hide;
+
+		this.spaceText = spaceText;
+		this.fillAllHeight = fillAllHeight;
+		this.maxHeight = maxHeight;
+
 		ButtonFX.anticntrlc = anticopy;
 		ButtonFX.antiscreenshot = antiscreenshot;
 		if (antiscreenshot)
@@ -172,7 +178,7 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 			{
 				if (e.getCode() == KeyCode.PRINTSCREEN)
 				{
-					FXDialogsGenerator.showFXDialog(stage, null, "Key printscreen was clicked!", 0, 0, Main.isFxWindowFrame(), true);
+					FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("printscreenWasClicked"), 0, 0, Main.isFxWindowFrame(), true);
 					Timer timer = new Timer(100, ae ->
 					{
 						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -190,8 +196,9 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 			ButtonFX btn = answerButtons[j];
 			btn.addActionListener((e) ->
 			{
-				btn.setClicked((test.getQuestions()[currentQuestionNumber].getType() != QuestionType.EnterText) ? selectedAnswers[j] = !selectedAnswers[j]
-						: false);
+				btn.setClicked((test.getQuestions()[currentQuestionNumber].getType() == QuestionType.PickOne || test.getQuestions()[currentQuestionNumber]
+						.getType() == QuestionType.SelectSome) ? selectedAnswers[j] = !selectedAnswers[j] : false);
+				updateButtonMenu(currentQuestionNumber, j);
 				if (test.getQuestions()[currentQuestionNumber].getType() == QuestionType.PickOne)
 					for (int k = 0; k < answerButtons.length; k++)
 						answerButtons[k].setClicked(j == k);
@@ -215,9 +222,9 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 				String newTimerText = toSize((timeToTest - (int) timeOfTest) / 60, 2).substring(0, 2) + ":" + toSize((timeToTest - (int) timeOfTest) % 60, 2)
 						.substring(0, 2);
 				if (!timerText.equals(newTimerText))
-					timer.setText(timerText = newTimerText);
+					Platform.runLater(() -> timer.setText(timerText = newTimerText));
 				if (timeOfTest >= timeToTest)
-					finish.click();
+					Platform.runLater(() -> finish.click());
 				lastTime = Calendar.getInstance().getTimeInMillis();
 			}
 		}).start();
@@ -270,7 +277,15 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 		InitStudentsTestingPart.instance.optionButtonsPanel.getChildren().add(next);
 
 		finish = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
-		finish.addActionListener(e -> finish(testName, classNumber, classLetter, surname, name, secondName));
+		finish.addActionListener(e ->
+		{
+			if(skippedQuestions.size()==1)
+				if(skippedQuestions.get(0)==currentQuestionNumber)
+					goNext();
+			if (!e.getActionCommand().equals("user") || skippedQuestions.size() == 0)
+				finish(testName, classNumber, classLetter, surname, name, secondName);
+			else FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("youHaveSkipped"), 0, 0, Main.isFxWindowFrame(), true);
+		});
 		finish.setBounds(optionButtonAndSpaceWidth * 3, 0, optionButtonWidth, InitStudentsTestingPart.instance.optionButtonsPanel.getPrefHeight());
 		InitStudentsTestingPart.instance.optionButtonsPanel.getChildren().add(finish);
 		qualityIndicator.setVisible(indicateQualityOfLastAnswer);
@@ -438,10 +453,12 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 		{
 			Pane panel = indicateQualityOfAllAnswers ? (Pane) qualityIndicators[currentQuestionNumber] : qualityIndicator;
 			if (questionResult == maxResult)
-				panel.setBackground(new Background(new BackgroundFill(Color.LIME, new CornerRadii(5), new Insets(0))));
+				panel.setBackground(test.getPerfectAnswerBackground());
 			else if (questionResult > minResult)
-				panel.setBackground(new Background(new BackgroundFill(Color.YELLOW, new CornerRadii(5), new Insets(0))));
-			else panel.setBackground(new Background(new BackgroundFill(Color.RED, new CornerRadii(5), new Insets(0))));
+				panel.setBackground(test.getRightAnswerBackground());
+			else panel.setBackground(test.getWrongAnswerBackground());
+			if (questionResult > maxResult)
+				FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("questionResultMoreThanMaxResult"), 0, 0, Main.isFxWindowFrame(), true);
 		}
 		if (showRightAnswer)
 		{
@@ -459,7 +476,7 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 					if (test.getQuestions()[currentQuestionNumber].getAward() + a.getAward() == test.getQuestions()[currentQuestionNumber].getMaxAward())
 					{
 						rightAnswer += a.getText() + "\n";
-						answerButtons[i].setDisabledBackground(test.getTheme().getQuestionSelectSkippedBackground());
+						answerButtons[i].setDisabledBackground(theme.getQuestionSelectSkippedBackground());
 						answerButtons[i].setDisabledV(true);
 					}
 					i++;
@@ -470,7 +487,7 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 					if (test.getQuestions()[currentQuestionNumber].getAward() + a.getAward() > 0)
 					{
 						rightAnswer += a.getText() + "\n";
-						answerButtons[i].setDisabledBackground(test.getTheme().getQuestionSelectSkippedBackground());
+						answerButtons[i].setDisabledBackground(theme.getQuestionSelectSkippedBackground());
 						answerButtons[i].setDisabledV(true);
 					}
 					i++;
@@ -511,14 +528,358 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 
 	/**
 	 * 
+	 * @param window
+	 * @param _class
+	 * @param surname
+	 * @param name
+	 * @param secondName
+	 */
+	public void showResult(String testName, String classNumber, String classLetter, String surname, String name, String secondName, int result, int maxResult)
+	{
+		String text = "";
+		text += "syntaxLanguage" + ": \"" + msgSys.getLanguage() + "\"\n";
+		text += msgSys.getMsg("testName") + ": \"" + testName + "\"\n";
+		text += msgSys.getMsg("classNumber") + ": \"" + classNumber + "\"\n";
+		text += msgSys.getMsg("classLetter") + ": \"" + classLetter + "\"\n";
+		text += msgSys.getMsg("surname") + ": \"" + surname + "\"\n";
+		text += msgSys.getMsg("name") + ": \"" + name + "\"\n";
+		text += msgSys.getMsg("secondName") + ": \"" + secondName + "\"\n";
+		text += msgSys.getMsg("result") + ": " + result + "\n";
+		text += msgSys.getMsg("maxResult") + ": " + maxResult + "\n";
+		text += msgSys.getMsg("perfectAnswersAmount") + ": " + perfectAnswers + "\n";
+		text += msgSys.getMsg("rightAnswersAmount") + ": " + (rightAnswers - perfectAnswers) + "\n";
+		text += msgSys.getMsg("questionsAmount") + ": " + test.getQuestions().length + "\n";
+		text += msgSys.getMsg("time") + ": " + toSize((int) timeOfTest / 60, 2) + ":" + toSize((int) timeOfTest % 60, 2) + "\n";
+		text += msgSys.getMsg("timeToTest") + ": " + toSize((int) timeToTest / 60, 2) + ":" + toSize((int) timeToTest % 60, 2) + "\n";
+		text += msgSys.getMsg("fullTime") + ": " + toSize((int) fullTime / 60, 2) + ":" + toSize((int) fullTime % 60, 2);
+		Calendar c = Calendar.getInstance();
+		SystemUtils.writeFile(new File("Results/Result From " + c.get(Calendar.YEAR) + "_" + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(
+				Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".log"), text, "cp1251");
+		showLogs = true;
+		FXDialogsGenerator.showFXDialog(stage, null, text, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+	}
+
+	/**
+	 * 
+	 * @param i
+	 * @param size
+	 * @return
+	 */
+	private String toSize(int i, int size)
+	{
+		String s = i + "";
+		for (; s.length() < size;)
+			s = "0" + s;
+		return s;
+	}
+
+	/**
+	 * 
+	 */
+	public void changeLanguage()
+	{
+		next.setText(msgSys.getMsg("next"));
+		skip.setText(msgSys.getMsg("skip"));
+		finish.setText(msgSys.getMsg("finish"));
+	}
+
+	/**
+	 * 
+	 */
+	private void updateQuestionSelectPanel()
+	{
+		for (int i = 0; i < test.getQuestions().length; i++)
+		{
+			questionSelectAnswerButtons[i].setNormalBackground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedBackground()
+					: theme.getQuestionSelectNormalBackground());
+			questionSelectAnswerButtons[i].setNormalFrame(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedFrame()
+					: theme.getQuestionSelectNormalFrame());
+			questionSelectAnswerButtons[i].setNormalForeground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedForeground()
+					: theme.getQuestionSelectNormalForeground());
+			questionSelectAnswerButtons[i].setDisabledV(!skippedQuestions.contains(i) && !canGoToAllQuestions || i == currentQuestionNumber);
+			questionSelectAnswerButtons[i].setDisabledBackground(i == currentQuestionNumber ? theme.getSpecialButtonsBackground()
+					: theme.getQuestionSelectNormalBackground());
+			questionSelectAnswerButtons[i].setDisabledFrame(i == currentQuestionNumber ? theme.getSpecialButtonsFrame() : theme.getQuestionSelectNormalFrame());
+			questionSelectAnswerButtons[i].setDisabledForeground(i == currentQuestionNumber ? theme.getSpecialButtonsForeground()
+					: theme.getQuestionSelectNormalForeground());
+		}
+	}
+
+	/**
+	 * 
+	 * @param questionNumber
+	 */
+	public void saveAnswer(int questionNumber)
+	{
+		int selectedNumber = -1;
+		for (int j = 0; j < selectedAnswers.length; j++)
+			if (selectedAnswers[j])
+				selectedNumber = j;
+		answers[questionNumber] = new UserAnswer(selectedNumber, selectedAnswers.clone(), buttonsArrangement.clone(), buttonsArrangementForDistribution.clone(),
+				test.getQuestions()[questionNumber].getType() == QuestionType.EnterText ? answerButtons[0].getMainFieldText() : null);
+	}
+
+	public int[] array(int l)
+	{
+		int[] n = new int[l];
+		for (int y = 0; y < n.length; y++)
+			n[y] = y;
+		return n;
+	}
+
+	int spaceText;
+	boolean fillAllHeight, maxHeight;
+
+	private void updateButtonPose(int questionNumber, int btn)
+	{
+		answerButtonSpace = spaceText;
+		answerButtonHeightWithSpace = ((int) answersPanel.getPrefHeight() + answerButtonSpace) / (!fillAllHeight || test.getQuestions()[questionNumber]
+				.getType() == QuestionType.EnterText ? answerButtons.length : test.getQuestions()[questionNumber].getAnswers().length);
+		answerButtonHeight = maxHeight && test.getQuestions()[questionNumber].getType() != QuestionType.EnterText ? answerButtonHeightWithSpace
+				- answerButtonSpace : defaultAswerButtonHeight;
+		answerButtons[btn].setBounds(0, (test.getQuestions()[questionNumber].getType() != null ? btn : buttonsArrangement[btn]) * answerButtonHeightWithSpace,
+				answerButtons[btn].getPrefWidth(), answerButtonHeight);
+	}
+
+	/**
+	 * 
+	 * @param question
+	 * @param info
+	 * @param number
+	 */
+	public void openQuestion(int prev, int questionNumber)
+	{
+		if (answers[questionNumber] != null)
+			buttonsArrangement = answers[questionNumber].getAnswerArrangement();
+		else buttonsArrangement = test.getQuestions()[questionNumber].getType() == QuestionType.Arrangement ? intLessZeroArr(answerButtons.length)// array(answerButtons.length)
+				: intLessZeroArr(answerButtons.length);
+		InitStudentsTestingPart.instance.questionInfoTextfield.setText(msgSys.getMsg(test.getQuestions()[questionNumber].getType().name() + "questionInfo"));
+		if (answers[questionNumber] != null)
+			buttonsArrangementForDistribution = answers[questionNumber].getAnswerArrangementForDistribution();
+		else buttonsArrangementForDistribution = intLessZeroListsArr(answerButtons.length);
+		if (test.getQuestions()[questionNumber].getType() == QuestionType.EnterText)
+		{
+			for (ButtonFX button : answerButtons)
+				button.setVisible(false);
+			answerButtons[0].setVisible(true);
+			answerButtons[0].setEditable(true);
+			answerButtons[0].setText(answers[questionNumber] != null ? answers[questionNumber].getAnswerText() : "");
+			answerButtons[0].setFont(new javafx.scene.text.Font(answerButtons[0].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[0]
+					.getFont().getSize()));
+			answerButtons[0].setClicked(false);
+			answerButtons[0].setDisabledV(false);
+		}
+		else
+		{
+			for (int i = 0; i < answerButtons.length; i++)
+				answerButtons[i].setVisible(test.getQuestions()[questionNumber].getAnswers().length > i);
+			for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
+			{
+				answerButtons[i].setEditable(false);
+				answerButtons[i].setText(test.getQuestions()[questionNumber].getAnswers()[i].getText());
+				answerButtons[i].setFont(new Font(answerButtons[i].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[i].getFont()
+						.getSize()));
+				answerButtons[i].setClicked(false);
+				answerButtons[i].setDisabledV(false);
+			}
+		}
+		for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
+		{
+			updateButtonPose(questionNumber, i);
+			updateButtonMenu(questionNumber, i);
+		}
+		switch (test.getQuestions()[questionNumber].getType())
+		{
+			case PickOne:
+				questionSign.setDisabledBackground(theme.getPickOne().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getPickOne().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getPickOne().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getPickOne().getAnswersBackground());
+					answer.setNormalFrame(theme.getPickOne().getAnswersFrame());
+					answer.setNormalForeground(theme.getPickOne().getAnswersForeground());
+				}
+				break;
+			case SelectSome:
+				questionSign.setDisabledBackground(theme.getSelectSome().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getSelectSome().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getSelectSome().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getSelectSome().getAnswersBackground());
+					answer.setNormalFrame(theme.getSelectSome().getAnswersFrame());
+					answer.setNormalForeground(theme.getSelectSome().getAnswersForeground());
+				}
+				break;
+			case EnterText:
+				questionSign.setDisabledBackground(theme.getEnterText().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getEnterText().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getEnterText().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getEnterText().getAnswersBackground());
+					answer.setNormalFrame(theme.getEnterText().getAnswersFrame());
+					answer.setNormalForeground(theme.getEnterText().getAnswersForeground());
+				}
+				break;
+			case Arrangement:
+				questionSign.setDisabledBackground(theme.getArrangement().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getArrangement().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getArrangement().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getArrangement().getAnswersBackground());
+					answer.setNormalFrame(theme.getArrangement().getAnswersFrame());
+					answer.setNormalForeground(theme.getArrangement().getAnswersForeground());
+				}
+				break;
+			case Matching:
+				questionSign.setDisabledBackground(theme.getMatching().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getMatching().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getMatching().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getMatching().getAnswersBackground());
+					answer.setNormalFrame(theme.getMatching().getAnswersFrame());
+					answer.setNormalForeground(theme.getMatching().getAnswersForeground());
+				}
+				break;
+			case Distribution:
+				questionSign.setDisabledBackground(theme.getDistribution().getQuestionBackground());
+				questionSign.setDisabledFrame(theme.getDistribution().getQuestionFrame());
+				questionSign.setDisabledForeground(theme.getDistribution().getQuestionForeground());
+
+				for (ButtonFX answer : answerButtons)
+				{
+					answer.setNormalBackground(theme.getDistribution().getAnswersBackground());
+					answer.setNormalFrame(theme.getDistribution().getAnswersFrame());
+					answer.setNormalForeground(theme.getDistribution().getAnswersForeground());
+				}
+				break;
+		}
+		timer.setNormalBackground(theme.getSpecialButtonsBackground());
+		timer.setNormalFrame(theme.getSpecialButtonsFrame());
+		timer.setNormalForeground(theme.getSpecialButtonsForeground());
+		next.setNormalBackground(theme.getSpecialButtonsBackground());
+		next.setNormalFrame(theme.getSpecialButtonsFrame());
+		next.setNormalForeground(theme.getSpecialButtonsForeground());
+		finish.setNormalBackground(theme.getSpecialButtonsBackground());
+		finish.setNormalFrame(theme.getSpecialButtonsFrame());
+		finish.setNormalForeground(theme.getSpecialButtonsForeground());
+		skip.setNormalBackground(theme.getSpecialButtonsBackground());
+		skip.setNormalFrame(theme.getSpecialButtonsFrame());
+		skip.setNormalForeground(theme.getSpecialButtonsForeground());
+
+		if (!skippedQuestions.contains(questionNumber))
+			lastNotSkippedQuestion = questionNumber;
+		selectedAnswers = new boolean[test.getQuestions()[questionNumber].getAnswers().length];
+		questionSign.setFont(new Font(questionSign.getFont().getName(), test.getQuestions()[questionNumber].getFont().getSize()));
+		questionSign.setText(test.getQuestions()[questionNumber].getText());
+
+		if ((questionNumber >= test.getQuestions().length - 1))
+			wasGoToEnd = true;
+
+		next.setDisabledV(questionNumber >= test.getQuestions().length - 1 || (!canGoToAllQuestions && skippedQuestions.size() == 1 && skippedQuestions.get(
+				0) == questionNumber));
+		skip.setDisabledV(questionNumber >= test.getQuestions().length - 1);
+		finish.setDisabledV(!wasGoToEnd);
+
+		updateQuestionSelectPanel();
+	}
+
+	private void updateButtonMenu(int questionNumber, int i)
+	{
+		ContextMenu m = new ContextMenu();
+		if (test.getQuestions()[questionNumber].getType() == QuestionType.Distribution)
+		{
+			for (int r = 0; r < test.getQuestions()[questionNumber].getIndexesForNames().length; r++)
+			{
+				CheckMenuItem item = new CheckMenuItem(test.getQuestions()[questionNumber].getIndexesForNames()[r]);
+				int rr = r;
+				item.setOnAction(e ->
+				{
+					if (item.isSelected() && !buttonsArrangementForDistribution[i].contains(test.getQuestions()[questionNumber]
+							.getIndexesForNamesIndexes()[rr]))
+						buttonsArrangementForDistribution[i].add(test.getQuestions()[questionNumber].getIndexesForNamesIndexes()[rr]);
+					else if (!item.isSelected() && buttonsArrangementForDistribution[i].contains(test.getQuestions()[questionNumber]
+							.getIndexesForNamesIndexes()[rr]))
+						buttonsArrangementForDistribution[i].remove((Object) test.getQuestions()[questionNumber].getIndexesForNamesIndexes()[rr]);
+				});
+				m.getItems().add(item);
+			}
+		}
+		else if (test.getQuestions()[questionNumber].getType() == QuestionType.Matching)
+		{
+			ToggleGroup tg = new ToggleGroup();
+			for (int r = 0; r < test.getQuestions()[questionNumber].getIndexesForNames().length; r++)
+			{
+				RadioMenuItem item = new RadioMenuItem(test.getQuestions()[questionNumber].getIndexesForNames()[r]);
+				item.setToggleGroup(tg);
+				int rr = r;
+				item.setOnAction(e ->
+				{
+					buttonsArrangement[i] = test.getQuestions()[questionNumber].getIndexesForNamesIndexes()[rr];
+				});
+				m.getItems().add(item);
+			}
+		}
+		else if (test.getQuestions()[questionNumber].getType() == QuestionType.Arrangement)
+		{
+			ToggleGroup tg = new ToggleGroup();
+			for (int r = 0; r < test.getQuestions()[questionNumber].getAnswers().length; r++)
+			{
+				RadioMenuItem item = new RadioMenuItem(r + 1 + "");
+				item.setToggleGroup(tg);
+				int rr = r;
+				item.setOnAction(e ->
+				{
+					buttonsArrangement[i] = rr;
+				});
+				m.getItems().add(item);
+			}
+		}
+		boolean equals = true;
+		if (answerButtons[i].getContextMenu() != null)
+			if (answerButtons[i].getContextMenu().getItems().size() == m.getItems().size())
+				for (MenuItem item : answerButtons[i].getContextMenu().getItems())
+				{
+					boolean match = false;
+					for (MenuItem item2 : m.getItems())
+					{
+						if (item.getText().equals(item2.getText()))
+							match = true;
+						// System.out.println(item.getText() + "\t\t" + item2.getText());
+					}
+					if (!match)
+						equals = false;
+				}
+			else equals = false;
+		else equals = false;
+		if (!equals)
+			answerButtons[i].setContextMenu(m);
+	}
+
+	/**
+	 * 
 	 * @param questionNumber
 	 * @return
 	 */
 	private int[] _handleQuestion(int questionNumber)
 	{
 		Question question = test.getQuestions()[questionNumber];
-		if (answers[questionNumber] != null ? answers[questionNumber].getSelectedAnswers() == null || answers[questionNumber].getAnswerText() == null : true)
-			answers[questionNumber] = new UserAnswer(-1, new boolean[question.getAnswers().length], question.getAnswersIndexes(), "");
+		if (answers[questionNumber] != null ? answers[questionNumber].getSelectedAnswers() == null && question.getType() == QuestionType.SelectSome
+				|| answers[questionNumber].getAnswerText() == null && question.getType() == QuestionType.EnterText : true)
+			answers[questionNumber] = new UserAnswer(-1, new boolean[question.getAnswers().length], question.getType() == QuestionType.Arrangement
+					? intLessZeroArr(question.getAnswers().length)
+					/*
+					 * question .getAnswersIndexes()
+					 */ : intLessZeroArr(question.getAnswers().length), intLessZeroListsArr(question.getAnswers().length), "");
 		int questionResult = question.getAward();
 		switch (question.getType())
 		{
@@ -557,16 +918,19 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 			case Arrangement:
 			{
 				int res = 0;
-				for (HashMap<Integer, Integer> hashMap : question.getAnswerArrangement().keySet())
+				int[] answersIndexes = new int[question.getAnswersIndexes().length];
+				for (int i = 0; i < question.getAnswersIndexes().length; i++)
+					answersIndexes[question.getAnswersIndexes()[i]] = i;
+				for (HashMap<Integer, Integer> hashMap : question.getAnswerArrangementForArrangement().keySet())
 				{
 					boolean b = true;
 					for (Integer integer : hashMap.keySet())
-						if (answers[questionNumber].getAnswerArrangement()[question.getAnswersIndexes()[integer]] != hashMap.get(integer))
+						if (answers[questionNumber].getAnswerArrangement()[answersIndexes[integer]] != hashMap.get(integer))
 							b = false;
 					if (b)
 						if (question.isHandleOnlyMaximal())
-							res = Math.max(res, question.getAnswerArrangement().get(hashMap));
-						else res += question.getAnswerArrangement().get(hashMap);
+							res = Math.max(res, question.getAnswerArrangementForArrangement().get(hashMap));
+						else res += question.getAnswerArrangementForArrangement().get(hashMap);
 				}
 				questionResult += res;
 			}
@@ -574,16 +938,19 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 			case Matching:
 			{
 				int res = 0;
-				for (HashMap<Integer, Integer> hashMap : question.getAnswerArrangement().keySet())
+				int[] answersIndexes = new int[question.getAnswersIndexes().length];
+				for (int i = 0; i < question.getAnswersIndexes().length; i++)
+					answersIndexes[question.getAnswersIndexes()[i]] = i;
+				for (HashMap<Integer, Integer> hashMap : question.getAnswerArrangementForMatching().keySet())
 				{
 					boolean b = true;
 					for (Integer integer : hashMap.keySet())
-						if (answers[questionNumber].getAnswerArrangement()[integer] != hashMap.get(integer))
+						if (answers[questionNumber].getAnswerArrangement()[answersIndexes[integer]] != hashMap.get(integer))
 							b = false;
 					if (b)
 						if (question.isHandleOnlyMaximal())
-							res = Math.max(res, question.getAnswerArrangement().get(hashMap));
-						else res += question.getAnswerArrangement().get(hashMap);
+							res = Math.max(res, question.getAnswerArrangementForMatching().get(hashMap));
+						else res += question.getAnswerArrangementForMatching().get(hashMap);
 				}
 				questionResult += res;
 			}
@@ -591,16 +958,29 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 			case Distribution:
 			{
 				int res = 0;
-				for (HashMap<Integer, Integer> hashMap : question.getAnswerArrangement().keySet())
+				int[] answersIndexes = new int[question.getAnswersIndexes().length];
+				for (int i = 0; i < question.getAnswersIndexes().length; i++)
+					answersIndexes[question.getAnswersIndexes()[i]] = i;
+				for (HashMap<Entry<Integer, Boolean>, ArrayList<Integer>> hashMap : question.getAnswerArrangementForDistribution().keySet())
 				{
 					boolean b = true;
-					for (Integer integer : hashMap.keySet())
-						if (answers[questionNumber].getAnswerArrangement()[integer] != hashMap.get(integer))
-							b = false;
+					ArrayList<Integer> list;
+					for (Entry<Integer, Boolean> integerBoolean : hashMap.keySet())
+						if ((list = hashMap.get(integerBoolean)) != null)
+						{
+							for (Integer i : list)
+								if (!answers[questionNumber].getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]].contains(i))
+									b = false;
+							if (integerBoolean.getSecond())
+								if (answers[questionNumber].getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]].size() != hashMap
+										.get(integerBoolean).size())
+									b = false;
+						}
+						else b = false;
 					if (b)
 						if (question.isHandleOnlyMaximal())
-							res = Math.max(res, question.getAnswerArrangement().get(hashMap));
-						else res += question.getAnswerArrangement().get(hashMap);
+							res = Math.max(res, question.getAnswerArrangementForDistribution().get(hashMap));
+						else res += question.getAnswerArrangementForDistribution().get(hashMap);
 				}
 				questionResult += res;
 			}
@@ -615,310 +995,20 @@ public class StudentsTestingPartFX extends ProtectedFXWindow
 		};
 	}
 
-	/**
-	 * 
-	 * @param window
-	 * @param _class
-	 * @param surname
-	 * @param name
-	 * @param secondName
-	 */
-	public void showResult(String testName, String classNumber, String classLetter, String surname, String name, String secondName, int result, int maxResult)
+	private int[] intLessZeroArr(int length)
 	{
-		String text = "";
-		text += "syntaxLanguage" + ": \"" + msgSys.getLanguage() + "\"\n";
-		text += msgSys.getMsg("testName") + ": \"" + testName + "\"\n";
-		text += msgSys.getMsg("classNumber") + ": \"" + classNumber + "\"\n";
-		text += msgSys.getMsg("classLetter") + ": \"" + classLetter + "\"\n";
-		text += msgSys.getMsg("surname") + ": \"" + surname + "\"\n";
-		text += msgSys.getMsg("name") + ": \"" + name + "\"\n";
-		text += msgSys.getMsg("secondName") + ": \"" + secondName + "\"\n";
-		text += msgSys.getMsg("result") + ": " + result + "\n";
-		text += msgSys.getMsg("maxResult") + ": " + maxResult + "\n";
-		text += msgSys.getMsg("perfectAnswersAmount") + ": " + perfectAnswers + "\n";
-		text += msgSys.getMsg("rightAnswersAmount") + ": " + (rightAnswers - perfectAnswers) + "\n";
-		text += msgSys.getMsg("questionsAmount") + ": " + test.getQuestions().length + "\n";
-		text += msgSys.getMsg("time") + ": " + toSize((int) timeOfTest / 60, 2) + ":" + toSize((int) timeOfTest % 60, 2) + "\n";
-		text += msgSys.getMsg("timeToTest") + ": " + toSize((int) timeToTest / 60, 2) + ":" + toSize((int) timeToTest % 60, 2) + "\n";
-		text += msgSys.getMsg("fullTime") + ": " + toSize((int) fullTime / 60, 2) + ":" + toSize((int) fullTime % 60, 2);
-		Calendar c = Calendar.getInstance();
-		File results = new File("Results");
-		if (!results.isDirectory() && results.exists())
-			results.delete();
-		if (!results.exists())
-			results.mkdir();
-		File f = new File("Results/Result From " + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(Calendar.HOUR), 2) + "-" + toSize(c.get(
-				Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".log");
-		try
-		{
-			f.createNewFile();
-			BufferedWriter pw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "Cp1251"));
-			pw.write(text);
-			pw.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		showLogs = true;
-		FXDialogsGenerator.showFXDialog(stage, null, text, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+		int[] i = new int[length];
+		for (int j = 0; j < i.length; j++)
+			i[j] = -1;
+		return i;
 	}
 
-	/**
-	 * 
-	 * @param i
-	 * @param size
-	 * @return
-	 */
-	private String toSize(int i, int size)
+	private ArrayList<Integer>[] intLessZeroListsArr(int length)
 	{
-		String s = i + "";
-		for (; s.length() < size;)
-			s = "0" + s;
-		return s;
-	}
-
-	/**
-	 * 
-	 */
-	public void changeLanguage()
-	{
-		next.setText(msgSys.getMsg("next"));
-		skip.setText(msgSys.getMsg("skip"));
-		finish.setText(msgSys.getMsg("finish"));
-	}
-
-	/**
-	 * 
-	 */
-	private void updateQuestionSelectPanel()
-	{
-		for (int i = 0; i < test.getQuestions().length; i++)
-		{
-			questionSelectAnswerButtons[i].setNormalBackground(skippedQuestions.contains(i) ? test.getTheme().getQuestionSelectSkippedBackground()
-					: test.getTheme().getQuestionSelectNormalBackground());
-			questionSelectAnswerButtons[i].setNormalFrame(skippedQuestions.contains(i) ? test.getTheme().getQuestionSelectSkippedFrame()
-					: test.getTheme().getQuestionSelectNormalFrame());
-			questionSelectAnswerButtons[i].setNormalForeground(skippedQuestions.contains(i) ? test.getTheme().getQuestionSelectSkippedForeground()
-					: test.getTheme().getQuestionSelectNormalForeground());
-			questionSelectAnswerButtons[i].setDisabledV(!skippedQuestions.contains(i) && !canGoToAllQuestions || i == currentQuestionNumber);
-			questionSelectAnswerButtons[i].setDisabledBackground(i == currentQuestionNumber ? test.getTheme().getSpecialButtonsBackground()
-					: test.getTheme().getQuestionSelectNormalBackground());
-			questionSelectAnswerButtons[i].setDisabledFrame(i == currentQuestionNumber ? test.getTheme().getSpecialButtonsFrame()
-					: test.getTheme().getQuestionSelectNormalFrame());
-			questionSelectAnswerButtons[i].setDisabledForeground(i == currentQuestionNumber ? test.getTheme().getSpecialButtonsForeground()
-					: test.getTheme().getQuestionSelectNormalForeground());
-		}
-	}
-
-	/**
-	 * 
-	 * @param questionNumber
-	 */
-	public void saveAnswer(int questionNumber)
-	{
-		int selectedNumber = -1;
-		for (int j = 0; j < selectedAnswers.length; j++)
-			if (selectedAnswers[j])
-				selectedNumber = j;
-		answers[questionNumber] = new UserAnswer(selectedNumber, selectedAnswers.clone(), buttonsArrangement.clone(), test.getQuestions()[questionNumber]
-				.getType() == QuestionType.EnterText ? answerButtons[0].getText() : "");
-	}
-
-	public int[] array(int l)
-	{
-		int[] n = new int[l];
-		for (int y = 0; y < n.length; y++)
-			n[y] = y;
-		return n;
-	}
-
-	private void updateButtonPose(int questionNumber, int btn)
-	{
-		boolean mabq = true, b = false;
-		answerButtonSpace = 5;
-		answerButtonHeightWithSpace = ((int) answersPanel.getPrefHeight() + answerButtonSpace) / (mabq ? answerButtons.length
-				: test.getQuestions()[questionNumber].getAnswers().length);
-		answerButtonHeight = b ? answerButtonHeightWithSpace - answerButtonSpace : defaultAswerButtonHeight;
-		answerButtons[btn].setBounds(0, (test.getQuestions()[questionNumber].getType() != QuestionType.Arrangement ? btn : buttonsArrangement[btn])
-				* answerButtonHeightWithSpace, answerButtons[btn].getPrefWidth(), answerButtonHeight);
-	}
-
-	/**
-	 * 
-	 * @param question
-	 * @param info
-	 * @param number
-	 */
-	public void openQuestion(int prev, int questionNumber)
-	{
-		if (answers[questionNumber] != null)
-			buttonsArrangement = answers[questionNumber].getAnswerArrangement();
-		else buttonsArrangement = array(answerButtons.length);
-		if (test.getQuestions()[questionNumber].getType() == QuestionType.EnterText)
-		{
-			for (ButtonFX button : answerButtons)
-				button.setVisible(false);
-			answerButtons[0].setVisible(true);
-			answerButtons[0].setEditable(true);
-			answerButtons[0].setText(answers[questionNumber] != null ? answers[questionNumber].getAnswerText() : "");
-			answerButtons[0].setFont(new javafx.scene.text.Font(answerButtons[0].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[0]
-					.getFont().getSize()));
-			answerButtons[0].setClicked(false);
-			answerButtons[0].setDisabledV(false);
-		}
-		else
-		{
-			for (int i = 0; i < answerButtons.length; i++)
-				answerButtons[i].setVisible(test.getQuestions()[questionNumber].getAnswers().length > i);
-			for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
-			{
-				answerButtons[i].setEditable(false);
-				answerButtons[i].setText(test.getQuestions()[questionNumber].getAnswers()[i].getText());
-				answerButtons[i].setFont(new Font(answerButtons[i].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[i].getFont()
-						.getSize()));
-				answerButtons[i].setClicked(false);
-				answerButtons[i].setDisabledV(false);
-			}
-		}
-		for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
-		{
-			updateButtonPose(questionNumber, i);
-			ContextMenu m = new ContextMenu();
-			if (test.getQuestions()[questionNumber].getType() == QuestionType.Distribution || test.getQuestions()[questionNumber]
-					.getType() == QuestionType.Matching)
-			{
-				ToggleGroup tg = new ToggleGroup();
-				for (int r = 0; r < test.getQuestions()[questionNumber].getIndexesForNames().length; r++)
-				{
-					RadioMenuItem item = new RadioMenuItem(test.getQuestions()[questionNumber].getIndexesForNames()[r]);
-					item.setToggleGroup(tg);
-					int ii = i, rr = r;
-					item.setOnAction(e ->
-					{
-						buttonsArrangement[ii] = rr;
-					});
-					m.getItems().add(item);
-				}
-			}
-			else if (test.getQuestions()[questionNumber].getType() == QuestionType.Arrangement)
-			{
-				ToggleGroup tg = new ToggleGroup();
-				for (int r = 0; r < test.getQuestions()[questionNumber].getAnswers().length; r++)
-				{
-					RadioMenuItem item = new RadioMenuItem(r + 1 + "");
-					item.setToggleGroup(tg);
-					int ii = i, rr = r;
-					item.setOnAction(e ->
-					{
-						buttonsArrangement[ii] = rr;
-					});
-					m.getItems().add(item);
-				}
-			}
-			answerButtons[i].setContextMenu(m);
-		}
-		switch (test.getQuestions()[questionNumber].getType())
-		{
-			case PickOne:
-				questionSign.setDisabledBackground(test.getTheme().getPickOne().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getPickOne().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getPickOne().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getPickOne().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getPickOne().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getPickOne().getAnswersForeground());
-				}
-				break;
-			case SelectSome:
-				questionSign.setDisabledBackground(test.getTheme().getSelectSome().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getSelectSome().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getSelectSome().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getSelectSome().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getSelectSome().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getSelectSome().getAnswersForeground());
-				}
-				break;
-			case EnterText:
-				questionSign.setDisabledBackground(test.getTheme().getEnterText().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getEnterText().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getEnterText().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getEnterText().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getEnterText().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getEnterText().getAnswersForeground());
-				}
-				break;
-			case Arrangement:
-				questionSign.setDisabledBackground(test.getTheme().getArrangement().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getArrangement().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getArrangement().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getArrangement().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getArrangement().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getArrangement().getAnswersForeground());
-				}
-				break;
-			case Matching:
-				questionSign.setDisabledBackground(test.getTheme().getMatching().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getMatching().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getMatching().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getMatching().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getMatching().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getMatching().getAnswersForeground());
-				}
-				break;
-			case Distribution:
-				questionSign.setDisabledBackground(test.getTheme().getDistribution().getQuestionBackground());
-				questionSign.setDisabledFrame(test.getTheme().getDistribution().getQuestionFrame());
-				questionSign.setDisabledForeground(test.getTheme().getDistribution().getQuestionForeground());
-
-				for (ButtonFX answer : answerButtons)
-				{
-					answer.setNormalBackground(test.getTheme().getDistribution().getAnswersBackground());
-					answer.setNormalFrame(test.getTheme().getDistribution().getAnswersFrame());
-					answer.setNormalForeground(test.getTheme().getDistribution().getAnswersForeground());
-				}
-				break;
-		}
-		timer.setNormalBackground(test.getTheme().getSpecialButtonsBackground());
-		timer.setNormalFrame(test.getTheme().getSpecialButtonsFrame());
-		timer.setNormalForeground(test.getTheme().getSpecialButtonsForeground());
-		next.setNormalBackground(test.getTheme().getSpecialButtonsBackground());
-		next.setNormalFrame(test.getTheme().getSpecialButtonsFrame());
-		next.setNormalForeground(test.getTheme().getSpecialButtonsForeground());
-		finish.setNormalBackground(test.getTheme().getSpecialButtonsBackground());
-		finish.setNormalFrame(test.getTheme().getSpecialButtonsFrame());
-		finish.setNormalForeground(test.getTheme().getSpecialButtonsForeground());
-		skip.setNormalBackground(test.getTheme().getSpecialButtonsBackground());
-		skip.setNormalFrame(test.getTheme().getSpecialButtonsFrame());
-		skip.setNormalForeground(test.getTheme().getSpecialButtonsForeground());
-
-		if (!skippedQuestions.contains(questionNumber))
-			lastNotSkippedQuestion = questionNumber;
-		selectedAnswers = new boolean[test.getQuestions()[questionNumber].getAnswers().length];
-		questionSign.setFont(new Font(questionSign.getFont().getName(), test.getQuestions()[questionNumber].getFont().getSize()));
-		questionSign.setText(test.getQuestions()[questionNumber].getText());
-
-		if ((questionNumber >= test.getQuestions().length - 1))
-			wasGoToEnd = true;
-
-		next.setDisabledV(questionNumber >= test.getQuestions().length - 1);
-		skip.setDisabledV(questionNumber >= test.getQuestions().length - 1);
-		finish.setDisabledV(!wasGoToEnd);
-
-		updateQuestionSelectPanel();
+		@SuppressWarnings("unchecked")
+		ArrayList<Integer>[] i = new ArrayList[length];
+		for (int j = 0; j < i.length; j++)
+			i[j] = new ArrayList<Integer>();
+		return i;
 	}
 }

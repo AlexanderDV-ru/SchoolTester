@@ -1,12 +1,10 @@
 package ru.alexanderdv.schooltester.main;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 
-import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.utilities.Account;
 import ru.alexanderdv.schooltester.utilities.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
@@ -16,7 +14,7 @@ import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
  * AccountsPart - the GUI part for woking with accounts
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class AccountsPart extends ProtectedFXWindow implements ActionListener
 {
@@ -42,7 +40,7 @@ public class AccountsPart extends ProtectedFXWindow implements ActionListener
 				break;
 
 			case "accountInfoChangedByYou":
-				if (packet.getOldAccount().getPasswordHash() != packet.getNewAccount().getPasswordHash())
+				if (packet.getOldAccount().getPassword().equals(packet.getNewAccount().getPassword()))
 					InitAccountsPart.instance.passwordField.setText(InitAccountsPart.instance.newPasswordField.getText());
 				break;
 
@@ -76,14 +74,6 @@ public class AccountsPart extends ProtectedFXWindow implements ActionListener
 		InitAccountsPart.instance.changeVisibleTabs(account.get());
 	}
 
-	public Stage open(Stage parent)
-	{
-		stage.show();
-		stage.setX(parent.getX() + parent.getWidth());
-		stage.setY(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2);
-		return stage;
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -97,15 +87,6 @@ public class AccountsPart extends ProtectedFXWindow implements ActionListener
 			{
 				e1.printStackTrace();
 			}
-	}
-
-	@Override
-	public Stage open(Rectangle parent)
-	{
-		stage.show();
-		stage.setX(parent.getX() + parent.getWidth());
-		stage.setY(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2);
-		return stage;
 	}
 
 	public void updateLabelsInPart()

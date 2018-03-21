@@ -6,7 +6,7 @@ import java.io.Serializable;
  * NetworkPacket - the class for communicating with the server
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.0.0a
+ * @version 5.8.0a
  */
 public class NetworkPacket implements Serializable
 {

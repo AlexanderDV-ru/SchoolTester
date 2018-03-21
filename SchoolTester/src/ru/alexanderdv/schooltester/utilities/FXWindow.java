@@ -1,11 +1,12 @@
 package ru.alexanderdv.schooltester.utilities;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.net.URL;
 
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -27,7 +28,7 @@ import ru.alexanderdv.schooltester.main.Main;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public abstract class FXWindow
 {
@@ -108,24 +109,25 @@ public abstract class FXWindow
 		}
 	}
 
-	public Stage open(Rectangle parent)
+	private final Stage _open(Rectangle parent)
 	{
 		stage.show();
-		stage.setX(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2);
-		stage.setY(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2);
-		if (fxScene != null)
-			fxScene.updatePosition(new Point((int) stage.getX(), (int) stage.getY()));
+		stage.requestFocus();
+		stage.setX(Math.max(FXScene.minX + 1, Math.min(Math.min(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2, FXScene.maxX - stage.getWidth()),
+				FXScene.maxX - 1)));
+		stage.setY(Math.max(FXScene.minY + 1, Math.min(Math.min(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2, FXScene.maxY - stage
+				.getHeight()), FXScene.maxY - 1)));
 		return stage;
 	}
 
 	public Stage open(Stage parent)
 	{
-		stage.show();
-		stage.setX(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2);
-		stage.setY(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2);
-		if (fxScene != null)
-			fxScene.updatePosition(new Point((int) stage.getX(), (int) stage.getY()));
-		return stage;
+		return _open(new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(), (int) parent.getHeight()));
+	}
+
+	public Stage open(Rectangle parent)
+	{
+		return _open(parent);
 	}
 
 	public void setOnCloseRequest(EventHandler<WindowEvent> event)
@@ -169,6 +171,29 @@ public abstract class FXWindow
 		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("privacyPolicyText"), 0, 0, Main.isFxWindowFrame(), true));
 		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("usersManualText"), 0, 0, Main.isFxWindowFrame(), true));
 		site.setOnAction(event -> SystemUtils.openUrlInBrowser(msgSys.getMsg("site")));
+
+		EventHandler<Event> eh = e -> e.consume();
+		window.setMnemonicParsing(false);
+		settings.setMnemonicParsing(false);
+		language.setMnemonicParsing(false);
+		help.setMnemonicParsing(false);
+		// fxWindowFrameState.setMnemonicParsing(false);
+		languageEN.setMnemonicParsing(false);
+		languageRU.setMnemonicParsing(false);
+		privacyPolicy.setMnemonicParsing(false);
+		usersManual.setMnemonicParsing(false);
+		site.setMnemonicParsing(false);
+
+		window.setOnMenuValidation(eh);
+		settings.setOnMenuValidation(eh);
+		language.setOnMenuValidation(eh);
+		help.setOnMenuValidation(eh);
+		// fxWindowFrameState.setOnMenuValidation(eh);
+		languageEN.setOnMenuValidation(eh);
+		languageRU.setOnMenuValidation(eh);
+		privacyPolicy.setOnMenuValidation(eh);
+		usersManual.setOnMenuValidation(eh);
+		site.setOnMenuValidation(eh);
 		return menubar;
 	}
 
@@ -187,9 +212,44 @@ public abstract class FXWindow
 		}
 	}
 
-	public Stage getStage()
+	private boolean hidedToTime = false;
+
+	public void hideToTime()
 	{
-		return stage;
+		if (stage.isShowing())
+		{
+			stage.hide();
+			hidedToTime = true;
+		}
+	}
+
+	public ReadOnlyBooleanProperty focusedProperty()
+	{
+		return stage.focusedProperty();
+	}
+
+	public void showIfHided()
+	{
+		if (hidedToTime)
+		{
+			stage.show();
+			hidedToTime = false;
+		}
+	}
+
+	public boolean isVisible()
+	{
+		return stage.isShowing();
+	}
+
+	public Rectangle getBounds()
+	{
+		return new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight());
+	}
+
+	public void close()
+	{
+		stage.close();
 	}
 
 	public Menu getLanguage()

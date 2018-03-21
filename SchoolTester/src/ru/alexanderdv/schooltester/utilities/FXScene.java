@@ -29,7 +29,7 @@ import javafx.stage.WindowEvent;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class FXScene extends AnchorPane
 {
@@ -45,9 +45,27 @@ public class FXScene extends AnchorPane
 	private ImageView icon;
 	private int titlePaneHeight = 30;
 	private double addingWidth, addingHeight;
-	private static Rectangle[] bounds;
-	private static double minX, minY, maxX, maxY;
-	private EventHandler<WindowEvent> ev;
+	public static final double minX, minY, maxX, maxY;
+	private EventHandler<WindowEvent> ev, ev3;
+	public static final Rectangle[] bounds;
+	static
+	{
+		GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+		bounds = new Rectangle[devices.length];
+		double _minX = Double.MAX_VALUE, _minY = Double.MAX_VALUE, _maxX = Double.MIN_VALUE, _maxY = Double.MIN_VALUE;
+		for (int i = 0; i < devices.length; i++)
+		{
+			bounds[i] = devices[i].getDefaultConfiguration().getBounds();
+			_minX = Math.min(_minX, bounds[i].getMinX());
+			_minY = Math.min(_minY, bounds[i].getMinY());
+			_maxX = Math.max(_maxX, bounds[i].getMaxX());
+			_maxY = Math.max(_maxY, bounds[i].getMaxY());
+		}
+		minX = _minX;
+		minY = _minY;
+		maxX = _maxX;
+		maxY = _maxY;
+	}
 
 	/**
 	 * @return the addingWidth
@@ -198,22 +216,24 @@ public class FXScene extends AnchorPane
 
 		hide.setOnAction(e ->
 		{
+			stage.setIconified(!stage.isIconified());
 			if (ev != null)
 				ev.handle(new WindowEvent(stage, EventType.ROOT));
-			stage.setIconified(!stage.isIconified());
 		});
 		max.setOnAction(e ->
 		{
 			if (canResize)
 				stage.setMaximized(!stage.isMaximized());
+			if (ev3 != null)
+				ev3.handle(new WindowEvent(stage, EventType.ROOT));
 		});
 		exit.setOnAction(e ->
 		{
 			if (stage.getOnCloseRequest() != null)
 				stage.getOnCloseRequest().handle(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-			else stage.close();
+			stage.close();
 		});
-		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) (e.getScreenX()), (int) (e.getScreenY())));
+		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) (e.getScreenX()), (int) (e.getScreenY())),true);
 		EventHandler<MouseEvent> ev2 = (e) -> lastPoint = new Point((int) (e.getScreenX()), (int) (e.getScreenY()));
 		icon.setOnMouseDragged(ev);
 		icon.setOnMousePressed(ev2);
@@ -221,23 +241,9 @@ public class FXScene extends AnchorPane
 		title.setOnMousePressed(ev2);
 	}
 
-	static
+	public void updatePosition(Point nowPoint, boolean byMouse)
 	{
-		GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-		bounds = new Rectangle[devices.length];
-		for (int i = 0; i < devices.length; i++)
-		{
-			bounds[i] = devices[i].getDefaultConfiguration().getBounds();
-			minX = Math.min(minX, bounds[i].getMinX());
-			minY = Math.min(minY, bounds[i].getMinY());
-			maxX = Math.max(maxX, bounds[i].getMaxX());
-			maxY = Math.max(maxY, bounds[i].getMaxY());
-		}
-	}
-
-	public void updatePosition(Point nowPoint)
-	{
-		if (lastPoint != null && nowPoint != null)
+		if (lastPoint != null && nowPoint != null && byMouse)
 		{
 			stage.setX(stage.getX() + nowPoint.getX() - lastPoint.getX());
 			stage.setY(stage.getY() + nowPoint.getY() - lastPoint.getY());
@@ -278,6 +284,11 @@ public class FXScene extends AnchorPane
 	public void setOnHiding(EventHandler<WindowEvent> ev)
 	{
 		this.ev = ev;
+	}
+
+	public void setOnMaximalize(EventHandler<WindowEvent> ev)
+	{
+		this.ev3 = ev;
 	}
 
 	public String getTitle()

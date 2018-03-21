@@ -21,10 +21,12 @@ import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class FXDialogsGenerator
 {
+	private static Stage lastDialogStage;
+
 	/**
 	 * Creates FXDialog with owner - 'primaryStage', with message - 'msg', with type of message - 'messageType', with type of option - 'optionType' in the
 	 * middle of 'Component'
@@ -44,7 +46,7 @@ public class FXDialogsGenerator
 	 */
 	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
 	{
-		Stage stage = new Stage();
+		Stage stage = lastDialogStage = new Stage();
 		try
 		{
 			Pane panel = new Pane();
@@ -100,6 +102,14 @@ public class FXDialogsGenerator
 				stage.setX((int) (parPos.getX() + parPos.getHeight() / 2 - stage.getWidth() / 2));
 				stage.setY((int) (parPos.getY() + parPos.getHeight() / 2 - stage.getHeight() / 2));
 			}
+			if (comp != null)
+				stage.setOnCloseRequest(e ->
+				{
+					if (lastDialogStage == stage)
+						lastDialogStage = null;
+					stage.close();
+					comp.requestFocus();
+				});
 			if (wait)
 				stage.showAndWait();
 			else stage.show();
@@ -110,6 +120,17 @@ public class FXDialogsGenerator
 			Main.exit(ExitCodes.UnknownError);
 		}
 		return stage;
+	}
+
+	public static boolean hasShowedDialog()
+	{
+		return lastDialogStage != null;
+	}
+
+	public static void focus()
+	{
+		if (hasShowedDialog())
+			lastDialogStage.requestFocus();
 	}
 
 }

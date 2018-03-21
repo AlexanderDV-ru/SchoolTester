@@ -6,14 +6,17 @@ import java.awt.Rectangle;
 import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 
+import ru.alexanderdv.schooltester.main.Main;
+
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class MathAndTextUtils
 {
+	private static final MessageSystem msgSys=Main.msgSys;
 	/**
 	 * 
 	 * @param text
@@ -82,7 +85,7 @@ public class MathAndTextUtils
 		for (int j = 0; j < n.length; j++)
 			for (int k = 0; k < n.length; k++)
 				if (n[j] == n[k] && j != k)
-					throw new NullPointerException("Characters repeats!");
+					throw new NullPointerException(msgSys.getMsg("charactersAreRepeating"));
 		String s = "";
 		for (; i != 0; i = (i - i % n.length) / n.length)
 			s = n[i % n.length] + s;
@@ -94,7 +97,7 @@ public class MathAndTextUtils
 		for (int j = 0; j < n.length; j++)
 			for (int k = 0; k < n.length; k++)
 				if (n[j] == n[k] && j != k)
-					throw new NullPointerException("Characters repeats!");
+					throw new NullPointerException(msgSys.getMsg("charactersAreRepeating"));
 		ArrayList<Character> cc = new ArrayList<Character>();
 		for (char c : n)
 			cc.add(c);
@@ -103,7 +106,7 @@ public class MathAndTextUtils
 		{
 			s += cc.indexOf(i.charAt(j)) * Math.pow(n.length, i.length() - 1 - j);
 			if (cc.indexOf(i.charAt(j)) == -1)
-				throw new NullPointerException("Character not exists!");
+				throw new NullPointerException(msgSys.getMsg("characterNotExists"));
 		}
 		return s;
 	}

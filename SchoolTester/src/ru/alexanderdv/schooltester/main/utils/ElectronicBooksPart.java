@@ -26,7 +26,7 @@ import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class ElectronicBooksPart extends ProtectedFXWindow
 {

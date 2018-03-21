@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 
@@ -11,7 +12,7 @@ import javafx.scene.layout.Pane;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class InitCrossWordGeneratorPart
 {
@@ -26,15 +27,17 @@ public class InitCrossWordGeneratorPart
 	@FXML
 	public CheckBox letters, digits, splitToHorizontalAndVertical;
 	@FXML
-	public ColorPicker backgroundOfEmptyCell, foregroundOfEmptyCell, backgroundOfCrosswordCell, foregroundOfCrosswordCell;
+	public ColorPicker backgroundOfEmptyCell, borderOfEmptyCell, backgroundOfCrosswordCell, borderOfCrosswordCell;
+	@FXML
+	public Label backgroundOfEmptyCellLabel, borderOfEmptyCellLabel, backgroundOfCrosswordCellLabel, borderOfCrosswordCellLabel;
 
 	@FXML
 	public void initialize()
 	{
 		instance = this;
 		backgroundOfEmptyCell.setValue(new javafx.scene.paint.Color(0.95, 0.95, 0.95, 1));
-		foregroundOfEmptyCell.setValue(new javafx.scene.paint.Color(0, 0, 0, 1));
+		borderOfEmptyCell.setValue(new javafx.scene.paint.Color(0, 0, 0, 1));
 		backgroundOfCrosswordCell.setValue(new javafx.scene.paint.Color(1, 1, 1, 1));
-		foregroundOfCrosswordCell.setValue(new javafx.scene.paint.Color(0, 0, 0, 1));
+		borderOfCrosswordCell.setValue(new javafx.scene.paint.Color(0, 0, 0, 1));
 	}
 }

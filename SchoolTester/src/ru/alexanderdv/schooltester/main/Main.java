@@ -30,8 +30,8 @@ import ru.alexanderdv.schooltester.main.utils.ElectronicBooksPart;
 import ru.alexanderdv.schooltester.main.utils.FunctionsWorkPart;
 import ru.alexanderdv.schooltester.utilities.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.ByteUtils;
-import ru.alexanderdv.schooltester.utilities.Config;
 import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.InfoPacket;
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
@@ -45,15 +45,23 @@ import ru.alexanderdv.schooltester.utilities.SystemUtils;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class Main extends Application
 {
-	public static final MessageSystem msgSys = new MessageSystem(new Config(new File("language.cfg")).getString("language", "en_uk", true));
+	public static final MessageSystem msgSys = new MessageSystem(SystemUtils.readFile(new File("language.cfg"), "cp1251"));
+	static
+	{
+		if (!MessageSystem.getMessages().keySet().contains(msgSys.getLanguage()))
+		{
+			msgSys.setLanguage("en_uk");
+			SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "cp1251");
+		}
+	}
 	private static final boolean developmentMode = false;
 	private static boolean fxWindowFrame;
 	public static final String programName = "SchoolTester";
-	public static final String programVersion = "5.5.0a";
+	public static final String programVersion = "5.8.0a";
 	public static final String programAuthors = "AlexanderDV";
 	public static final String program = programName + " v" + programVersion + " by " + programAuthors;
 	private static StartPart startPart;
@@ -97,34 +105,60 @@ public class Main extends Application
 		});
 		updateAllLabels();
 		openNeedfulParts();
-		if (connectToServer())
+		String request = connectToServer();
+		if (request.equals("keyIsRight"))
 		{
 			getStartPart().open(primaryStage, AccountsPart.account.get(), Main.instance.socket);
 			getStartPart().getStage().centerOnScreen();
 			startHandling();
 		}
-		else exit(ExitCodes.UnknownError);
+		switch (request)
+		{
+			case "youAreInBlacklist":
+				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
+				FXDialogsGenerator.showFXDialog(null, null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, isFxWindowFrame(),
+						true);
+				exit(ExitCodes.YouAreInBlacklist);
+				break;
+			case "keyIsBad":
+				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
+				FXDialogsGenerator.showFXDialog(null, null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, isFxWindowFrame(),
+						true);
+				exit(ExitCodes.KeyIsBad);
+				break;
+			case "notVerified":
+			case "verifyRequestSended":
+				FXDialogsGenerator.showFXDialog(null, null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, isFxWindowFrame(),
+						true);
+				SystemUtils.openUrlInBrowser(msgSys.getMsg("siteURL"));
+				exit(ExitCodes.NotVerified);
+				break;
+			case "keyIsRight":
+				FXDialogsGenerator.showFXDialog(getStartPart().getStage(), null, msgSys.getMsg(request), JOptionPane.INFORMATION_MESSAGE,
+						JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
+				break;
+		}
 
 	}
 
 	private void openNeedfulParts()
 	{
-		// accountsPart.open(stage);
-		// teachersTestsControlPart.open(stage);
-		// testDevPart.stage.show();
-		// electronicBooksPart.open(stage);
-		// functionsWorkPart.open(stage);
-		// crossWordGeneratorPart.open(stage);
+		// AccountsPart.account.set(new Account(AccountType.Administrator, "dasfsd", "sdfsdf"));
+		// accountsPart.getStage().show();
+		// teachersTestsControlPart.getStage().show();
+		// testDevPart.getStage().show();
+		// electronicBooksPart.getStage().show();
+		// functionsWorkPart.getStage().show();
+		// crossWordGeneratorPart.getStage().show();
 	}
 
 	public static final InetAddress server = pickReservOrStandardByOnline("18.219.238.19", "94.181.44.135");
 
-	public boolean connectToServer()
+	public String connectToServer()
 	{
 		String requestStr = "notConnectedToServer", versionStr = null, urlStr = null;
 		if (!developmentMode)
 		{
-
 			String key;
 			boolean ver = false;
 			File file = new File("program.data");
@@ -162,6 +196,15 @@ public class Main extends Application
 				DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) + 10000);
 				socket.setSoTimeout(1000);
 
+				NetworkUtils.sendData(socket, "checkUpdate", server, 21577, 14);
+
+				String strRes = NetworkUtils.recieveData(socket, new DatagramPacket(new byte[0], 0), String.class, 13);
+				if (strRes != null)
+					if (strRes.contains("\n"))
+					{
+						versionStr = strRes.split("\n")[0];
+						urlStr = strRes.split("\n")[1];
+					}
 				String dataStr = "";
 				dataStr += "network.ip.local" + '|' + InetAddress.getLocalHost().getHostAddress() + '\n';
 				dataStr += "network.name" + '|' + InetAddress.getLocalHost().getHostName() + '\n';
@@ -217,8 +260,6 @@ public class Main extends Application
 						if (responsePacket.getRequest().equals("keyIsRight"))
 							ver = true;
 						requestStr = responsePacket.getRequest();
-						versionStr = responsePacket.getVersion();
-						urlStr = responsePacket.getUrl();
 					}
 				}
 				socket.close();
@@ -244,41 +285,13 @@ public class Main extends Application
 				e.printStackTrace();
 			}
 		}
-		switch (requestStr)
+		if (!programVersion.equals(versionStr))
 		{
-			case "youAreInBlacklist":
-				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg(requestStr), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
-						isFxWindowFrame(), true);
-				exit(ExitCodes.YouAreInBlacklist);
-				return false;
-			case "keyIsBad":
-				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg(requestStr), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
-						isFxWindowFrame(), true);
-				exit(ExitCodes.KeyIsBad);
-				return false;
-			case "verifyRequestSended":
-				FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg(requestStr), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
-						isFxWindowFrame(), true);
-				SystemUtils.openUrlInBrowser(msgSys.getMsg("siteURL"));
-				exit(ExitCodes.NotVerified);
-				return false;
-			case "keyIsRight":
-				FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg(requestStr), JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
-						isFxWindowFrame(), true);
-				if (!programVersion.equals(versionStr))
-				{
-					FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE,
-							JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
-					SystemUtils.openUrlInBrowser(urlStr);
-				}
-				return true;
-			default:
-				FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg(requestStr), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION,
-						isFxWindowFrame(), true);
-				return true;
+			FXDialogsGenerator.showFXDialog((Stage) null, null, msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE,
+					JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
+			SystemUtils.openUrlInBrowser(urlStr);
 		}
+		return requestStr;
 	}
 
 	private static InetAddress pickReservOrStandardByOnline(String standardServer, String reservServer)
@@ -335,6 +348,13 @@ public class Main extends Application
 		electronicBooksPart = new ElectronicBooksPart(null, getClass().getResource("/ElectronicBooksPart.fxml"));
 		functionsWorkPart = new FunctionsWorkPart(null, getClass().getResource("/FunctionsWorkPart.fxml"));
 		setCrossWordGeneratorPart(new CrossWordGeneratorPart(null, getClass().getResource("/CrossWordGenerator.fxml")));
+
+		getStartPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		getAccountsPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		getTeachersTestsControlPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		crossWordGeneratorPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		electronicBooksPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		functionsWorkPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 	}
 
 	private static ArrayList<NetworkPacket> requests = new ArrayList<NetworkPacket>();
@@ -349,6 +369,21 @@ public class Main extends Application
 
 	public DatagramSocket socket;
 
+	@SuppressWarnings("unused")
+	private String replaceAll(String s, String replacement, String... regexes)
+	{
+		for (String regex : regexes)
+			s = s.replace(regex, replacement);
+		return s;
+	}
+
+	private String replaceAll(String s, String replacement, Iterable<String> regexes)
+	{
+		for (String regex : regexes)
+			s = s.replace(regex, replacement);
+		return s;
+	}
+
 	public synchronized void startHandling()
 	{
 		try
@@ -361,14 +396,85 @@ public class Main extends Application
 					while (true)
 						try
 						{
-							addRequest(new NetworkPacket("check", macAddress, ""));
-							for (NetworkPacket packet : requests)
+							int size = 8000;
+							String ttt;
+							if ((ttt = rSymFE(replaceAll(getLogsNames(), "", l).replace(",,", ","), ",")) != null && !ttt.equals(""))
+								for (String s = ttt; s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size)).substring(0, Math.min(s.substring(
+										Math.min(s.length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(), size)).lastIndexOf(",")))))
+								{
+									String st = s.substring(0, Math.min(s.length(), size));
+									addRequest(new InfoPacket("checkLogsList", macAddress, "", st.substring(0, st.contains(",") ? st.lastIndexOf(",")
+											: st.length()), null, false));
+								}
+							if ((ttt = rSymFE(replaceAll(getResultsNames(), "", r).replace(",,", ","), ",")) != null && !ttt.equals(""))
+								for (String s = replaceAll(getResultsNames(), "", r); s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size))
+										.substring(0, Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(),
+												size)).lastIndexOf(",")))))
+								{
+									String st = s.substring(0, Math.min(s.length(), size));
+									addRequest(new InfoPacket("checkResultsList", macAddress, "", st.substring(0, st.contains(",") ? st.lastIndexOf(",")
+											: st.length()), null, false));
+								}
+							if ((ttt = rSymFE(replaceAll(getTestsNames(), "", t).replace(",,", ","), ",")) != null && !ttt.equals(""))
+								for (String s = replaceAll(getTestsNames(), "", t); s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size))
+										.substring(0, Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(),
+												size)).lastIndexOf(",")))))
+								{
+									String st = s.substring(0, Math.min(s.length(), size));
+									addRequest(new InfoPacket("checkTestsList", macAddress, "", st.substring(0, st.contains(",") ? st.lastIndexOf(",")
+											: st.length()), null, false));
+								}
+							for (NetworkPacket packet : requests.toArray(new NetworkPacket[0]))
 								NetworkUtils.sendData(socket, packet, server, 21577, 14);
 							requests.clear();
 							socket.setSoTimeout(500);
 							NetworkPacket packet = NetworkUtils.recieveData(socket, NetworkPacket.class, 13);
 							if (packet instanceof AccountPacket)
 								Platform.runLater(() -> AccountsPart.instance.handleAccountRequest((AccountPacket) packet));
+							else if (packet instanceof InfoPacket)
+							{
+								if (((InfoPacket) packet).getInfo2() != null)
+									switch (packet.getRequest())
+									{
+										case "logsList":
+											for (String s = SystemUtils.readFile(new File("CLogs/" + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null
+													&& s.length() > 0; s = s.substring(Math.min(s.length(), size)))
+												addRequest(new InfoPacket("addToLogsList", macAddress, "", s.substring(0, Math.min(s.length(), size)),
+														((InfoPacket) packet).getInfo2(), s.length() <= size));
+											break;
+										case "resultsList":
+											for (String s = SystemUtils.readFile(new File("Results/" + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null
+													&& s.length() > 0; s = s.substring(Math.min(s.length(), size)))
+												addRequest(new InfoPacket("addToResultsList", macAddress, "", s.substring(0, Math.min(s.length(), size)),
+														((InfoPacket) packet).getInfo2(), s.length() <= size));
+											break;
+										case "testsList":
+											for (String s = SystemUtils.readFile(new File("Tests/" + ((InfoPacket) packet).getInfo2().replace(".test", "") + "/"
+													+ ((InfoPacket) packet).getInfo2()), "cp1251"); s != null && s.length() > 0; s = s.substring(Math.min(s
+															.length(), size)))
+												addRequest(new InfoPacket("addToTestsList", macAddress, "", s.substring(0, Math.min(s.length(), size)),
+														((InfoPacket) packet).getInfo2(), s.length() <= size));
+											break;
+										case "log":
+										case "logs":
+											for (String s : ((InfoPacket) packet).getInfo2().split(","))
+												if (!l.contains(s))
+													l.add(s);
+											break;
+										case "result":
+										case "results":
+											for (String s : ((InfoPacket) packet).getInfo2().split(","))
+												if (!r.contains(s))
+													r.add(s);
+											break;
+										case "test":
+										case "tests":
+											for (String s : ((InfoPacket) packet).getInfo2().split(","))
+												if (!t.contains(s))
+													t.add(s);
+											break;
+									}
+							}
 						}
 						catch (SocketTimeoutException e)
 						{
@@ -385,6 +491,36 @@ public class Main extends Application
 		{
 			e.printStackTrace();
 		}
+	}
+
+	private String rSymFE(String string, String toReplace)
+	{
+		if (string != null)
+			if (string.endsWith(toReplace))
+				return string.substring(0, string.length() - toReplace.length());
+		return string;
+	}
+
+	ArrayList<String> l = new ArrayList<String>(), r = new ArrayList<String>(), t = new ArrayList<String>();
+
+	private String getTestsNames()
+	{
+		String s = "";
+		for (File f : new File("Tests").listFiles())
+			for (String f2 : f.list())
+				if (f2.startsWith(f.getName()))
+					s += f2 + ",";
+		return s;
+	}
+
+	private String getResultsNames()
+	{
+		return new File("Results").exists() ? String.join(",", new File("Results").list()) : "";
+	}
+
+	private String getLogsNames()
+	{
+		return new File("CLogs").exists() ? String.join(",", new File("CLogs").list()) : "";
 	}
 
 	public static final String macAddress = getMacAddress();
@@ -409,6 +545,7 @@ public class Main extends Application
 
 	public void updateAllLabels()
 	{
+		SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "cp1251");
 		for (MenuItem item : getStartPart().getLanguage().getItems())
 			if (item instanceof RadioMenuItem)
 				((RadioMenuItem) item).setSelected(false);
@@ -466,10 +603,9 @@ public class Main extends Application
 	{
 		setFxWindowFrame(b);
 		SystemUtils.writeFile(new File("LookInfo.data"), ByteUtils.objectToByteArray(isFxWindowFrame()));
-		FXDialogsGenerator.showFXDialog(null, null, "FX window frame state changed! Restart the program to see the effect.", 0, 0, b, true);
+		FXDialogsGenerator.showFXDialog(null, null, msgSys.getMsg("fxWindowStateChanged"), 0, 0, b, true);
 	}
 
-	static boolean h1, h2, h3, h4, h5, h6;
 	public static Main instance;
 
 	@SuppressWarnings("unused")
@@ -480,35 +616,22 @@ public class Main extends Application
 
 	public void hideAll()
 	{
-		h1 = getAccountsPart().getStage().isShowing();
-		h2 = getCrossWordGeneratorPart().getStage().isShowing();
-		h3 = electronicBooksPart.getStage().isShowing();
-		h4 = getTeachersTestsControlPart().getStage().isShowing();
-		h5 = getStartPart().getStage().isShowing();
-		h6 = getTestDevPart().getStage().isShowing();
-		getAccountsPart().getStage().hide();
-		getCrossWordGeneratorPart().getStage().hide();
-		electronicBooksPart.getStage().hide();
-		getTeachersTestsControlPart().getStage().hide();
-		getStartPart().getStage().hide();
-		getTestDevPart().getStage().hide();
+		getAccountsPart().hideToTime();
+		getCrossWordGeneratorPart().hideToTime();
+		electronicBooksPart.hideToTime();
+		getTeachersTestsControlPart().hideToTime();
+		getStartPart().hideToTime();
+		getTestDevPart().hideToTime();
 	}
 
 	public void showAllHided()
 	{
-		if (h1)
-			getAccountsPart().getStage().show();
-		if (h2)
-			getCrossWordGeneratorPart().getStage().show();
-		if (h3)
-			electronicBooksPart.getStage().show();
-		if (h4)
-			getTeachersTestsControlPart().getStage().show();
-		if (h5)
-			getStartPart().getStage().show();
-		if (h6)
-			getTestDevPart().getStage().show();
-		h1 = h2 = h3 = h4 = h5 = h6 = false;
+		getAccountsPart().showIfHided();
+		getCrossWordGeneratorPart().showIfHided();
+		electronicBooksPart.showIfHided();
+		getTeachersTestsControlPart().showIfHided();
+		getStartPart().showIfHided();
+		getTestDevPart().showIfHided();
 	}
 
 	public static boolean isFxWindowFrame()

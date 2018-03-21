@@ -13,7 +13,7 @@ import ru.alexanderdv.schooltester.main.Main;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public abstract class ProtectedFXWindow extends FXWindow
 {
@@ -35,19 +35,19 @@ public abstract class ProtectedFXWindow extends FXWindow
 	@Override
 	public Stage open(Rectangle parent)
 	{
-		throw new IllegalArgumentException("Protection is not exists!");
+		throw new IllegalArgumentException(msgSys.getMsg("protectionIsNotExist"));
 	}
 
 	@Override
 	public Stage open(Stage parent)
 	{
-		throw new IllegalArgumentException("Protection is not exists!");
+		throw new IllegalArgumentException(msgSys.getMsg("protectionIsNotExist"));
 	}
 
 	public Stage open(Rectangle parent, Account account, DatagramSocket socket) throws Exception
 	{
 		if (account == null && level > 0)
-			throw new Exception("Protection is weak!");
+			throw new Exception(msgSys.getMsg("protectionIsWeak"));
 		if (level > 1)
 		{
 			try
@@ -57,14 +57,14 @@ public abstract class ProtectedFXWindow extends FXWindow
 				NetworkPacket packet = NetworkUtils.recieveData(socket, NetworkPacket.class, 13);
 				if (packet instanceof AccountPacket)
 					if (((AccountPacket) packet).getRequest().equals("accountConfirmed") && ((AccountPacket) packet).getNewAccount().getLogin().equals(account
-							.getLogin()) && ((AccountPacket) packet).getNewAccount().getPasswordHash() == account.getPasswordHash())
+							.getLogin()) && ((AccountPacket) packet).getNewAccount().getPassword().equals(account.getPassword()))
 					{
 					}
-					else throw new Exception("Protection is weak!");
+					else throw new Exception(msgSys.getMsg("protectionIsWeak"));
 			}
 			catch (SocketTimeoutException e)
 			{
-				throw new Exception("Protection is weak!");
+				throw new Exception(msgSys.getMsg("protectionIsWeak"));
 			}
 		}
 		return super.open(parent);
@@ -73,7 +73,7 @@ public abstract class ProtectedFXWindow extends FXWindow
 	public Stage open(Stage parent, Account account, DatagramSocket socket) throws Exception
 	{
 		if (account == null && level > 0)
-			throw new Exception("Protection is weak!");
+			throw new Exception(msgSys.getMsg("protectionIsWeak"));
 		if (level > 1)
 		{
 			try
@@ -83,14 +83,14 @@ public abstract class ProtectedFXWindow extends FXWindow
 				NetworkPacket packet = NetworkUtils.recieveData(socket, NetworkPacket.class, 13);
 				if (packet instanceof AccountPacket)
 					if (((AccountPacket) packet).getRequest().equals("accountConfirmed") && ((AccountPacket) packet).getNewAccount().getLogin().equals(account
-							.getLogin()) && ((AccountPacket) packet).getNewAccount().getPasswordHash() == account.getPasswordHash())
+							.getLogin()) && ((AccountPacket) packet).getNewAccount().getPassword().equals(account.getPassword()))
 					{
 					}
-					else throw new Exception("Protection is weak!");
+					else throw new Exception(msgSys.getMsg("protectionIsWeak"));
 			}
 			catch (SocketTimeoutException e)
 			{
-				throw new Exception("Protection is weak!");
+				throw new Exception(msgSys.getMsg("protectionIsWeak"));
 			}
 		}
 		return super.open(parent);

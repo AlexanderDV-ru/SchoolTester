@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
  * Logger - the class extending by "java.util.logging.Logger" used to convenient interaction with logging
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.0.0a
+ * @version 5.8.0a
  */
 public class Logger extends java.util.logging.Logger
 {
@@ -143,7 +143,8 @@ public class Logger extends java.util.logging.Logger
 		TestNotHaveMainValues(22),
 		TestNotExists(23),
 		TestNotHaveQuestions(24),
-		TestNotHaveSyntaxLanguage(25);
+		TestNotHaveSyntaxLanguage(25),
+		TestAwardsOfQuestionsInGroupNotMatch(26);
 		private int code;
 
 		private ExitCodes(int code)

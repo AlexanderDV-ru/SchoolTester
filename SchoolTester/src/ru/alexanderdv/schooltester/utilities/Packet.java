@@ -4,7 +4,7 @@ package ru.alexanderdv.schooltester.utilities;
  * Packet - the class for communicating with the server
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.0.0a
+ * @version 5.8.0a
  */
 public class Packet extends NetworkPacket
 {

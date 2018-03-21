@@ -17,13 +17,16 @@ import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
  * Config - the class of configuration file parser
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.0.0a
+ * @version 5.8.0a
  *
  */
 public class Config
 {
+	private static final MessageSystem msgSys=Main.msgSys;
 	private static final Logger logger = Logger.mainLogger;
+	private final Config parent;
 	private File file;
+	private final String fullPathInParents;
 	private String configurationText;
 	private String defaultColorType = "rgba";
 
@@ -36,6 +39,21 @@ public class Config
 	public Config(File file)
 	{
 		this.file = file;
+		this.parent = null;
+		this.fullPathInParents = null;
+	}
+
+	/**
+	 * Creates new Config from text
+	 * 
+	 * @param text
+	 *            - text using how configuration
+	 */
+	private Config(Config parent, String text, String pathInParent)
+	{
+		this.configurationText = text;
+		this.parent = parent;
+		this.fullPathInParents = (parent.getFullPathInParents() != null ? parent.getFullPathInParents() + ":" : "") + pathInParent;
 	}
 
 	/**
@@ -47,6 +65,8 @@ public class Config
 	public Config(String text)
 	{
 		this.configurationText = text;
+		this.parent = null;
+		this.fullPathInParents = null;
 	}
 
 	/**
@@ -68,7 +88,7 @@ public class Config
 		{
 			try
 			{
-				throw new NullPointerException("Syntax is wrong: value in path '" + path + "' not exists!");
+				throw new NullPointerException(msgSys.getMsg("valueNotExist").replace("%1",path).replace("%1",getFullPathInParents()));
 			}
 			catch (Exception e)
 			{
@@ -79,7 +99,7 @@ public class Config
 		}
 	}
 
-	public String getObject(String text, String path, boolean deleteTabs)
+	private String getObject(String text, String path, boolean deleteTabs)
 	{
 		String[] dirs = path.split(":");
 		for (int i = 0; i < dirs.length; i++)
@@ -105,6 +125,12 @@ public class Config
 	public String getObject(String path, boolean deleteTabs)
 	{
 		return getObject(getText(), path, deleteTabs);
+	}
+
+	public Config getConfig(String path, boolean deleteTabs)
+	{
+		check(path);
+		return new Config(this, getObject(getText(), path, deleteTabs), path);
 	}
 
 	/**
@@ -137,6 +163,7 @@ public class Config
 		String[] dirs = path.split(":");
 		for (int i = 0; i < dirs.length - 1; i++)
 			text = getObject(text, dirs[i], true);
+		text = "\n" + text;
 		text = text.substring(text.indexOf("\n" + dirs[dirs.length - 1] + ":") + ("\n" + dirs[dirs.length - 1] + ":").length());
 		if (text.contains("\n"))
 			text = text.substring(0, text.indexOf("\n"));
@@ -169,7 +196,20 @@ public class Config
 			for (String line : text.substring(0, text.indexOf(dirs[i])).split("\n"))
 				if (!line.contains(tabs) && line.contains(":"))
 					return false;
-			text = text.substring(text.indexOf(dirs[i]) + dirs[i].length());
+			text = tabs + text.substring(text.indexOf(dirs[i]) + dirs[i].length());
+			boolean b = false;
+			String t = "";
+			for (String s : text.split("\n"))
+				if (!s.startsWith("//"))
+				{
+					if (b)
+						if (!("\n" + s).contains("\n" + tabs + "\t"))
+							break;
+					t += (b ? "\n" : "") + s;
+					b = true;
+				}
+			text = t;
+			// System.out.println("t2: " + text);
 		}
 		if (text.contains("\n"))
 			text = text.substring(0, text.indexOf("\n"));
@@ -244,12 +284,12 @@ public class Config
 		String text1 = getValue(path);
 		if (text1.indexOf("\"") == -1)
 		{
-			print("Syntax is wrong: value '" + text1 + "' in path '" + path + "' must be typeof String");
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","String"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		if (text1.indexOf("\"") == text1.lastIndexOf("\""))
 		{
-			print("Syntax is wrong: String \n" + text1 + "\n is not properly closed by a double-quote");
+			print(msgSys.getMsg("quoteMustBeDouble").replace("%1",text1));
 			exit(ExitCodes.WrongSyntax);
 		}
 		return text1.substring(text1.indexOf("\"") + 1, text1.lastIndexOf("\""));
@@ -263,7 +303,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print("Syntax is wrong: value '" + text1 + "' in path '" + path + "' must be typeof Double");
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Double"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		return parseD(text1);
@@ -277,7 +317,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print("Syntax is wrong: value '" + text1 + "' in path '" + path + "' must be typeof Integer");
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Integer"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		return parseI(text1);
@@ -304,7 +344,7 @@ public class Config
 		if (value.equals(MessageSystem.getMsg("Config.boolean.false3", language)))
 			return false;
 
-		print("Syntax is wrong: value '" + value + "' in path '" + path + "' must be typeof Boolean");
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",value).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Boolean"));
 		exit(ExitCodes.WrongSyntax);
 		return false;
 	}
@@ -322,7 +362,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print("Syntax is wrong: value '" + text1 + "' in path '" + path + "' must be typeof Time");
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Time"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		int time = 0;
@@ -337,12 +377,12 @@ public class Config
 		if ((type.length() >= 3 ? (!type.contains("r") || !type.contains("g") || !type.contains("b")) : true) || type.length() == 4 ? (!type.contains("a"))
 				: false)
 		{
-			print("Color type syntax is wrong, color type must contain r,g,b and if length equal 4 then a");
+			print(msgSys.getMsg("colorTypeIsWrong"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		if (chars.length != 3 && chars.length != 4)
 		{
-			print("Syntax is wrong: value '" + getValue(path).split(",") + "' in path '" + path + "' must have 2 or 3 ','");
+			print(msgSys.getMsg("valueMustContainsComma").replace("%1",getValue(path)).replace("%2",path));
 			exit(ExitCodes.WrongSyntax);
 		}
 
@@ -467,6 +507,16 @@ public class Config
 	public static void exit(ExitCodes e)
 	{
 		Main.exit(e);
+	}
+
+	public Config getParent()
+	{
+		return parent;
+	}
+
+	public String getFullPathInParents()
+	{
+		return fullPathInParents;
 	}
 
 }

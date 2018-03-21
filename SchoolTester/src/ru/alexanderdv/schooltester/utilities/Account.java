@@ -6,13 +6,14 @@ import java.util.ArrayList;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public final class Account extends Person
 {
 	private static final long serialVersionUID = 8499083051889167350L;
 
 	private final AccountType accountType;
+	private String password;
 	private int passwordHash;
 
 	private boolean active;
@@ -79,16 +80,11 @@ public final class Account extends Person
 		Administrator
 	}
 
-	public Account(AccountType accountType, String login, int passwordHash)
+	public Account(AccountType accountType, String login, String password)
 	{
 		super(login);
 		this.accountType = accountType;
-		this.passwordHash = passwordHash;
-	}
-
-	public Account(AccountType accountType, String login, String password)
-	{
-		this(accountType, login, password.hashCode());
+		this.password = password;
 	}
 
 	public Account(AccountType accountType, String login)
@@ -100,18 +96,18 @@ public final class Account extends Person
 	/**
 	 * @return the passwordHash
 	 */
-	public final int getPasswordHash()
+	public final String getPassword()
 	{
-		return passwordHash;
+		return password;
 	}
 
 	/**
 	 * @param passwordHash
 	 *            the passwordHash to set
 	 */
-	public final void setPasswordHash(int passwordHash)
+	public final void setPassword(String password)
 	{
-		this.passwordHash = passwordHash;
+		this.password = password;
 	}
 
 	/**
@@ -862,7 +858,7 @@ public final class Account extends Person
 	@Override
 	public final String toString()
 	{
-		return "Account [accountType=" + accountType + ", passwordHash=" + passwordHash + ", active=" + active + ", deleted=" + deleted + ", personalSites="
+		return "Account [accountType=" + accountType + ", password=" + password + ", active=" + active + ", deleted=" + deleted + ", personalSites="
 				+ personalSites + ", otherSites=" + otherSites + ", phoneNumbers=" + phoneNumbers + ", emails=" + emails + ", otherContacts=" + otherContacts
 				+ ", gender=" + gender + ", age=" + age + ", country=" + country + ", region=" + region + ", city=" + city + ", school=" + school
 				+ ", biografy=" + biografy + ", education=" + education + ", carriere=" + carriere + ", mainLanguages=" + mainLanguages + ", otherLanguages="
@@ -930,7 +926,7 @@ public final class Account extends Person
 		result = prime * result + ((otherSites == null) ? 0 : otherSites.hashCode());
 		result = prime * result + ((otherViews == null) ? 0 : otherViews.hashCode());
 		result = prime * result + ((parents == null) ? 0 : parents.hashCode());
-		result = prime * result + passwordHash;
+		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((personalSites == null) ? 0 : personalSites.hashCode());
 		result = prime * result + ((phoneNumbers == null) ? 0 : phoneNumbers.hashCode());
 		result = prime * result + ((politicalViews == null) ? 0 : politicalViews.hashCode());
@@ -1244,7 +1240,12 @@ public final class Account extends Person
 		}
 		else if (!parents.equals(other.parents))
 			return false;
-		if (passwordHash != other.passwordHash)
+		if (password == null)
+		{
+			if (other.password != null)
+				return false;
+		}
+		else if (!password.equals(other.password))
 			return false;
 		if (personalSites == null)
 		{
@@ -1310,5 +1311,14 @@ public final class Account extends Person
 		else if (!worldOutlook.equals(other.worldOutlook))
 			return false;
 		return true;
+	}
+
+	public void _setPasswordHash(int passwordHash)
+	{
+		this.passwordHash=passwordHash;
+	}
+	public int _getPasswordHash()
+	{
+		return passwordHash;
 	}
 }

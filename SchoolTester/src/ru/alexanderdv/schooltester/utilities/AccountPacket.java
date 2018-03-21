@@ -1,10 +1,12 @@
 package ru.alexanderdv.schooltester.utilities;
 
+import ru.alexanderdv.schooltester.main.Main;
+
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class AccountPacket extends NetworkPacket
 {
@@ -19,7 +21,7 @@ public class AccountPacket extends NetworkPacket
 		this.newAccount = newAccount;
 		if (oldAccount != null && newAccount != null)
 			if (oldAccount.getAccountType() != newAccount.getAccountType() || !oldAccount.getLogin().equals(newAccount.getLogin()))
-				throw new ExceptionInInitializerError("Basic accounts' information don't match: types or logins aren't match!");
+				throw new ExceptionInInitializerError(Main.msgSys.getMsg("accountsInfoNotMatch"));
 	}
 
 	public AccountPacket(String request, Account oldAccount, Account newAccount) throws Exception

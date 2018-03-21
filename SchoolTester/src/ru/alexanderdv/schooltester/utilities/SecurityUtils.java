@@ -4,7 +4,7 @@ package ru.alexanderdv.schooltester.utilities;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class SecurityUtils
 {

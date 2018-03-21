@@ -5,17 +5,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import ru.alexanderdv.schooltester.main.utils.CrossWordGeneratorPart;
 import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.MessageSystem;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class InitStartPart
 {
+	private static final MessageSystem msgSys=Main.msgSys;
 	public static InitStartPart instance;
 	@FXML
 	public TitledPane mainPane;
@@ -39,11 +40,12 @@ public class InitStartPart
 		{
 			try
 			{
+				Main.getAccountsPart().close();
 				Main.getTeachersTestsControlPart().open(StartPart.instance.getStage(), AccountsPart.account.get(), Main.instance.socket);
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, "To work sign in!", 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 			}
 		});
 		specialPane.getChildren().add(openTeachersTestsControlPart);
@@ -55,11 +57,12 @@ public class InitStartPart
 		{
 			try
 			{
+				Main.getAccountsPart().close();
 				Main.getTestDevPart().open(StartPart.instance.getStage(), AccountsPart.account.get(), Main.instance.socket);
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, "To work sign in!", 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 			}
 		});
 		// specialPane.getChildren().add(openTestDevPart);
@@ -71,11 +74,12 @@ public class InitStartPart
 		{
 			try
 			{
-				Main.getCrossWordGeneratorPart().open(CrossWordGeneratorPart.instance.getStage(), AccountsPart.account.get(), Main.instance.socket);
+				Main.getAccountsPart().close();
+				Main.getCrossWordGeneratorPart().open(StartPart.instance.getStage(), AccountsPart.account.get(), Main.instance.socket);
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, "To work sign in!", 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 			}
 		});
 		commonPane.getChildren().add(openCrossWordGeneratorPart);

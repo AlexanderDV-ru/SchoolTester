@@ -1,17 +1,22 @@
 package ru.alexanderdv.schooltester.utilities;
 
-import java.awt.Font;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import javafx.scene.text.Font;
+import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.simpleutilities.Entry;	
 
 /**
  * Question - the class with data about question.
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.0.0a
+ * @version 5.8.0a
  *
  */
 public class Question
 {
+	private static final MessageSystem msgSys=Main.msgSys;
 	private final String text;
 	private final Font font;
 	private final int award;
@@ -19,8 +24,11 @@ public class Question
 	private final QuestionType type;
 	private final Answer[] answers;
 	private final int[] answersIndexes;
-	private final HashMap<HashMap<Integer, Integer>, Integer> answerArrangement;
+	private final HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution;
+	private final HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForMatching;
+	private final HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement;
 	private final String[] indexesForNames;
+	private final int[] indexesForNamesIndexes;
 	private final boolean handleOnlyMaximal;
 	private final int maxAward;
 	private final String ignoredCharacters;
@@ -39,8 +47,10 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
-			HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames, String ignoredCharacters, boolean ignoreCase)
+	private Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
+			HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution,
+			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForMatching,
+			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase)
 	{
 		super();
 		this.text = text;
@@ -49,11 +59,14 @@ public class Question
 		this.minResult = minResult;
 		this.type = type;
 		this.answers = answers;
+		this.indexesForNamesIndexes=indexesForNamesIndexes;
 		this.answersIndexes = new int[this.answers.length];
 		for (int i = 0; i < this.answers.length; i++)
 			this.answersIndexes[i] = this.answers[i].index;
 		this.indexesForNames = indexesForNames;
-		this.answerArrangement = answerArrangement;
+		this.answerArrangementForDistribution = answerArrangementForDistribution;
+		this.answerArrangementForMatching = answerArrangementForMatching;
+		this.answerArrangementForArrangement = answerArrangementForArrangement;
 		this.handleOnlyMaximal = handleOnlyMaximal;
 		this.ignoredCharacters = ignoredCharacters;
 		this.ignoreCase = ignoreCase;
@@ -72,27 +85,92 @@ public class Question
 				for (int i = 0; i < this.answers.length; i++)
 					max = Math.max(max, this.answers[i].getAward());
 				break;
-			case Arrangement:
-				for (int i = 0; i < this.answerArrangement.size(); i++)
+			case Distribution:
+				for (Integer value : answerArrangementForDistribution.values())
 					if (handleOnlyMaximal)
-						max = Math.max(max, this.answerArrangement.values().toArray(new Integer[] { })[i]);
-					else max += Math.max(0, this.answerArrangement.values().toArray(new Integer[] { })[i]);
+						max = Math.max(max, value);
+					else max += Math.max(0, value);
 				break;
 			case Matching:
-				for (int i = 0; i < this.answerArrangement.size(); i++)
+				for (Integer value : answerArrangementForMatching.values())
 					if (handleOnlyMaximal)
-						max = Math.max(max, this.answerArrangement.values().toArray(new Integer[] { })[i]);
-					else max += Math.max(0, this.answerArrangement.values().toArray(new Integer[] { })[i]);
+						max = Math.max(max, value);
+					else max += Math.max(0, value);
 				break;
-			case Distribution:
-				for (int i = 0; i < this.answerArrangement.size(); i++)
+			case Arrangement:
+				for (Integer value : answerArrangementForArrangement.values())
 					if (handleOnlyMaximal)
-						max = Math.max(max, this.answerArrangement.values().toArray(new Integer[] { })[i]);
-					else max += Math.max(0, this.answerArrangement.values().toArray(new Integer[] { })[i]);
+						max = Math.max(max, value);
+					else max += Math.max(0, value);
 				break;
 		}
 		maxAward = award + max;
 
+	}
+
+	/**
+	 * 
+	 * @param text
+	 * @param font
+	 * @param award
+	 * @param minResult
+	 * @param type
+	 * @param answers
+	 * @param handleOnlyMaximal
+	 * @param answerArrangement
+	 * @param ignoredCharacters
+	 * @param ignoreCase
+	 */
+	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
+			HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters,
+			boolean ignoreCase)
+	{
+		this(text, font, award, minResult, type, answers, handleOnlyMaximal, answerArrangementForDistribution, null, null, indexesForNames,indexesForNamesIndexes, ignoredCharacters,
+				ignoreCase);
+		if (type != QuestionType.Distribution)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Distribution'"));
+	}
+
+	/**
+	 * 
+	 * @param text
+	 * @param font
+	 * @param award
+	 * @param minResult
+	 * @param type
+	 * @param answers
+	 * @param handleOnlyMaximal
+	 * @param answerArrangement
+	 * @param ignoredCharacters
+	 * @param ignoreCase
+	 */
+	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
+			HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase, boolean n)
+	{
+		this(text, font, award, minResult, type, answers, handleOnlyMaximal, null, type == QuestionType.Matching ? answerArrangement : null,
+				type == QuestionType.Arrangement ? answerArrangement : null, indexesForNames,indexesForNamesIndexes, ignoredCharacters, ignoreCase);
+		if (type != QuestionType.Arrangement && type != QuestionType.Matching)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Arrangement' or 'Matching'"));
+	}
+
+	/**
+	 * 
+	 * @param text
+	 * @param font
+	 * @param award
+	 * @param minResult
+	 * @param type
+	 * @param answers
+	 * @param handleOnlyMaximal
+	 * @param answerArrangement
+	 * @param ignoredCharacters
+	 * @param ignoreCase
+	 */
+	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, String ignoredCharacters, boolean ignoreCase)
+	{
+		this(text, font, award, minResult, type, answers, false, null, null, null, null,null, ignoredCharacters, ignoreCase);
+		if (type != QuestionType.SelectSome && type != QuestionType.PickOne && type != QuestionType.EnterText)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'SelectSome', 'PickOne' or 'EnterText''"));
 	}
 
 	/**
@@ -180,9 +258,31 @@ public class Question
 	/**
 	 * @return the answerArragement
 	 */
-	public HashMap<HashMap<Integer, Integer>, Integer> getAnswerArrangement()
+	public HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> getAnswerArrangementForDistribution()
 	{
-		return answerArrangement;
+		if (type != QuestionType.Distribution)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Distribution'"));
+		return answerArrangementForDistribution;
+	}
+
+	/**
+	 * @return the answerArragement
+	 */
+	public HashMap<HashMap<Integer, Integer>, Integer> getAnswerArrangementForMatching()
+	{
+		if (type != QuestionType.Matching)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Matching'"));
+		return answerArrangementForMatching;
+	}
+
+	/**
+	 * @return the answerArragement
+	 */
+	public HashMap<HashMap<Integer, Integer>, Integer> getAnswerArrangementForArrangement()
+	{
+		if (type != QuestionType.Arrangement)
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Arrangement'"));
+		return answerArrangementForArrangement;
 	}
 
 	/**
@@ -191,6 +291,14 @@ public class Question
 	public String[] getIndexesForNames()
 	{
 		return indexesForNames;
+	}
+
+	/**
+	 * @return the indexesForNames
+	 */
+	public int[] getIndexesForNamesIndexes()
+	{
+		return indexesForNamesIndexes;
 	}
 
 	/**

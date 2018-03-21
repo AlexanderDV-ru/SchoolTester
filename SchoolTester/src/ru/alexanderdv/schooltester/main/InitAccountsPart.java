@@ -29,7 +29,7 @@ import ru.alexanderdv.schooltester.utilities.Subject;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class InitAccountsPart
 {

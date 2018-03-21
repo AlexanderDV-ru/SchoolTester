@@ -3,12 +3,13 @@ package ru.alexanderdv.schooltester.utilities;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class NetworkUtils
 {
@@ -20,23 +21,46 @@ public class NetworkUtils
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <P> P recieveData(DatagramSocket socket, DatagramPacket outPac, Class<P> _class, int cipcode) throws Exception
+	public static <P> P recieveData(DatagramSocket socket, DatagramPacket outPac, Class<P> _class, int cipcode) throws SocketTimeoutException
 	{
-		DatagramPacket pac;
-		byte[] response;
-		do
+		try
 		{
-			response = new byte[9192];
-			pac = new DatagramPacket(response, 0, response.length);
-			socket.receive(pac);
-			response = SecurityUtils.crypt(response, -cipcode);
-		} while (ByteUtils.byteArrayToObject(response).getClass() != _class && ByteUtils.byteArrayToObject(response).getClass().getSuperclass() != _class);
-		if (outPac != null)
-		{
-			outPac.setSocketAddress(pac.getSocketAddress());
-			outPac.setPort(pac.getPort());
+			DatagramPacket pac;
+			byte[] response;
+			do
+			{
+				response = new byte[9192];
+				pac = new DatagramPacket(response, 0, response.length);
+				socket.receive(pac);
+				response = SecurityUtils.crypt(response, -cipcode);
+			} while (ByteUtils.byteArrayToObject(response)==null||!checkByType(ByteUtils.byteArrayToObject(response), _class));
+			if (outPac != null)
+			{
+				outPac.setSocketAddress(pac.getSocketAddress());
+				outPac.setPort(pac.getPort());
+			}
+			return (P) ByteUtils.byteArrayToObject(response);
 		}
-		return (P) ByteUtils.byteArrayToObject(response);
+		catch (SocketTimeoutException e)
+		{
+			throw e;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private static boolean checkByType(Object obj, Class<?> _class)
+	{
+		boolean b = false;
+		for (Class<?> c = obj.getClass();; c = c.getSuperclass())
+			if (c == null)
+				break;
+			else if (c == _class)
+				b = true;
+		return b;
 	}
 
 	public static <P> P recieveData(DatagramSocket socket, Class<P> _class, int cipcode) throws Exception

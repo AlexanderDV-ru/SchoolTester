@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
@@ -16,7 +17,7 @@ import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
  * StartPart - the GUI part for working after program launch
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.5.0a
+ * @version 5.8.0a
  */
 public class StartPart extends ProtectedFXWindow
 {
@@ -50,17 +51,28 @@ public class StartPart extends ProtectedFXWindow
 		stage.setOnCloseRequest(e -> Main.exit(ExitCodes.UserCloseProgram));
 	}
 
+	public Stage getStage()
+	{
+		return stage;
+	}
 	@Override
 	public MenuBar createMenu()
 	{
 		super.createMenu();
 		menubar.getMenus().add(accounts = new Menu());
 		accounts.getItems().add(openAccountsMenu = new MenuItem());
-		accounts.setOnShowing(e -> openAccountsMenu.setDisable(Main.getAccountsPart().getStage().isShowing()));
+		accounts.setOnShowing(e -> openAccountsMenu.setDisable(Main.getAccountsPart().isVisible()));
 		openAccountsMenu.setOnAction(e ->
 		{
 			openAccountsMenu.setDisable(true);
-			Main.getAccountsPart().open(stage);
+			try
+			{
+				Main.getAccountsPart().open(stage,null,null);
+			}
+			catch (Exception e1)
+			{
+				e1.printStackTrace();
+			}
 		});
 		return menubar;
 	}
