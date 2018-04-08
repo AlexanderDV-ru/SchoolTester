@@ -9,7 +9,7 @@ import java.net.SocketTimeoutException;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class NetworkUtils
 {
@@ -33,7 +33,7 @@ public class NetworkUtils
 				pac = new DatagramPacket(response, 0, response.length);
 				socket.receive(pac);
 				response = SecurityUtils.crypt(response, -cipcode);
-			} while (ByteUtils.byteArrayToObject(response)==null||!checkByType(ByteUtils.byteArrayToObject(response), _class));
+			} while (ByteUtils.byteArrayToObject(response) == null || !checkByType(ByteUtils.byteArrayToObject(response), _class));
 			if (outPac != null)
 			{
 				outPac.setSocketAddress(pac.getSocketAddress());
@@ -56,10 +56,11 @@ public class NetworkUtils
 	{
 		boolean b = false;
 		for (Class<?> c = obj.getClass();; c = c.getSuperclass())
-			if (c == null)
+			if (c == null || c == _class)
+			{
+				b = c == _class;
 				break;
-			else if (c == _class)
-				b = true;
+			}
 		return b;
 	}
 

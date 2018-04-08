@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Statistics
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class Statistics
 {

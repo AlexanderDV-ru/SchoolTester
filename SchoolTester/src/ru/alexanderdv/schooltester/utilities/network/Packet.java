@@ -1,10 +1,10 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.network;
 
 /**
  * Packet - the class for communicating with the server
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class Packet extends NetworkPacket
 {

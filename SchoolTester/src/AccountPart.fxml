@@ -11,6 +11,24 @@
       <PasswordField fx:id="passwordField" layoutX="231.0" layoutY="41.0" promptText="Password" />
       <TabPane fx:id="tabPane" layoutY="103.0" prefHeight="425.0" prefWidth="610.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
+            <Tab fx:id="signInTab" text="Sign In">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="signInButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign In" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+            <Tab fx:id="signUpTab" text="Sign Up">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="signUpButton" layoutX="228.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Up" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
           <Tab fx:id="profileTab" text="Profile">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0">
@@ -296,11 +314,11 @@
                   </AnchorPane>
             </content>
           </Tab>
-            <Tab fx:id="signUpTab" text="Sign Up">
+            <Tab fx:id="signOutTab" text="Sign Out">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Button fx:id="signUpButton" layoutX="228.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Up" />
+                        <Button fx:id="signOutButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Out" />
                      </children>
                   </AnchorPane>
               </content>
@@ -310,24 +328,6 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="deleteAccountButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Delete account" />
-                     </children>
-                  </AnchorPane>
-              </content>
-            </Tab>
-            <Tab fx:id="signInTab" text="Sign In">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Button fx:id="signInButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign In" />
-                     </children>
-                  </AnchorPane>
-              </content>
-            </Tab>
-            <Tab fx:id="signOutTab" text="Sign Out">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Button fx:id="signOutButton" layoutX="231.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Sign Out" />
                      </children>
                   </AnchorPane>
               </content>

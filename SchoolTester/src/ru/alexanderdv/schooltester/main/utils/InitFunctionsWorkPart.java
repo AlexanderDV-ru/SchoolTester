@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class InitFunctionsWorkPart
 {

@@ -1,22 +1,26 @@
 package ru.alexanderdv.schooltester.main;
 
+import java.util.ArrayList;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
+import javafx.stage.Stage;
+import ru.alexanderdv.schooltester.main.utils.SubjectUtilitiesPart;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
+import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class InitStartPart
 {
-	private static final MessageSystem msgSys=Main.msgSys;
+	private static final MessageSystem msgSys = Main.msgSys;
 	public static InitStartPart instance;
 	@FXML
 	public TitledPane mainPane;
@@ -28,12 +32,14 @@ public class InitStartPart
 	public Label message;
 
 	@FXML
-	public Button openTeachersTestsControlPart, openTestDevPart, openCrossWordGeneratorPart;
+	public Button openTeachersTestsControlPart, openTestDevPart;
+	public ArrayList<Button> subjectUtilitiesButtons;
 
 	@FXML
 	public void initialize()
 	{
 		instance = this;
+		subjectUtilitiesButtons = new ArrayList<Button>();
 		int o = 10;
 		openTeachersTestsControlPart = new Button(Main.msgSys.getMsg("openTeachersTestsControlPart"));
 		openTeachersTestsControlPart.setOnAction(e ->
@@ -45,7 +51,7 @@ public class InitStartPart
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 			}
 		});
 		specialPane.getChildren().add(openTeachersTestsControlPart);
@@ -62,28 +68,26 @@ public class InitStartPart
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 			}
 		});
 		// specialPane.getChildren().add(openTestDevPart);
 		openTestDevPart.setPrefWidth(special.getPrefWidth() - o * 2);
 		openTestDevPart.setLayoutX(o);
-
-		openCrossWordGeneratorPart = new Button(Main.msgSys.getMsg("openCrossWordGeneratorPart"));
-		openCrossWordGeneratorPart.setOnAction(e ->
+		int y = 0;
+		for (SubjectUtilitiesPart subjectUtilities : Main.getSubjectUtilitiesParts())
 		{
-			try
+			Button subjectUtilitiesButton = new Button(msgSys.getMsg("openSubjectUtilities").replace("%1", msgSys.getMsg(subjectUtilities.getSubject()
+					.name())));
+			subjectUtilitiesButtons.add(subjectUtilitiesButton);
+			subjectUtilitiesButton.setOnAction(e ->
 			{
 				Main.getAccountsPart().close();
-				Main.getCrossWordGeneratorPart().open(StartPart.instance.getStage(), AccountsPart.account.get(), Main.instance.socket);
-			}
-			catch (Exception e1)
-			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
-			}
-		});
-		commonPane.getChildren().add(openCrossWordGeneratorPart);
-		openCrossWordGeneratorPart.setPrefWidth(common.getPrefWidth() - o * 2);
-		openCrossWordGeneratorPart.setLayoutX(o);
+				subjectUtilities.open(StartPart.instance.getStage());
+			});
+			commonPane.getChildren().add(subjectUtilitiesButton);
+			subjectUtilitiesButton.setPrefWidth(common.getPrefWidth() - o * 2);
+			subjectUtilitiesButton.setLayoutX(o);
+		}
 	}
 }

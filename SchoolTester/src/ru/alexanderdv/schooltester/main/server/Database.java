@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.main.server;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,14 +9,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.alexanderdv.schooltester.utilities.Account.AccountType;
-import ru.alexanderdv.schooltester.utilities.Person.Rodstvennik;
+import ru.alexanderdv.schooltester.utilities.Subject;
+import ru.alexanderdv.schooltester.utilities.types.Account;
+import ru.alexanderdv.schooltester.utilities.types.Account.AccountType;
+import ru.alexanderdv.schooltester.utilities.types.Person.Rodstvennik;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class Database
 {

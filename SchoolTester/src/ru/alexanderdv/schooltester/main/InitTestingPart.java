@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.student;
+package ru.alexanderdv.schooltester.main;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -10,11 +10,11 @@ import ru.alexanderdv.fxutilities.components.ButtonFX;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
-public class InitStudentsTestingPart
+public class InitTestingPart
 {
-	public static InitStudentsTestingPart instance;
+	public static InitTestingPart instance;
 	@FXML
 	public ScrollPane scrollPane;
 	@FXML
@@ -22,11 +22,15 @@ public class InitStudentsTestingPart
 	@FXML
 	public ButtonFX questionSign;
 	@FXML
-	public ButtonFX timer, skip, next, finish;
+	public ButtonFX timer, skip, next, finish,back;
 	@FXML
 	public Pane qualityIndicator;
 	@FXML
 	public Label questionInfoTextfield;
+	@FXML
+	public Pane testingPane;
+	@FXML
+	public Pane questionsTablePane;
 
 	@FXML
 	public void initialize()

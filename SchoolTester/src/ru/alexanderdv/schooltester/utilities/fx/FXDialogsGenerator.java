@@ -1,7 +1,8 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.fx;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -15,13 +16,16 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
+import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
+import ru.alexanderdv.schooltester.utilities.types.StageContainer;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class FXDialogsGenerator
 {
@@ -44,8 +48,17 @@ public class FXDialogsGenerator
 	 * @param frameIsFX
 	 *            - the type of window frame
 	 */
-	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
 	{
+		Stage comp=_comp!=null?_comp.getStage(new StageContainer.Wrapper()
+		{
+
+			@Override
+			public char[] check(int algo)
+			{
+				return (algo/10000%10+""+algo/1000%10+""+algo/100%10+""+algo/10%10+""+algo%10).toCharArray();
+			}
+		}):null;
 		Stage stage = lastDialogStage = new Stage();
 		try
 		{
@@ -120,6 +133,22 @@ public class FXDialogsGenerator
 			Main.exit(ExitCodes.UnknownError);
 		}
 		return stage;
+	}
+
+	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	{
+		return showFXDialog(comp, parPos != null ? new Rectangle((int) parPos.getX(), (int) parPos.getY(), (int) parPos.getWidth(), (int) parPos.getHeight())
+				: null, msg, messageType, optionType, frameIsFX, wait);
+	}
+
+	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	{
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, optionType, frameIsFX, wait);
+	}
+
+	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	{
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, optionType, frameIsFX, wait);
 	}
 
 	public static boolean hasShowedDialog()

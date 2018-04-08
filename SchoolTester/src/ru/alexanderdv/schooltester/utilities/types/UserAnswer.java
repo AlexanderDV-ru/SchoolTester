@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.types;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class UserAnswer
 {

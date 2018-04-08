@@ -5,25 +5,27 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 
-import ru.alexanderdv.schooltester.utilities.Account;
-import ru.alexanderdv.schooltester.utilities.AccountPacket;
-import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
+import javafx.stage.Stage;
+import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
+import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
+import ru.alexanderdv.schooltester.utilities.types.Account;
+import ru.alexanderdv.schooltester.utilities.types.StageContainer;
 
 /**
  * AccountsPart - the GUI part for woking with accounts
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
-public class AccountsPart extends ProtectedFXWindow implements ActionListener
+public class AccountsPart extends FXWindow implements ActionListener
 {
 	public static final Property<Account> account = new Property<Account>();
 	public static AccountsPart instance;
 
 	public AccountsPart(String secondaryTitle, URL url)
 	{
-		super(secondaryTitle, url, 1, 0);
+		super(secondaryTitle, url, 1);
 		instance = this;
 		InitAccountsPart.instance.createActionHandlers();
 	}
@@ -70,7 +72,7 @@ public class AccountsPart extends ProtectedFXWindow implements ActionListener
 		InitAccountsPart.instance.newPasswordField.setText("");
 		InitAccountsPart.instance.newPasswordRepeatField.setText("");
 		InitAccountsPart.instance.passwordRepeatField.setText("");
-		FXDialogsGenerator.showFXDialog(null, null, msgSys.getMsg(packet.getRequest()), 0, 0, Main.isFxWindowFrame(), true);
+		FXDialogsGenerator.showFXDialog((StageContainer)null, (Stage)null, msgSys.getMsg(packet.getRequest()), 0, 0, Main.isFxWindowFrame(), true);
 		InitAccountsPart.instance.changeVisibleTabs(account.get());
 	}
 

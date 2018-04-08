@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.fx;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -24,12 +24,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ru.alexanderdv.schooltester.utilities.Logger;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class FXScene extends AnchorPane
 {

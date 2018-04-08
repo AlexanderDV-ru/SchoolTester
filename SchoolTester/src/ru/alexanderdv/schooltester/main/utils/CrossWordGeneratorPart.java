@@ -20,14 +20,14 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.TextAlignment;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.TableSelection;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class CrossWordGeneratorPart extends ProtectedFXWindow
 {
@@ -39,9 +39,9 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 
 	private ArrayList<C> s = new ArrayList<C>();
 
-	public CrossWordGeneratorPart(String secondaryTitle, URL url)
+	public CrossWordGeneratorPart(URL url)
 	{
-		super(secondaryTitle, url, 1, 1);
+		super(null, url, 1, 1);
 		instance = this;
 		elements.crossword.setBackground(new Background(new BackgroundFill(new javafx.scene.paint.Color(0.9, 0.9, 0.9, 1), new CornerRadii(0), new Insets(0))));
 		createActionHandlers();

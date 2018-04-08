@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.fx;
 
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -19,22 +19,25 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.schooltester.utilities.MessageSystem;
+import ru.alexanderdv.schooltester.utilities.SystemUtils;
+import ru.alexanderdv.schooltester.utilities.types.StageContainer;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
-public abstract class FXWindow
+public abstract class FXWindow extends StageContainer
 {
 	protected static final MessageSystem msgSys = Main.msgSys;
-	protected Stage stage;
-	protected AnchorPane panel, mainPanel;
+	protected Pane panel, mainPanel;
 	protected ScrollPane scroller;
 	protected FXScene fxScene;
 
@@ -46,9 +49,9 @@ public abstract class FXWindow
 	protected RadioMenuItem languageRU, languageEN;
 	protected MenuItem privacyPolicy, usersManual, site;
 
-	public FXWindow(String secondaryTitle, AnchorPane panel, int type)
+	public FXWindow(String secondaryTitle, Pane panel, int type)
 	{
-		stage = new Stage();
+		super(new Stage());
 		try
 		{
 			stage.setTitle(Main.program + (secondaryTitle != null && !secondaryTitle.equals("") ? " - " + secondaryTitle : ""));
@@ -113,16 +116,19 @@ public abstract class FXWindow
 	{
 		stage.show();
 		stage.requestFocus();
-		stage.setX(Math.max(FXScene.minX + 1, Math.min(Math.min(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2, FXScene.maxX - stage.getWidth()),
-				FXScene.maxX - 1)));
-		stage.setY(Math.max(FXScene.minY + 1, Math.min(Math.min(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2, FXScene.maxY - stage
-				.getHeight()), FXScene.maxY - 1)));
+		if (parent != null)
+		{
+			stage.setX(Math.max(FXScene.minX + 1, Math.min(Math.min(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2, FXScene.maxX - stage
+					.getWidth()), FXScene.maxX - 1)));
+			stage.setY(Math.max(FXScene.minY + 1, Math.min(Math.min(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2, FXScene.maxY - stage
+					.getHeight()), FXScene.maxY - 1)));
+		}
 		return stage;
 	}
 
 	public Stage open(Stage parent)
 	{
-		return _open(new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(), (int) parent.getHeight()));
+		return _open(parent != null ? new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(), (int) parent.getHeight()) : null);
 	}
 
 	public Stage open(Rectangle parent)
@@ -130,9 +136,16 @@ public abstract class FXWindow
 		return _open(parent);
 	}
 
-	public void setOnCloseRequest(EventHandler<WindowEvent> event)
+	public void addOnCloseRequest(EventHandler<WindowEvent> event)
 	{
-		stage.setOnCloseRequest(event);
+		EventHandler<WindowEvent> eh = stage.getOnCloseRequest();
+		stage.setOnCloseRequest(e ->
+		{
+			if (eh != null)
+				eh.handle(e);
+			if (event != null)
+				event.handle(e);
+		});
 	}
 
 	public void hide()
@@ -168,9 +181,11 @@ public abstract class FXWindow
 		};
 		languageEN.setOnAction(actionHandler);
 		languageRU.setOnAction(actionHandler);
-		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("privacyPolicyText"), 0, 0, Main.isFxWindowFrame(), true));
-		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("usersManualText"), 0, 0, Main.isFxWindowFrame(), true));
-		site.setOnAction(event -> SystemUtils.openUrlInBrowser(msgSys.getMsg("site")));
+		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("privacyPolicyText"), 0, 0, Main.isFxWindowFrame(),
+				true));
+		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("usersManualText"), 0, 0, Main.isFxWindowFrame(),
+				true));
+		site.setOnAction(event -> SystemUtils.openUrl(msgSys.getMsg("site")));
 
 		EventHandler<Event> eh = e -> e.consume();
 		window.setMnemonicParsing(false);
@@ -266,7 +281,7 @@ public abstract class FXWindow
 	/**
 	 * @return the panel
 	 */
-	public AnchorPane getPanel()
+	public Pane getPanel()
 	{
 		return panel;
 	}
@@ -275,7 +290,7 @@ public abstract class FXWindow
 	 * @param panel
 	 *            the panel to set
 	 */
-	public void setPanel(AnchorPane panel)
+	public void setPanel(Pane panel)
 	{
 		this.panel = panel;
 	}
@@ -283,7 +298,7 @@ public abstract class FXWindow
 	/**
 	 * @return the mainPanel
 	 */
-	public AnchorPane getMainPanel()
+	public Pane getMainPanel()
 	{
 		return mainPanel;
 	}
@@ -292,7 +307,7 @@ public abstract class FXWindow
 	 * @param mainPanel
 	 *            the mainPanel to set
 	 */
-	public void setMainPanel(AnchorPane mainPanel)
+	public void setMainPanel(Pane mainPanel)
 	{
 		this.mainPanel = mainPanel;
 	}
@@ -501,12 +516,12 @@ public abstract class FXWindow
 		this.site = site;
 	}
 
-	/**
-	 * @param stage
-	 *            the stage to set
-	 */
-	public void setStage(Stage stage)
-	{
-		this.stage = stage;
-	}
+	// /**
+	// * @param stage
+	// * the stage to set
+	// */
+	// public void setStage(Stage stage)
+	// {
+	// this.stage = stage;
+	// }
 }

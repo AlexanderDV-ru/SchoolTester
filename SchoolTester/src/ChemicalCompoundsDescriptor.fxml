@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="506.0" prefWidth="447.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.utils.InitChemicalCompoundsDescriptionPart">
+   <children>
+      <TextField fx:id="formulaTextfield" layoutX="12.0" layoutY="67.0" prefHeight="25.0" prefWidth="156.0" promptText="Formula" />
+      <Button fx:id="createDescriptionButton" layoutX="322.0" layoutY="67.0" mnemonicParsing="false" text="Create description">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </Button>
+      <TextArea fx:id="descriptionTextarea" layoutX="13.0" layoutY="100.0" prefHeight="392.0" prefWidth="422.0" wrapText="true" />
+      <TextField fx:id="nameTextfield" layoutX="175.0" layoutY="67.0" prefHeight="25.0" prefWidth="139.0" promptText="Name" />
+      <RadioButton fx:id="namesInLatinRadio" layoutX="14.0" layoutY="42.0" mnemonicParsing="false" selected="true" text="Names in latin">
+         <toggleGroup>
+            <ToggleGroup fx:id="namesLanguage" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="namesInSelectedLanguageRadio" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Names in selected language" toggleGroup="$namesLanguage" />
+      <ComboBox fx:id="signsAfterCommaCombobox" layoutX="199.0" layoutY="10.0" prefHeight="25.0" prefWidth="14.0" />
+      <Label fx:id="signsAfterCommaLabel" layoutX="249.0" layoutY="10.0" prefHeight="25.0" prefWidth="123.0" text="   Signs after comma" />
+   </children>
+</AnchorPane>

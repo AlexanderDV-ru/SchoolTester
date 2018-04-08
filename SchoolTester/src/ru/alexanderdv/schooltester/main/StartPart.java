@@ -5,21 +5,22 @@ import java.net.URL;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 
 /**
  * StartPart - the GUI part for working after program launch
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
-public class StartPart extends ProtectedFXWindow
+public class StartPart extends FXWindow
 {
 	public static StartPart instance;
 	private MenuItem openAccountsMenu;
@@ -27,12 +28,11 @@ public class StartPart extends ProtectedFXWindow
 
 	public StartPart(String secondaryTitle, URL url)
 	{
-		super(secondaryTitle, url, 3, 0);
+		super(secondaryTitle, url, 3);
 		instance = this;
 		AccountsPart.account.addActionListener(e -> updateLabelsInPart());
 		AccountsPart.account.addActionListener(e ->
 		{
-			InitStartPart.instance.openCrossWordGeneratorPart.setVisible(false);
 			InitStartPart.instance.openTeachersTestsControlPart.setVisible(false);
 			InitStartPart.instance.openTestDevPart.setVisible(false);
 			switch (AccountsPart.account.get() != null ? AccountsPart.account.get().getAccountType().name().toLowerCase() : "none")
@@ -42,7 +42,8 @@ public class StartPart extends ProtectedFXWindow
 					InitStartPart.instance.openTeachersTestsControlPart.setVisible(true);
 					InitStartPart.instance.openTestDevPart.setVisible(true);
 				case "student":
-					InitStartPart.instance.openCrossWordGeneratorPart.setVisible(true);
+					for (Button subjectUtilitiesButton : InitStartPart.instance.subjectUtilitiesButtons)
+						subjectUtilitiesButton.setVisible(true);
 				case "none":
 					break;
 			}
@@ -55,6 +56,7 @@ public class StartPart extends ProtectedFXWindow
 	{
 		return stage;
 	}
+
 	@Override
 	public MenuBar createMenu()
 	{
@@ -67,7 +69,7 @@ public class StartPart extends ProtectedFXWindow
 			openAccountsMenu.setDisable(true);
 			try
 			{
-				Main.getAccountsPart().open(stage,null,null);
+				Main.getAccountsPart().open(stage);
 			}
 			catch (Exception e1)
 			{
@@ -125,7 +127,6 @@ public class StartPart extends ProtectedFXWindow
 		InitStartPart.instance.special.setText(msgSys.getMsg("special"));
 		InitStartPart.instance.utils.setText(msgSys.getMsg("utils"));
 
-		InitStartPart.instance.openCrossWordGeneratorPart.setText(msgSys.getMsg("openCrossWordGeneratorPart"));
 		InitStartPart.instance.openTeachersTestsControlPart.setText(msgSys.getMsg("openTeachersTestsControlPart"));
 		InitStartPart.instance.openTestDevPart.setText(msgSys.getMsg("openTestDevPart"));
 	}

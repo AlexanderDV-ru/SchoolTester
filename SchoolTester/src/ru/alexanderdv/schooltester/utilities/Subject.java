@@ -4,7 +4,7 @@ package ru.alexanderdv.schooltester.utilities;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public enum Subject
 {
@@ -15,7 +15,7 @@ public enum Subject
 	Art(1, -7),
 	Biology(5, 11),
 	Chemistry(-5, 11),
-	InfoTechAndComputers(-1, 11),
+	Informatics(-1, 11),
 	Drama(0, 0),
 	Economics(-5, 11),
 	French(-1, 11),
@@ -23,7 +23,6 @@ public enum Subject
 	Geology(-5, 11),
 	German(-1, 11),
 	History(-5, 11),
-	HomeEconomics(-5, 11),
 	LiteratureAndReading(1, 11),
 	Music(1, 11),
 	PhysicalEducation(1, 11),
@@ -31,6 +30,7 @@ public enum Subject
 	Psychology(-5, 0),
 	Science(1, 4),
 	ForeignLanguage(-1, 11),
+	OtherSubject(-1, -1),
 	SocialStudies(-5, 11);
 	private final int startClass, endClass;
 

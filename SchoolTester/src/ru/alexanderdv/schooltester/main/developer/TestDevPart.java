@@ -41,15 +41,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
-import ru.alexanderdv.schooltester.utilities.Question.QuestionType;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.types.Question.QuestionType;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class TestDevPart extends ProtectedFXWindow
 {

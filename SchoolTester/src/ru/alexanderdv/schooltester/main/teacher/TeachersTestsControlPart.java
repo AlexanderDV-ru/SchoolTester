@@ -17,25 +17,27 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.AccountsPart;
 import ru.alexanderdv.schooltester.main.Main;
-import ru.alexanderdv.schooltester.main.student.StudentsTestingPartFX;
-import ru.alexanderdv.schooltester.utilities.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.main.TestingPart;
 import ru.alexanderdv.schooltester.utilities.Config;
-import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.Statistics;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
-import ru.alexanderdv.schooltester.utilities.Test;
-import ru.alexanderdv.schooltester.utilities.Theme;
+import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.types.Test;
+import ru.alexanderdv.schooltester.utilities.types.Test.Permissions;
+import ru.alexanderdv.schooltester.utilities.types.Theme;
 
 /**
  * 
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class TeachersTestsControlPart extends ProtectedFXWindow
 {
@@ -492,7 +494,18 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testWithFiltersNotExist"), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION,
 						Main.isFxWindowFrame(), true);
 		});
+		InitTeachersTestsControlPart.instance.defaultRadiobutton.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.indicateLastAnswerQualityRadiobutton.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.indicateAllAnswersQualityCheckbox.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.showRightAnswerCheckbox.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.goToAllQuestionsRadiobutton.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.skipCheckbox.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.pauseCheckbox.setOnAction(checkPermissions);
+		InitTeachersTestsControlPart.instance.startTestButton.setOnAction(checkPermissions);
 	}
+
+	private Test[] tests;
+	private Test selectedTest;
 
 	private void updateTests()
 	{
@@ -529,7 +542,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 			}
 		}
 		files = testsDir.listFiles();
-		Test[] tests = new Test[files.length];
+		tests = new Test[files.length];
 		for (int i = 0; i < files.length; i++)
 			if (files[i].isDirectory())
 			{
@@ -542,6 +555,19 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 					}
 			}
 		testNameCombobox1.getSelectionModel().select(0);
+		testNameCombobox1.setOnAction(e ->
+		{
+			boolean b = false;
+			for (Test test : tests)
+				if (test.getName().equals(testNameCombobox1.getSelectionModel().getSelectedItem()))
+				{
+					selectedTest = test;
+					b = true;
+				}
+			if (!b)
+				selectedTest = null;
+		});
+		selectedTest=tests[0];
 		boolean hide = true;
 		startTestButton.setOnAction(e ->
 		{
@@ -625,7 +651,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				theme.setSpecialButtonsBackground(new javafx.scene.paint.Color(150 / 255f, 220 / 255f, 30 / 255f, 1));
 				theme.setSpecialButtonsForeground(new javafx.scene.paint.Color(255f / 255f, 255f / 255f, 255f / 255f, 1));
 				theme.setSpecialButtonsFrame(new javafx.scene.paint.Color(110 / 255f, 200 / 255f, 50 / 255f, 1));
-				StudentsTestingPartFX studentsTestingPartFX = new StudentsTestingPartFX(null, getClass().getResource("/StudentsTestingPart.fxml"),
+				TestingPart studentsTestingPartFX = new TestingPart(null, getClass().getResource("/TestingPart.fxml"),
 						new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), test, theme,
 						classNumberCombobox1.getSelectionModel().getSelectedItem(), classLetterCombobox.getSelectionModel().getSelectedItem(), surnameCombobox
 								.getSelectionModel().getSelectedItem(), nameCombobox.getSelectionModel().getSelectedItem(), secondNameCombobox
@@ -645,7 +671,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				}
 				catch (Exception e1)
 				{
-					FXDialogsGenerator.showFXDialog(stage, null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
 				}
 				Main.instance.hideAll();
 			}
@@ -732,4 +758,15 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		}
 	}
 
+	EventHandler<ActionEvent> checkPermissions = e ->
+	{
+		Permissions perms = selectedTest.getPermissionsToStart();
+		if (InitTeachersTestsControlPart.instance.indicateLastAnswerQualityRadiobutton.isSelected() && !perms.isShowLastAnswerQualityPermission()
+				|| InitTeachersTestsControlPart.instance.indicateAllAnswersQualityCheckbox.isSelected() && !perms.isShowAllAnswersQualityPermission()
+				|| InitTeachersTestsControlPart.instance.showRightAnswerCheckbox.isSelected() && !perms.isShowRightAnswerPermission()
+				|| InitTeachersTestsControlPart.instance.goToAllQuestionsRadiobutton.isSelected() && !perms.isGoToAllAnswersPermission()
+				|| InitTeachersTestsControlPart.instance.skipCheckbox.isSelected() && !perms.isSkipPermission()
+				|| InitTeachersTestsControlPart.instance.pauseCheckbox.isSelected() && !perms.isPausePermission())
+			e.consume();
+	};
 }

@@ -17,7 +17,7 @@ import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
  * Config - the class of configuration file parser
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  *
  */
 public class Config

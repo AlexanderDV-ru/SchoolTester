@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
  * Logger - the class extending by "java.util.logging.Logger" used to convenient interaction with logging
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class Logger extends java.util.logging.Logger
 {
@@ -138,6 +138,7 @@ public class Logger extends java.util.logging.Logger
 		KeyIsBad(1),
 		YouAreInBlacklist(2),
 		NotVerified(3),
+		Update(10),
 		WrongSyntax(20),
 		TestSyntaxLanguageIsNotSupported(21),
 		TestNotHaveMainValues(22),

@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  *
  */
 public class MessageSystem
@@ -34,6 +34,7 @@ public class MessageSystem
 			messages.get(language).put("testWithFiltersNotExist", "Tests' results with these filters aren't exist!");
 			messages.get(language).put("testNotSelected", "Test don't selected!");
 			messages.get(language).put("undefined", "Undefined");
+			messages.get(language).put("openSetupFile", "Open file '%1' to start setup.");
 
 			messages.get(language).put("classMustBeSelected", "Class must be selected!");
 			messages.get(language).put("surnameMustBeSelected", "Surname must be selected!");
@@ -60,13 +61,61 @@ public class MessageSystem
 					"Arrange answers in right sequence, to select answer number do right click to answer and select answer number by left click. (Vertical arrange of answer not have a weight)");
 
 			messages.get(language).put("youHaveSkipped", "Please, answer to skipped questions to finish test.");
-			
+
 			messages.get(language).put("passwordsNotMatch", "Password don't match!");
 
 			messages.get(language).put("notInAccount", "Not in account");
 			messages.get(language).put("teacherAccount", "In teacher's account");
 			messages.get(language).put("studentAccount", "In student's account");
 			messages.get(language).put("administratorAccount", "In administrator's account");
+
+			messages.get(language).put("createDescription", "Create description");
+			messages.get(language).put("enterFormula", "Enter formula");
+			messages.get(language).put("namesInLatin", "Names in latin");
+			messages.get(language).put("namesInSelectedLanguage", "Names in selected language");
+			messages.get(language).put("enterName", "Enter name");
+			messages.get(language).put("signsAfterComma", "Signs after comma");
+
+			messages.get(language).put("errorInFormula", "Error, '%1' must be chemical formula!");
+			messages.get(language).put("errorInFormulaAtomsLessThanOne", "Error, '%1' must be chemical formula(Atoms amount less than 1)!");
+			messages.get(language).put("errorInFormulaInertGas", "Error, '%1' must be chemical formula(Inert)!");
+
+			messages.get(language).put("specificSubstance", "Specific substance - %1.");
+			messages.get(language).put("qualitativeComposition", "Qualitative composition - consists of %1 element(s): %2.");
+			messages.get(language).put("substanceType", "Substance type - %1.");
+			messages.get(language).put("quantitativeComposition", "Quantitative composition - %1.");
+			messages.get(language).put("relativeMolecularMass", "Relative molecular mass - %1.");
+			messages.get(language).put("elementsMassRatio", "Elements mass ratio - %1.");
+			messages.get(language).put("elementsMassFractions", "Elements mass fractions - %1.");
+			
+			messages.get(language).put("atoms", "atom(s)");
+
+			// Subjects translates
+			messages.get(language).put("Math", "Math");
+			messages.get(language).put("RussianAndWriting", "Russian and writing");
+			messages.get(language).put("English", "English");
+			messages.get(language).put("Archaeology", "Archaeology");
+			messages.get(language).put("Art", "Art");
+			messages.get(language).put("Biology", "Biology");
+			messages.get(language).put("Chemistry", "Chemistry");
+			messages.get(language).put("Informatics", "Informatics");
+			messages.get(language).put("Drama", "Drama");
+			messages.get(language).put("Economics", "Economics");
+			messages.get(language).put("French", "French");
+			messages.get(language).put("Geography", "Geography");
+			messages.get(language).put("Geology", "Geology");
+			messages.get(language).put("German", "German");
+			messages.get(language).put("History", "History");
+			messages.get(language).put("HomeEconomics", "Home economics");
+			messages.get(language).put("LiteratureAndReading", "Literature and reading");
+			messages.get(language).put("Music", "Music");
+			messages.get(language).put("PhysicalEducation", "Physical education");
+			messages.get(language).put("Physics", "Physics");
+			messages.get(language).put("Psychology", "Psychology");
+			messages.get(language).put("Science", "Science");
+			messages.get(language).put("ForeignLanguage", "Foreign language");
+			messages.get(language).put("OtherSubject", "Other subject");
+			messages.get(language).put("SocialStudies", "Social studies");
 
 			messages.get(language).put("testMustContainsSyntaxLanguage", "Syntax is wrong: .test file must contains property 'syntaxLanguage'!");
 			messages.get(language).put("testMustContainsMainProperties",
@@ -94,6 +143,7 @@ public class MessageSystem
 			messages.get(language).put("questionResultMoreThanMaxResult", "Error! Result of question bigger then max result!");
 			messages.get(language).put("accountsInfoNotMatch", "Basic accounts' information don't match: types or logins aren't match!");
 			messages.get(language).put("fxWindowStateChanged", "FX window frame state changed! Restart the program to see the effect.");
+			messages.get(language).put("openSubjectUtilities", "%1 utilities");
 
 			messages.get(language).put("splitByComma", "Split by comma.");
 			messages.get(language).put("digits", "Digits");
@@ -171,6 +221,7 @@ public class MessageSystem
 			messages.get(language).put("next", "Next");
 			messages.get(language).put("skip", "Skip");
 			messages.get(language).put("finish", "Finish");
+			messages.get(language).put("back", "Back");
 
 			messages.get(language).put("smallest", "Smallest");
 			messages.get(language).put("average", "Average");
@@ -338,9 +389,9 @@ public class MessageSystem
 				}
 				messages.get(language).put("save", "Save");
 			}
-			messages.get(language).put("openCrossWordGeneratorPart", "Open crossword generator");
-			messages.get(language).put("openTeachersTestsControlPart", "Open tests contol");
-			messages.get(language).put("openTestDevPart", "Open test develop");
+			messages.get(language).put("openCrossWordGeneratorPart", "Crossword generator");
+			messages.get(language).put("openTeachersTestsControlPart", "Tests contol");
+			messages.get(language).put("openTestDevPart", "Test develop");
 		}
 	}
 	static
@@ -613,11 +664,59 @@ public class MessageSystem
 			messages.get(language).put("testWithFiltersNotExist", "Результатов тестов подходящих под данные фильтры не существует!");
 			messages.get(language).put("testNotSelected", "Тест не выбран!");
 			messages.get(language).put("undefined", "Не определено");
+			messages.get(language).put("openSetupFile", "Запустите файл '%1' для того, чтобы начать установку.");
 
 			messages.get(language).put("classMustBeSelected", "Класс должен быть выбран!");
-			messages.get(language).put("surnameMustBeSelected", "Фамилия должен быть выбран!");
-			messages.get(language).put("nameMustBeSelected", "Имя должен быть выбран!");
-			messages.get(language).put("secondNameMustBeSelected", "Отчество должен быть выбран!");
+			messages.get(language).put("surnameMustBeSelected", "Фамилия должна быть выбрана!");
+			messages.get(language).put("nameMustBeSelected", "Имя должно быть выбрано!");
+			messages.get(language).put("secondNameMustBeSelected", "Отчество должно быть выбрано!");
+
+			messages.get(language).put("createDescription", "Создать описание");
+			messages.get(language).put("enterFormula", "Введите формулу");
+			messages.get(language).put("namesInLatin", "Названия на латыни");
+			messages.get(language).put("namesInSelectedLanguage", "Названия на выбранном языке");
+			messages.get(language).put("enterName", "Введите название");
+			messages.get(language).put("signsAfterComma", "Знаков после запятой");
+
+			messages.get(language).put("errorInFormula", "Ошибка, '%1' должно быть формулой химического вещества!");
+			messages.get(language).put("errorInFormulaAtomsLessThanOne", "Ошибка, '%1' должно быть формулой химического вещества(Количество атомов меньше 1)!");
+			messages.get(language).put("errorInFormulaInertGas", "Ошибка, '%1' должно быть формулой химического вещества(Вещество инертное)!");
+
+			messages.get(language).put("specificSubstance", "Конкретное вещество - %1.");
+			messages.get(language).put("qualitativeComposition", "Качественный состав - состоит из %1 элементов: %2.");
+			messages.get(language).put("substanceType", "Тип вещества - %1.");
+			messages.get(language).put("quantitativeComposition", "Количественный состав вещества - %1.");
+			messages.get(language).put("relativeMolecularMass", "Относительная молекулярная масса - %1.");
+			messages.get(language).put("elementsMassRatio", "Соотношение масс элементов - %1.");
+			messages.get(language).put("elementsMassFractions", "Массовые доли элементов - %1.");
+			
+			messages.get(language).put("atoms", "атом(а,ов)");
+
+			// Subjects translates
+			messages.get(language).put("Math", "Математика");
+			messages.get(language).put("RussianAndWriting", "Русский и письмо");
+			messages.get(language).put("English", "Английский");
+			messages.get(language).put("Archaeology", "Археология");
+			messages.get(language).put("Art", "ИЗО");
+			messages.get(language).put("Biology", "Биология");
+			messages.get(language).put("Chemistry", "Химия");
+			messages.get(language).put("Informatics", "Информатика");
+			messages.get(language).put("Drama", "Драма");
+			messages.get(language).put("Economics", "Экономика");
+			messages.get(language).put("French", "Французский");
+			messages.get(language).put("Geography", "География");
+			messages.get(language).put("Geology", "Геология");
+			messages.get(language).put("German", "Немецкий");
+			messages.get(language).put("History", "История");
+			messages.get(language).put("LiteratureAndReading", "Литература и чтение");
+			messages.get(language).put("Music", "Музыка");
+			messages.get(language).put("PhysicalEducation", "Физкультура");
+			messages.get(language).put("Physics", "Физика");
+			messages.get(language).put("Psychology", "Психология");
+			messages.get(language).put("Science", "Природоведенье");
+			messages.get(language).put("ForeignLanguage", "Иностранный язык");
+			messages.get(language).put("OtherSubject", "Другой предмет");
+			messages.get(language).put("SocialStudies", "Обществознание");
 
 			messages.get(language).put("notInAccount", "Не в аккаунте");
 			messages.get(language).put("teacherAccount", "Аккаунт учителя");
@@ -633,7 +732,7 @@ public class MessageSystem
 			messages.get(language).put("accountInfoChanged", "Информация в вашем профиле изменена, пожалуйста, зайдите заново.");
 			messages.get(language).put("accountInfoChangedByYou", "Вы успешно изменили информацию в вашем профиле.");
 			messages.get(language).put("accountDeleted", "Вы успешно удалили свой аккаунт.");
-			
+
 			messages.get(language).put("youHaveSkipped", "Пожалуйста, ответьте на пропущенные вопросы, чтобы закончить тест.");
 
 			messages.get(language).put("pickOneQuestionInfo", "Выберите правильный ответ, для этого, сделайте левый клик по кнопке с ответом.");
@@ -649,10 +748,10 @@ public class MessageSystem
 			messages.get(language).put("testMustContainsMainProperties",
 					"Неверный синтаксис: .test файл должен содержать поля 'типЦвета' и 'версияПрограммы'!");
 			messages.get(language).put("syntaxLanguageIsNotSupported", "Язык синтаксиса '%1' не поддерживается!");
-			messages.get(language).put("testVersionNotMatchWithProgramVersion",
-					"Версия теста отличается от версии программы, это может вызвать ошибки!");
+			messages.get(language).put("testVersionNotMatchWithProgramVersion", "Версия теста отличается от версии программы, это может вызвать ошибки!");
 			messages.get(language).put("awardsInGroupNotMatch", "Ошибка: Баллы за ответ в одной группе разные!");
-			messages.get(language).put("questionsToTestAmountMoreThanQuestionsAmount", "Предупреждение: 'количествоВопросовДляТеста' больше, чем количество вопросов!");
+			messages.get(language).put("questionsToTestAmountMoreThanQuestionsAmount",
+					"Предупреждение: 'количествоВопросовДляТеста' больше, чем количество вопросов!");
 			messages.get(language).put("questionsToTestAmountLessThanOne", "Предупреждение: 'количествоВопросовДляТеста' меньше, чем 1!");
 			messages.get(language).put("testNotHaveQuestions", "Ошибка: в тесте нет ни одного вопроса!");
 			messages.get(language).put("imageNotLoaded", "Не удалось загрузить изображение!");
@@ -671,9 +770,10 @@ public class MessageSystem
 			messages.get(language).put("questionResultMoreThanMaxResult", "Ошибка! Результат больше максимального результата!");
 			messages.get(language).put("accountsInfoNotMatch", "Типы аккаунтов или логины не совпадают!");
 			messages.get(language).put("fxWindowStateChanged", "Режим рамки окна изменен, чтобы увидеть эффект перезапустите программу!");
+			messages.get(language).put("openSubjectUtilities", "Утилиты - '%1'");
 
 			messages.get(language).put("passwordsNotMatch", "Пароли не совпадают!");
-			
+
 			messages.get(language).put("splitByComma", "Разделяйте запятыми.");
 			messages.get(language).put("digits", "Цифры");
 			messages.get(language).put("letters", "Буквы");
@@ -751,6 +851,7 @@ public class MessageSystem
 			messages.get(language).put("next", "Далее");
 			messages.get(language).put("skip", "Пропустить");
 			messages.get(language).put("finish", "Закончить");
+			messages.get(language).put("back", "Назад");
 
 			messages.get(language).put("smallest", "Меньшее");
 			messages.get(language).put("average", "Среднее");
@@ -918,9 +1019,9 @@ public class MessageSystem
 				}
 				messages.get(language).put("save", "Сохранить");
 			}
-			messages.get(language).put("openCrossWordGeneratorPart", "Открыть генератор кроссвордов");
-			messages.get(language).put("openTeachersTestsControlPart", "Открыть контроль тестов");
-			messages.get(language).put("openTestDevPart", "Открыть разработку тестов");
+			messages.get(language).put("openCrossWordGeneratorPart", "Генератор кроссвордов");
+			messages.get(language).put("openTeachersTestsControlPart", "Контроль тестов");
+			messages.get(language).put("openTestDevPart", "Разработка тестов");
 		}
 	}
 	static

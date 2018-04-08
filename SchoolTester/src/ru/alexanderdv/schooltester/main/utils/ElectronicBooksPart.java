@@ -20,21 +20,21 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import ru.alexanderdv.schooltester.utilities.Config;
 import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class ElectronicBooksPart extends ProtectedFXWindow
 {
 	private TabPane tabPane = InitElectronicBooksPart.instance.tabPane;
 
-	public ElectronicBooksPart(String secondaryTitle, URL url)
+	public ElectronicBooksPart(URL url)
 	{
-		super(secondaryTitle, url, 1, 1);
+		super(null, url, 1, 1);
 		updateBooks();
 	}
 

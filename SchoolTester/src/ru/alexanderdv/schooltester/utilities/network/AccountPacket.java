@@ -1,12 +1,13 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.network;
 
 import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.schooltester.utilities.types.Account;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class AccountPacket extends NetworkPacket
 {

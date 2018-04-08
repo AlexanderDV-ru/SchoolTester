@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.fx;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,7 +13,7 @@ import javafx.scene.layout.Pane;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class ComboboxWithAdd extends Pane
 {

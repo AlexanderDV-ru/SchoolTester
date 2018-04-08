@@ -17,19 +17,20 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import ru.alexanderdv.schooltester.utilities.Account;
-import ru.alexanderdv.schooltester.utilities.Account.AccountType;
-import ru.alexanderdv.schooltester.utilities.AccountPacket;
-import ru.alexanderdv.schooltester.utilities.ComboboxWithAdd;
-import ru.alexanderdv.schooltester.utilities.FXDialogsGenerator;
-import ru.alexanderdv.schooltester.utilities.Person.Rodstvennik;
+import javafx.stage.Stage;
+import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
+import ru.alexanderdv.schooltester.utilities.types.Account;
+import ru.alexanderdv.schooltester.utilities.types.Account.AccountType;
+import ru.alexanderdv.schooltester.utilities.types.Person.Rodstvennik;
 import ru.alexanderdv.schooltester.utilities.Subject;
+import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class InitAccountsPart
 {
@@ -169,7 +170,7 @@ public class InitAccountsPart
 						InitAccountsPart.instance.accountTypeCombobox.getSelectionModel().getSelectedItem(), InitAccountsPart.instance.loginField.getText(),
 						InitAccountsPart.instance.passwordField.getText())));
 			}
-			else FXDialogsGenerator.showFXDialog(null, null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
 		});
 		InitAccountsPart.instance.signInButton.setOnAction(e ->
 		{
@@ -181,7 +182,7 @@ public class InitAccountsPart
 			if (passwordField.getText().equals(passwordRepeatField.getText()))
 				Main.instance.addRequest(new AccountPacket("deleteAccount", Main.macAddress, null, AccountsPart.account.get(), new Account(accountTypeCombobox
 						.getSelectionModel().getSelectedItem(), loginField.getText(), passwordField.getText())));
-			else FXDialogsGenerator.showFXDialog(null, null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
 		});
 		signOutButton.setOnAction(e ->
 		{
@@ -253,21 +254,21 @@ public class InitAccountsPart
 				account.setHomeCity(homeCityField.getText());
 				Main.instance.addRequest(new AccountPacket("changeProfileInfo", Main.macAddress, null, account, account));
 			}
-			else FXDialogsGenerator.showFXDialog(null, null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
 		});
 		changePasswordButton.setOnAction(e ->
 		{
 			if (newPasswordField.getText().equals(newPasswordRepeatField.getText()) && passwordField.getText().equals(passwordRepeatField.getText()))
 				Main.instance.addRequest(new AccountPacket("changeSecurityInfo", Main.macAddress, null, AccountsPart.account.get(), new Account(
 						accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(), newPasswordField.getText())));
-			else FXDialogsGenerator.showFXDialog(null, null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
 		});
 
-		signUpTab.setOnSelectionChanged(e -> handleTabSelect());
 		signInTab.setOnSelectionChanged(e -> handleTabSelect());
-		deleteAccountTab.setOnSelectionChanged(e -> handleTabSelect());
-		signOutTab.setOnSelectionChanged(e -> handleTabSelect());
+		signUpTab.setOnSelectionChanged(e -> handleTabSelect());
 		profileTab.setOnSelectionChanged(e -> handleTabSelect());
+		signOutTab.setOnSelectionChanged(e -> handleTabSelect());
+		deleteAccountTab.setOnSelectionChanged(e -> handleTabSelect());
 		changeVisibleTabs(AccountsPart.account.get());
 	}
 
@@ -411,11 +412,13 @@ public class InitAccountsPart
 	public void changeVisibleTabs(Account account)
 	{
 		ObservableList<Tab> tabs = tabPane.getTabs();
-		changeTabVisibility(tabs, account == null, signUpTab);
-		changeTabVisibility(tabs, account == null, signInTab);
-		changeTabVisibility(tabs, account != null, deleteAccountTab);
-		changeTabVisibility(tabs, account != null, signOutTab);
 		changeTabVisibility(tabs, account != null, profileTab);
+		changeTabVisibility(tabs, account != null, signOutTab);
+		changeTabVisibility(tabs, account != null, deleteAccountTab);
+		changeTabVisibility(tabs, account == null, signInTab);
+		changeTabVisibility(tabs, account == null, signUpTab);
+		tabPane.getSelectionModel().selectFirst();
+		handleTabSelect();
 	}
 
 	public void changeTabVisibility(ObservableList<Tab> tabs, boolean visible, Tab tab)

@@ -17,7 +17,7 @@ import java.nio.file.Paths;
  * SystemUtils - the utils class used to interaction with system
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class SystemUtils
 {
@@ -27,7 +27,7 @@ public class SystemUtils
 	 * @param url
 	 *            - URL of page to opening in browser
 	 */
-	public static void openUrlInBrowser(String url)
+	public static void openUrl(String url)
 	{
 		if (Desktop.isDesktopSupported())
 		{

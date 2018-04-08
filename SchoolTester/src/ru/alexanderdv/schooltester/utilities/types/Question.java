@@ -1,22 +1,23 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.types;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javafx.scene.text.Font;
 import ru.alexanderdv.schooltester.main.Main;
-import ru.alexanderdv.simpleutilities.Entry;	
+import ru.alexanderdv.schooltester.utilities.MessageSystem;
+import ru.alexanderdv.simpleutilities.Entry;
 
 /**
  * Question - the class with data about question.
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  *
  */
 public class Question
 {
-	private static final MessageSystem msgSys=Main.msgSys;
+	private static final MessageSystem msgSys = Main.msgSys;
 	private final String text;
 	private final Font font;
 	private final int award;
@@ -24,7 +25,7 @@ public class Question
 	private final QuestionType type;
 	private final Answer[] answers;
 	private final int[] answersIndexes;
-	private final HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution;
+	private final HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution;
 	private final HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForMatching;
 	private final HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement;
 	private final String[] indexesForNames;
@@ -33,6 +34,7 @@ public class Question
 	private final int maxAward;
 	private final String ignoredCharacters;
 	private final boolean ignoreCase;
+	private final int index;
 
 	/**
 	 * 
@@ -48,9 +50,10 @@ public class Question
 	 * @param ignoreCase
 	 */
 	private Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
-			HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution,
+			HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution,
 			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForMatching,
-			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase)
+			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement, String[] indexesForNames, int[] indexesForNamesIndexes,
+			String ignoredCharacters, boolean ignoreCase, int index)
 	{
 		super();
 		this.text = text;
@@ -59,7 +62,7 @@ public class Question
 		this.minResult = minResult;
 		this.type = type;
 		this.answers = answers;
-		this.indexesForNamesIndexes=indexesForNamesIndexes;
+		this.indexesForNamesIndexes = indexesForNamesIndexes;
 		this.answersIndexes = new int[this.answers.length];
 		for (int i = 0; i < this.answers.length; i++)
 			this.answersIndexes[i] = this.answers[i].index;
@@ -70,6 +73,7 @@ public class Question
 		this.handleOnlyMaximal = handleOnlyMaximal;
 		this.ignoredCharacters = ignoredCharacters;
 		this.ignoreCase = ignoreCase;
+		this.index = index;
 		int max = 0;
 		switch (type)
 		{
@@ -122,13 +126,13 @@ public class Question
 	 * @param ignoreCase
 	 */
 	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
-			HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters,
-			boolean ignoreCase)
+			HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution, String[] indexesForNames,
+			int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase, int index)
 	{
-		this(text, font, award, minResult, type, answers, handleOnlyMaximal, answerArrangementForDistribution, null, null, indexesForNames,indexesForNamesIndexes, ignoredCharacters,
-				ignoreCase);
+		this(text, font, award, minResult, type, answers, handleOnlyMaximal, answerArrangementForDistribution, null, null, indexesForNames,
+				indexesForNamesIndexes, ignoredCharacters, ignoreCase, index);
 		if (type != QuestionType.Distribution)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Distribution'"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Distribution'"));
 	}
 
 	/**
@@ -145,12 +149,13 @@ public class Question
 	 * @param ignoreCase
 	 */
 	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
-			HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames,int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase, boolean n)
+			HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames, int[] indexesForNamesIndexes, String ignoredCharacters,
+			boolean ignoreCase, boolean n, int index)
 	{
 		this(text, font, award, minResult, type, answers, handleOnlyMaximal, null, type == QuestionType.Matching ? answerArrangement : null,
-				type == QuestionType.Arrangement ? answerArrangement : null, indexesForNames,indexesForNamesIndexes, ignoredCharacters, ignoreCase);
+				type == QuestionType.Arrangement ? answerArrangement : null, indexesForNames, indexesForNamesIndexes, ignoredCharacters, ignoreCase, index);
 		if (type != QuestionType.Arrangement && type != QuestionType.Matching)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Arrangement' or 'Matching'"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Arrangement' or 'Matching'"));
 	}
 
 	/**
@@ -166,11 +171,12 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, String ignoredCharacters, boolean ignoreCase)
+	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, String ignoredCharacters, boolean ignoreCase,
+			int index)
 	{
-		this(text, font, award, minResult, type, answers, false, null, null, null, null,null, ignoredCharacters, ignoreCase);
+		this(text, font, award, minResult, type, answers, false, null, null, null, null, null, ignoredCharacters, ignoreCase, index);
 		if (type != QuestionType.SelectSome && type != QuestionType.PickOne && type != QuestionType.EnterText)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'SelectSome', 'PickOne' or 'EnterText''"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'SelectSome', 'PickOne' or 'EnterText''"));
 	}
 
 	/**
@@ -258,10 +264,10 @@ public class Question
 	/**
 	 * @return the answerArragement
 	 */
-	public HashMap<HashMap<Entry<Integer,Boolean>, ArrayList<Integer>>, Integer> getAnswerArrangementForDistribution()
+	public HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> getAnswerArrangementForDistribution()
 	{
 		if (type != QuestionType.Distribution)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Distribution'"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Distribution'"));
 		return answerArrangementForDistribution;
 	}
 
@@ -271,7 +277,7 @@ public class Question
 	public HashMap<HashMap<Integer, Integer>, Integer> getAnswerArrangementForMatching()
 	{
 		if (type != QuestionType.Matching)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Matching'"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Matching'"));
 		return answerArrangementForMatching;
 	}
 
@@ -281,7 +287,7 @@ public class Question
 	public HashMap<HashMap<Integer, Integer>, Integer> getAnswerArrangementForArrangement()
 	{
 		if (type != QuestionType.Arrangement)
-			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1","'Arrangement'"));
+			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Arrangement'"));
 		return answerArrangementForArrangement;
 	}
 
@@ -307,6 +313,14 @@ public class Question
 	public boolean isHandleOnlyMaximal()
 	{
 		return handleOnlyMaximal;
+	}
+
+	/**
+	 * @return the index
+	 */
+	public int getIndex()
+	{
+		return index;
 	}
 
 	/**

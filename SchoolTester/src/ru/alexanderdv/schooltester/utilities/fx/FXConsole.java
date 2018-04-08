@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.utilities;
+package ru.alexanderdv.schooltester.utilities.fx;
 
 import java.net.URL;
 
@@ -15,7 +15,7 @@ import javafx.scene.paint.Color;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class FXConsole extends FXWindow
 {

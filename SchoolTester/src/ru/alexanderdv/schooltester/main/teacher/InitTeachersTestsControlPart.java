@@ -11,13 +11,13 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import ru.alexanderdv.schooltester.utilities.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class InitTeachersTestsControlPart
 {

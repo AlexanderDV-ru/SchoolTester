@@ -7,14 +7,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import ru.alexanderdv.schooltester.utilities.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class FunctionsWorkPart extends ProtectedFXWindow
 {
@@ -39,9 +39,9 @@ public class FunctionsWorkPart extends ProtectedFXWindow
 
 	private TextField formula = InitFunctionsWorkPart.instance.formula;
 
-	public FunctionsWorkPart(String secondaryTitle, URL url)
+	public FunctionsWorkPart(URL url)
 	{
-		super(secondaryTitle, url, 1, 1);
+		super(null, url, 1, 1);
 		createActionHandlers();
 	}
 

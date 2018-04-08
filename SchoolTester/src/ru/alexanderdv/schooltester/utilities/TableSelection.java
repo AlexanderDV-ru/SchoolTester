@@ -21,7 +21,7 @@ import java.io.IOException;
  * @see java.awt.datatransfer.DataFlavor#imageFlavor
  * @see java.awt.datatransfer.DataFlavor#fragmentHtmlFlavor
  * @author AlexanderDV/AlexandrDV
- * @version 5.8.0a
+ * @version 5.9.0a
  */
 public class TableSelection implements Transferable, ClipboardOwner
 {
