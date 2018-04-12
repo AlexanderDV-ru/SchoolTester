@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.othersubjects;
 
 import java.awt.Toolkit;
 import java.net.URL;
@@ -27,7 +27,7 @@ import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class CrossWordGeneratorPart extends ProtectedFXWindow
 {
@@ -39,9 +39,9 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 
 	private ArrayList<C> s = new ArrayList<C>();
 
-	public CrossWordGeneratorPart(URL url)
+	public CrossWordGeneratorPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1);
+		super(null, url, 1, 1,inDevelope);
 		instance = this;
 		elements.crossword.setBackground(new Background(new BackgroundFill(new javafx.scene.paint.Color(0.9, 0.9, 0.9, 1), new CornerRadii(0), new Insets(0))));
 		createActionHandlers();
@@ -292,6 +292,12 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 		{
 			return "C[x: " + x + ", y: " + y + ", i: " + i + ", vert: " + vert + ", added: " + added + ", main: " + main + ", parent: " + parent + "]";
 		}
+	}
+
+	@Override
+	public String name()
+	{
+		return "crosswordGenerator";
 	}
 
 }

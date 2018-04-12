@@ -2,7 +2,6 @@ package ru.alexanderdv.schooltester.main.developer;
 
 import java.awt.MouseInfo;
 import java.io.File;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,32 +38,28 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.types.Question.QuestionType;
+import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class TestDevPart extends ProtectedFXWindow
 {
+	public static TestDevPart instance;
 	private TabPane tabPane;
 	private Button addNewTestButton;
 
-	public TestDevPart(String secondaryTitle, URL url)
+	public TestDevPart(Pane pane,boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1, 1);
-		initialize();
-	}
-
-	public TestDevPart(String secondaryTitle, AnchorPane panel)
-	{
-		super(secondaryTitle, panel, 1, 1);
+		super(null, pane, 1, 1,inDevelope);
+		instance=this;
 		initialize();
 	}
 
@@ -316,14 +311,14 @@ public class TestDevPart extends ProtectedFXWindow
 							{
 								String s = String.join("\n", getKeyWordsFrom(area.getText(i, area.getCaretPosition())));
 								if (area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage)) != -1)
-									c.q = MathAndTextUtils.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("question",
+									c.q = MathWithText.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("question",
 											syntaxLanguage)), area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage)) + area.getText()
 													.substring(area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage))).indexOf(":")));
 								else c.q = 1;
 								if (c.q < 1)
 									c.q = 1;
 								if (area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage)) != -1)
-									c.a = MathAndTextUtils.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("answer",
+									c.a = MathWithText.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("answer",
 											syntaxLanguage)), area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage)) + area.getText()
 													.substring(area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage))).indexOf(":")));
 								else c.a = 1;
@@ -424,6 +419,18 @@ public class TestDevPart extends ProtectedFXWindow
 			for (int i = 0; i < QuestionType.values().length; i++)
 				questionTypes[i].setText(msgSys.getMsg("questionTo" + QuestionType.values()[i].name()));
 		}
+	}
+
+	@Override
+	public String name()
+	{
+		return "testsDevelopment";
+	}
+
+	@Override
+	public boolean inDevelope()
+	{
+		return true;
 	}
 
 }

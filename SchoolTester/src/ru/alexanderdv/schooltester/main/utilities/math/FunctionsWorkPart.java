@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.math;
 
 import java.net.URL;
 
@@ -14,7 +14,7 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class FunctionsWorkPart extends ProtectedFXWindow
 {
@@ -39,9 +39,9 @@ public class FunctionsWorkPart extends ProtectedFXWindow
 
 	private TextField formula = InitFunctionsWorkPart.instance.formula;
 
-	public FunctionsWorkPart(URL url)
+	public FunctionsWorkPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1);
+		super(null, url, 1, 1,inDevelope);
 		createActionHandlers();
 	}
 
@@ -121,5 +121,11 @@ public class FunctionsWorkPart extends ProtectedFXWindow
 						points[i].setVisible(true);
 					}
 		}
+	}
+
+	@Override
+	public String name()
+	{
+		return "functionsGraphicsGenerator";
 	}
 }

@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.chemistry;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,15 +12,15 @@ import ru.alexanderdv.chemistryutilities.Localization;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- *@version 5.9.0a
+ *@version 5.9.5a
  */
 public class ChemicalCompoundsDescriptionPart extends ProtectedFXWindow
 {
 	public static ChemicalCompoundsDescriptionPart instance;
 
-	public ChemicalCompoundsDescriptionPart(URL url)
+	public ChemicalCompoundsDescriptionPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1);
+		super(null, url, 1, 1,inDevelope);
 		instance = this;
 		createActionListeners();
 	}
@@ -160,6 +160,12 @@ public class ChemicalCompoundsDescriptionPart extends ProtectedFXWindow
 		InitChemicalCompoundsDescriptionPart.instance.namesInSelectedLanguageRadio.setText(msgSys.getMsg("namesInSelectedLanguage"));
 		InitChemicalCompoundsDescriptionPart.instance.signsAfterCommaLabel.setText(msgSys.getMsg("signsAfterComma"));
 		InitChemicalCompoundsDescriptionPart.instance.createDescriptionButton.setText(msgSys.getMsg("createDescription"));
+	}
+
+	@Override
+	public String name()
+	{
+		return "chemicalCompoundsDescriptor";
 	}
 
 }

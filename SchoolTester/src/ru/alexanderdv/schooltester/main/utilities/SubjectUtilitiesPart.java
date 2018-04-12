@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.AccountsPart;
@@ -20,7 +21,7 @@ import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 /**
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class SubjectUtilitiesPart extends FXWindow
 {
@@ -28,9 +29,9 @@ public class SubjectUtilitiesPart extends FXWindow
 	private final Subject subject;
 	private final ArrayList<ButtonWithWindow> buttonsAndWindows;
 
-	public SubjectUtilitiesPart(Subject subject, ButtonWithWindow... buttonsAndWindows)
+	public SubjectUtilitiesPart(Subject subject,boolean inDevelope, ButtonWithWindow... buttonsAndWindows)
 	{
-		super(null, createAnchorPane(300, 400), 1);
+		super(null, createAnchorPane(300, 400), 1,inDevelope);
 		this.subject = subject;
 		TitledPane title = new TitledPane(msgSys.getMsg(subject.name()), content = new VBox());
 		title.setCollapsible(false);
@@ -62,6 +63,7 @@ public class SubjectUtilitiesPart extends FXWindow
 			content.getChildren().add(buttonWithWindow.getButton());
 			buttonWithWindow.getButton().setPrefWidth(content.getPrefWidth() - o * 2);
 			buttonWithWindow.getButton().setLayoutX(o);
+			buttonWithWindow.getButton().setTextFill(buttonWithWindow.getWindow().inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
 		}
 	}
 
@@ -133,4 +135,17 @@ public class SubjectUtilitiesPart extends FXWindow
 		return pane;
 	}
 
+
+	@Override
+	public String name()
+	{
+		return "subjectUtilities";
+	}
+
+	@Override
+	public boolean inDevelope()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

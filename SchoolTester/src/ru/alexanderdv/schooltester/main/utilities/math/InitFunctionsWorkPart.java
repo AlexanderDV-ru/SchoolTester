@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.math;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class InitFunctionsWorkPart
 {

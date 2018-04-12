@@ -11,6 +11,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ru.alexanderdv.schooltester.main.developer.TestDevPart;
+import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart;
+import ru.alexanderdv.schooltester.main.utilities.MarketPart;
+import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart.ButtonWithWindow;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 
@@ -18,7 +22,7 @@ import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
  * StartPart - the GUI part for working after program launch
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class StartPart extends FXWindow
 {
@@ -26,9 +30,9 @@ public class StartPart extends FXWindow
 	private MenuItem openAccountsMenu;
 	private Menu accounts;
 
-	public StartPart(String secondaryTitle, URL url)
+	public StartPart(String secondaryTitle, URL url,boolean inDevelope)
 	{
-		super(secondaryTitle, url, 3);
+		super(secondaryTitle, url, 3,inDevelope);
 		instance = this;
 		AccountsPart.account.addActionListener(e -> updateLabelsInPart());
 		AccountsPart.account.addActionListener(e ->
@@ -42,7 +46,7 @@ public class StartPart extends FXWindow
 					InitStartPart.instance.openTeachersTestsControlPart.setVisible(true);
 					InitStartPart.instance.openTestDevPart.setVisible(true);
 				case "student":
-					for (Button subjectUtilitiesButton : InitStartPart.instance.subjectUtilitiesButtons)
+					for (Button subjectUtilitiesButton : InitStartPart.instance.subjectUtilitiesButtons.keySet())
 						subjectUtilitiesButton.setVisible(true);
 				case "none":
 					break;
@@ -127,8 +131,17 @@ public class StartPart extends FXWindow
 		InitStartPart.instance.special.setText(msgSys.getMsg("special"));
 		InitStartPart.instance.utils.setText(msgSys.getMsg("utils"));
 
-		InitStartPart.instance.openTeachersTestsControlPart.setText(msgSys.getMsg("openTeachersTestsControlPart"));
-		InitStartPart.instance.openTestDevPart.setText(msgSys.getMsg("openTestDevPart"));
+		InitStartPart.instance.openTeachersTestsControlPart.setText(msgSys.getMsg(TeachersTestsControlPart.instance.name()));
+		InitStartPart.instance.openTestDevPart.setText(msgSys.getMsg(TestDevPart.instance.name()));
+		InitStartPart.instance.openMarketPart.setText(msgSys.getMsg(MarketPart.instance.name()));
+		
+		for (Button btn : InitStartPart.instance.subjectUtilitiesButtons.keySet())
+		{
+			btn.setText(msgSys.getMsg(InitStartPart.instance.subjectUtilitiesButtons.get(btn).name()).replace("%1", msgSys.getMsg(InitStartPart.instance.subjectUtilitiesButtons.get(btn).getSubject()
+					.name())));
+			for(ButtonWithWindow btnWithWindow:InitStartPart.instance.subjectUtilitiesButtons.get(btn).getButtonsAndWindows())
+				btnWithWindow.getButton().setText(msgSys.getMsg(btnWithWindow.getWindow().name()));
+		}
 	}
 
 	public void addOnHiding(EventHandler<WindowEvent> event)
@@ -136,5 +149,11 @@ public class StartPart extends FXWindow
 		if (fxScene != null)
 			fxScene.setOnHiding(event);
 		else stage.setOnHiding(event);
+	}
+
+	@Override
+	public String name()
+	{
+		return "mainPart";
 	}
 }

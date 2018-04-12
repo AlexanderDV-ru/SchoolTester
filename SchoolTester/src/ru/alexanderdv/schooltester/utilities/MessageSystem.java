@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
+ * @version 5.9.5a
  *
  */
 public class MessageSystem
@@ -143,7 +143,6 @@ public class MessageSystem
 			messages.get(language).put("questionResultMoreThanMaxResult", "Error! Result of question bigger then max result!");
 			messages.get(language).put("accountsInfoNotMatch", "Basic accounts' information don't match: types or logins aren't match!");
 			messages.get(language).put("fxWindowStateChanged", "FX window frame state changed! Restart the program to see the effect.");
-			messages.get(language).put("openSubjectUtilities", "%1 utilities");
 
 			messages.get(language).put("splitByComma", "Split by comma.");
 			messages.get(language).put("digits", "Digits");
@@ -389,9 +388,19 @@ public class MessageSystem
 				}
 				messages.get(language).put("save", "Save");
 			}
-			messages.get(language).put("openCrossWordGeneratorPart", "Crossword generator");
-			messages.get(language).put("openTeachersTestsControlPart", "Tests contol");
-			messages.get(language).put("openTestDevPart", "Test develop");
+			messages.get(language).put("crosswordGenerator", "Crossword generator");
+			messages.get(language).put("testsControl", "Tests control");
+			messages.get(language).put("testsDevelopment", "Test develope");
+			messages.get(language).put("subjectUtilities", "%1 utilities");
+			messages.get(language).put("chemicalCompoundsDescriptor", "Chemical compounds descriptor");
+			messages.get(language).put("calculator", "Calculator");
+			messages.get(language).put("unitConverter", "Unit converter");
+			messages.get(language).put("functionsGraphicsGenerator", "Functions graphics generator");
+			messages.get(language).put("console", "Console");
+			messages.get(language).put("electronicBooks", "Electronic books");
+			messages.get(language).put("market", "Market");
+			messages.get(language).put("accountsSystem", "Accounts system");
+			messages.get(language).put("tester", "Tester");
 		}
 	}
 	static
@@ -1019,9 +1028,19 @@ public class MessageSystem
 				}
 				messages.get(language).put("save", "Сохранить");
 			}
-			messages.get(language).put("openCrossWordGeneratorPart", "Генератор кроссвордов");
-			messages.get(language).put("openTeachersTestsControlPart", "Контроль тестов");
-			messages.get(language).put("openTestDevPart", "Разработка тестов");
+			messages.get(language).put("crosswordGenerator", "Генератор кроссвордов");
+			messages.get(language).put("testsControl", "Управление тестированием");
+			messages.get(language).put("testsDevelopment", "Разработка тестов");
+			messages.get(language).put("subjectUtilities", "Утилиты - '%1'");
+			messages.get(language).put("chemicalCompoundsDescriptor", "Описание химических соединений");
+			messages.get(language).put("calculator", "Калькулятор");
+			messages.get(language).put("unitConverter", "Конвертер величин");
+			messages.get(language).put("functionsGraphicsGenerator", "Генератор графиков функций");
+			messages.get(language).put("console", "Консоль");
+			messages.get(language).put("electronicBooks", "Электронные учебники");
+			messages.get(language).put("market", "Магазин");
+			messages.get(language).put("accountsSystem", "Система аккаунтов");
+			messages.get(language).put("tester", "Тестер");
 		}
 	}
 	static

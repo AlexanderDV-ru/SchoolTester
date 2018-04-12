@@ -16,16 +16,16 @@ import ru.alexanderdv.schooltester.utilities.types.StageContainer;
  * AccountsPart - the GUI part for woking with accounts
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class AccountsPart extends FXWindow implements ActionListener
 {
 	public static final Property<Account> account = new Property<Account>();
 	public static AccountsPart instance;
 
-	public AccountsPart(String secondaryTitle, URL url)
+	public AccountsPart(String secondaryTitle, URL url,boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1);
+		super(secondaryTitle, url, 1,inDevelope);
 		instance = this;
 		InitAccountsPart.instance.createActionHandlers();
 	}
@@ -268,5 +268,11 @@ public class AccountsPart extends FXWindow implements ActionListener
 			if (listener != null)
 				listeners.add(listener);
 		}
+	}
+
+	@Override
+	public String name()
+	{
+		return "accountsSystem";
 	}
 }

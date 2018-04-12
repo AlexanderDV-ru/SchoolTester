@@ -22,7 +22,6 @@ import ru.alexanderdv.schooltester.main.AccountsPart;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.main.TestingPart;
 import ru.alexanderdv.schooltester.utilities.Config;
-import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
 import ru.alexanderdv.schooltester.utilities.Statistics;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
@@ -32,31 +31,31 @@ import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.types.Test;
 import ru.alexanderdv.schooltester.utilities.types.Test.Permissions;
 import ru.alexanderdv.schooltester.utilities.types.Theme;
+import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class TeachersTestsControlPart extends ProtectedFXWindow
 {
 	public static TeachersTestsControlPart instance;
 
 	private static final MessageSystem msgSys = Main.msgSys;
-	public static final String fileTreeRoot = MessageSystem.getMsg("fileTree", MessageSystem.getMessages().keySet().contains(System.getProperty("user.language")
-			.toLowerCase() + "_" + System.getProperty("user.country").toLowerCase()) ? System.getProperty("user.language").toLowerCase() + "_" + System
-					.getProperty("user.country").toLowerCase() : "en_uk"), country = country(), region = !System.getProperty("user.timezone").split("/")[0]
-							.equals("") ? System.getProperty("user.timezone").split("/")[0] : undef(), city = System.getProperty("user.timezone").split(
-									"/").length > 1 ? System.getProperty("user.timezone").split("/")[1] : undef(), school = undef();
+	public static final String fileTreeRoot = MessageSystem.getMsg("fileTree", "en_uk"), country = country(), region = !System.getProperty("user.timezone")
+			.split("/")[0].equals("") ? System.getProperty("user.timezone").split("/")[0] : undef(), city = System.getProperty("user.timezone").split(
+					"/").length > 1 ? System.getProperty("user.timezone").split("/")[1] : undef(), school = undef();
 
 	public static final String path = fileTreeRoot + "/" + country + "/" + region + "/" + city + "/" + school;
 
-	public TeachersTestsControlPart(String secondaryTitle, URL url)
+	public TeachersTestsControlPart(URL url,boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1, 1);
+		super(null,url, 1, 1,inDevelope);
 		instance = this;
 		createActionHandlers();
+		changeTestSettings();
 		changeTestingSettings();
 		changeLookSettings();
 		stage.setOnShowing(e -> updateTests());
@@ -64,8 +63,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 
 	private static String undef()
 	{
-		return MessageSystem.getMsg("undefined", MessageSystem.getMessages().containsKey(System.getProperty("user.language")) ? System.getProperty(
-				"user.language") : msgSys.getLanguage());
+		return MessageSystem.getMsg("undefined", "en_uk");
 	}
 
 	public static String getFileTree()
@@ -90,18 +88,46 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 
 	private static String country()
 	{
-		String lang = MessageSystem.getMessages().containsKey(System.getProperty("user.language")) ? System.getProperty("user.language") : msgSys.getLanguage();
+		String lang = MessageSystem.getMessages().containsKey(System.getProperty("user.language")) ? System.getProperty("user.language") : "en_uk";
 		String s = MessageSystem.getMsg(System.getProperty("user.country"), lang);
 		return s != null ? s : MessageSystem.getMsg("undefined", lang);
 	}
 
-	public void changeTestingSettings()
+	private void changeTestSettings()
+	{
+		Config cfg = new Config(new File("testSettings.cfg"));
+		if (!cfg.hasValue("testName") || !cfg.hasValue("classNumber") || !cfg.hasValue("classLetter") || !cfg.hasValue("selectedSurname") || !cfg.hasValue(
+				"selectedName") || !cfg.hasValue("selectedSecondName"))
+			saveTestSettings();
+		cfg.getText(true);
+		InitTeachersTestsControlPart.instance.testNameCombobox1.getSelectionModel().select(cfg.getString("testName", null, false));
+		InitTeachersTestsControlPart.instance.classNumberCombobox1.getSelectionModel().select(cfg.getString("classNumber", null, false));
+		InitTeachersTestsControlPart.instance.classNumberCombobox1.getOnAction().handle(new ActionEvent());
+		InitTeachersTestsControlPart.instance.classLetterCombobox.getSelectionModel().select(cfg.getString("classLetter", null, false));
+		InitTeachersTestsControlPart.instance.classLetterCombobox.getOnAction().handle(new ActionEvent());
+		InitTeachersTestsControlPart.instance.nameCombobox.getSelectionModel().select(cfg.getString("selectedName", null, false));
+		InitTeachersTestsControlPart.instance.surnameCombobox.getSelectionModel().select(cfg.getString("selectedSurname", null, false));
+		InitTeachersTestsControlPart.instance.secondNameCombobox.getSelectionModel().select(cfg.getString("selectedSecondName", null, false));
+	}
+
+	private void saveTestSettings()
+	{
+		String text = "";
+		text += "\ntestName: \"" + InitTeachersTestsControlPart.instance.testNameCombobox1.getSelectionModel().getSelectedItem() + "\"";
+		text += "\nclassNumber: \"" + InitTeachersTestsControlPart.instance.classNumberCombobox1.getSelectionModel().getSelectedItem() + "\"";
+		text += "\nclassLetter: \"" + InitTeachersTestsControlPart.instance.classLetterCombobox.getSelectionModel().getSelectedItem() + "\"";
+		text += "\nselectedSurname: \"" + InitTeachersTestsControlPart.instance.surnameCombobox.getSelectionModel().getSelectedItem() + "\"";
+		text += "\nselectedName: \"" + InitTeachersTestsControlPart.instance.nameCombobox.getSelectionModel().getSelectedItem() + "\"";
+		text += "\nselectedSecondName: \"" + InitTeachersTestsControlPart.instance.secondNameCombobox.getSelectionModel().getSelectedItem() + "\"";
+		SystemUtils.writeFile(new File("testSettings.cfg"), text, "Cp1251");
+	}
+
+	private void changeTestingSettings()
 	{
 		Config cfg = new Config(new File("testingSettings.cfg"));
 		if (!cfg.hasValue("pause") || !cfg.hasValue("pauseOnUnfocus") || !cfg.hasValue("testProps") || !cfg.hasValue("indicateAnswersQuality") || !cfg.hasValue(
-				"showRightAnswer") || !cfg.hasValue("skip") || !cfg.hasValue("anticntrlc") || !cfg.hasValue("antiscreenshot") || !cfg.hasValue("classNumber")
-				|| !cfg.hasValue("classLetter") || !cfg.hasValue("selectedSurname") || !cfg.hasValue("selectedName") || !cfg.hasValue("selectedSecondName"))
-			InitTeachersTestsControlPart.instance.saveTestingSettingsButton.getOnAction().handle(new ActionEvent());
+				"showRightAnswer") || !cfg.hasValue("skip") || !cfg.hasValue("anticntrlc") || !cfg.hasValue("antiscreenshot"))
+			saveTestingSettings();
 		cfg.getText(true);
 		InitTeachersTestsControlPart.instance.defaultRadiobutton.setSelected(cfg.getString("testProps", null, false).equals("none"));
 		InitTeachersTestsControlPart.instance.indicateLastAnswerQualityRadiobutton.setSelected(cfg.getString("testProps", null, false).equals("iaq"));
@@ -118,30 +144,48 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		InitTeachersTestsControlPart.instance.pauseOnUnfocusCheckbox.setDisable(!InitTeachersTestsControlPart.instance.pauseCheckbox.isSelected());
 		InitTeachersTestsControlPart.instance.anticopyCheckbox.setSelected(cfg.getBoolean("anticntrlc", null, false));
 		InitTeachersTestsControlPart.instance.antiscreenshotCheckbox.setSelected(cfg.getBoolean("antiscreenshot", null, false));
-
-		InitTeachersTestsControlPart.instance.testNameCombobox1.setPromptText(InitTeachersTestsControlPart.instance.testNameCombobox1.getSelectionModel()
-				.getSelectedItem());
-		InitTeachersTestsControlPart.instance.classNumberCombobox1.getSelectionModel().select(cfg.getString("classNumber", null, false));
-		InitTeachersTestsControlPart.instance.classNumberCombobox1.getOnAction().handle(new ActionEvent());
-		InitTeachersTestsControlPart.instance.classLetterCombobox.getSelectionModel().select(cfg.getString("classLetter", null, false));
-		InitTeachersTestsControlPart.instance.classLetterCombobox.getOnAction().handle(new ActionEvent());
-		InitTeachersTestsControlPart.instance.nameCombobox.getSelectionModel().select(cfg.getString("selectedName", null, false));
-		InitTeachersTestsControlPart.instance.surnameCombobox.getSelectionModel().select(cfg.getString("selectedSurname", null, false));
-		InitTeachersTestsControlPart.instance.secondNameCombobox.getSelectionModel().select(cfg.getString("selectedSecondName", null, false));
 		InitTeachersTestsControlPart.instance.saveTestingSettingsButton.setDisable(true);
 	}
 
-	public void changeLookSettings()
+	private void saveTestingSettings()
+	{
+		String text = "";
+		text += "pause: " + InitTeachersTestsControlPart.instance.pauseCheckbox.isSelected();
+		text += "\npauseOnUnfocus: " + InitTeachersTestsControlPart.instance.pauseOnUnfocusCheckbox.isSelected();
+		text += "\ntestProps: " + "\"" + (InitTeachersTestsControlPart.instance.goToAllQuestionsRadiobutton.isSelected() ? "gtaq"
+				: (InitTeachersTestsControlPart.instance.indicateLastAnswerQualityRadiobutton.isSelected() ? "iaq" : "none")) + "\"";
+		text += "\nindicateAnswersQuality: " + InitTeachersTestsControlPart.instance.indicateAllAnswersQualityCheckbox.isSelected();
+		text += "\nshowRightAnswer: " + InitTeachersTestsControlPart.instance.showRightAnswerCheckbox.isSelected();
+		text += "\nskip: " + InitTeachersTestsControlPart.instance.skipCheckbox.isSelected();
+		text += "\nanticntrlc: " + InitTeachersTestsControlPart.instance.anticopyCheckbox.isSelected();
+		text += "\nantiscreenshot: " + InitTeachersTestsControlPart.instance.antiscreenshotCheckbox.isSelected();
+		text += "\nfixedQSelectBtnHeight: " + InitTeachersTestsControlPart.instance.fixedQSelectBtnHeightCheckbox.isSelected();
+		SystemUtils.writeFile(new File("testingSettings.cfg"), text, "Cp1251");
+		InitTeachersTestsControlPart.instance.saveTestingSettingsButton.setDisable(true);
+	}
+
+	private void changeLookSettings()
 	{
 		Config cfg = new Config(new File("lookSettings.cfg"));
 		if (!cfg.hasValue("fixedQSelectBtnHeight") || !cfg.hasValue("fillAllHeightOfAnswersPanel") || !cfg.hasValue("maximazeAnswerButtonHeight") || !cfg
 				.hasValue("spaceBetweenAnswerButtons"))
-			InitTeachersTestsControlPart.instance.saveLookSettingsButton.getOnAction().handle(new ActionEvent());
+			saveLookSettings();
 		cfg.getText(true);
 		InitTeachersTestsControlPart.instance.fixedQSelectBtnHeightCheckbox.setSelected(cfg.getBoolean("fixedQSelectBtnHeight", null, false));
 		InitTeachersTestsControlPart.instance.fillAllHeightOfAnswersPanelCheckbox.setSelected(cfg.getBoolean("fillAllHeightOfAnswersPanel", null, false));
 		InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.setSelected(cfg.getBoolean("maximazeAnswerButtonHeight", null, false));
 		InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.setText(cfg.getInteger("spaceBetweenAnswerButtons", null, false) + "");
+		InitTeachersTestsControlPart.instance.saveLookSettingsButton.setDisable(true);
+	}
+
+	private void saveLookSettings()
+	{
+		String text = "";
+		text += "fixedQSelectBtnHeight: " + InitTeachersTestsControlPart.instance.fixedQSelectBtnHeightCheckbox.isSelected();
+		text += "\nfillAllHeightOfAnswersPanel: " + InitTeachersTestsControlPart.instance.fillAllHeightOfAnswersPanelCheckbox.isSelected();
+		text += "\nmaximazeAnswerButtonHeight: " + InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.isSelected();
+		text += "\nspaceBetweenAnswerButtons: " + MathWithText.parseI(InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getText());
+		SystemUtils.writeFile(new File("lookSettings.cfg"), text, "Cp1251");
 		InitTeachersTestsControlPart.instance.saveLookSettingsButton.setDisable(true);
 	}
 
@@ -171,8 +215,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				indicateAllAnswersQuality = InitTeachersTestsControlPart.instance.indicateAllAnswersQualityCheckbox,
 				showRightAnswer = InitTeachersTestsControlPart.instance.showRightAnswerCheckbox, skip = InitTeachersTestsControlPart.instance.skipCheckbox,
 				anticopy = InitTeachersTestsControlPart.instance.anticopyCheckbox,
-				antiscreenshot = InitTeachersTestsControlPart.instance.antiscreenshotCheckbox,
-				fixedQSelectBtnHeight = InitTeachersTestsControlPart.instance.fixedQSelectBtnHeightCheckbox;
+				antiscreenshot = InitTeachersTestsControlPart.instance.antiscreenshotCheckbox;
 		// GridPane statsTable = InitTeachersTestsControlPart.instance.statsTable, fieldEnabler = InitTeachersTestsControlPart.instance.fieldEnabler;
 		TabPane testsList = InitTeachersTestsControlPart.instance.testsList;
 		// Label smallest = InitTeachersTestsControlPart.instance.smallest, average = InitTeachersTestsControlPart.instance.average, biggest =
@@ -196,32 +239,23 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		classLetterCombobox.setOnAddOrRemoveElement((e) ->
 		{
 			File f0 = new File(path);
-			SystemUtils.createFile(f0, true, true, true);
+			SystemUtils.createDir(f0, true, true);
 			File f = new File(f0.getAbsolutePath() + "/" + classNumberCombobox1.getSelectionModel().getSelectedItem());
-			SystemUtils.createFile(f, true, true, true);
+			SystemUtils.createDir(f, true, true);
 			File f2 = new File(f.getAbsolutePath() + "/" + ((String) e.getSource()).replace("\n", ""));
 			if (((String) e.getSource()).startsWith("\n"))
 				SystemUtils.removeFile(f2);
-			else
-			{
-				SystemUtils.createFile(f2, true, true, true);
-				File f3 = new File(f.getAbsolutePath() + "/" + (String) e.getSource() + "/surname");
-				SystemUtils.createFile(f3, true, true, true);
-				File f4 = new File(f.getAbsolutePath() + "/" + (String) e.getSource() + "/name");
-				SystemUtils.createFile(f4, true, true, true);
-				File f5 = new File(f.getAbsolutePath() + "/" + (String) e.getSource() + "/secondname");
-				SystemUtils.createFile(f5, true, true, true);
-			}
-			saveTestingSettingsButton.setDisable(false);
+			else SystemUtils.createDir(f2, true, true);
+			saveTestSettings();
 		});
 		classLetterCombobox.setOnAction((ev) ->
 		{
 			File f0 = new File(path);
-			SystemUtils.createFile(f0, true, true, true);
+			SystemUtils.createDir(f0, true, true);
 			File f = new File(f0.getAbsolutePath() + "/" + classNumberCombobox1.getSelectionModel().getSelectedItem());
-			SystemUtils.createFile(f, true, true, true);
+			SystemUtils.createDir(f, true, true);
 			File f3 = new File(f.getAbsolutePath() + "/" + classLetterCombobox.getSelectionModel().getSelectedItem());
-			SystemUtils.createFile(f3, true, true, true);
+			SystemUtils.createDir(f3, true, true);
 			surnameCombobox.getItems().clear();
 			if (new File(f3.getAbsolutePath() + "/surname").listFiles() != null)
 				for (File f2 : new File(f3.getAbsolutePath() + "/surname").listFiles())
@@ -234,7 +268,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 			if (new File(f3.getAbsolutePath() + "/secondname").listFiles() != null)
 				for (File f2 : new File(f3.getAbsolutePath() + "/secondname").listFiles())
 					secondNameCombobox.getItems().add(f2.getName());
-			saveTestingSettingsButton.setDisable(false);
+			saveTestSettings();
 		});
 		surnameCombobox.setOnAddOrRemoveElement((e) ->
 		{
@@ -242,8 +276,8 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 					.getSelectedItem() + "/surname" + "/" + ((String) e.getSource()).replace("\n", ""));
 			if (((String) e.getSource()).startsWith("\n"))
 				SystemUtils.removeFile(f5);
-			else SystemUtils.createFile(f5, true, true, true);
-			saveTestingSettingsButton.setDisable(false);
+			else System.out.println(SystemUtils.createDir(f5, true, true));
+			saveTestSettings();
 		});
 		nameCombobox.setOnAddOrRemoveElement((e) ->
 		{
@@ -251,8 +285,8 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 					.getSelectedItem() + "/name" + "/" + ((String) e.getSource()).replace("\n", ""));
 			if (((String) e.getSource()).startsWith("\n"))
 				SystemUtils.removeFile(f5);
-			else SystemUtils.createFile(f5, true, true, true);
-			saveTestingSettingsButton.setDisable(false);
+			else System.out.println(SystemUtils.createDir(f5, true, true));
+			saveTestSettings();
 		});
 		secondNameCombobox.setOnAddOrRemoveElement((e) ->
 		{
@@ -260,39 +294,51 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 					.getSelectedItem() + "/secondname" + "/" + ((String) e.getSource()).replace("\n", ""));
 			if (((String) e.getSource()).startsWith("\n"))
 				SystemUtils.removeFile(f5);
-			else SystemUtils.createFile(f5, true, true, true);
-			saveTestingSettingsButton.setDisable(false);
+			else
+			{
+				System.out.println(f5.getAbsolutePath());
+				SystemUtils.createDir(f5.getParentFile(), true, true);
+				System.out.println(SystemUtils.createDir(f5, true, true));
+			}
+			saveTestSettings();
 		});
 		classNumberCombobox1.setOnAction((ev) ->
 		{
 			File f0 = new File(path);
-			SystemUtils.createFile(f0, true, true, true);
+			SystemUtils.createDir(f0, true, true);
 			File f = new File(f0.getAbsolutePath() + "/" + classNumberCombobox1.getSelectionModel().getSelectedItem());
-			SystemUtils.createFile(f, true, true, true);
+			SystemUtils.createDir(f, true, true);
 			classLetterCombobox.getItems().clear();
 			if (f.listFiles() != null)
 				for (File f2 : f.listFiles())
 					classLetterCombobox.getItems().add(f2.getName());
-			saveTestingSettingsButton.setDisable(false);
-
+			saveTestSettings();
 		});
 		classNumberCombobox2.setOnAction((ev) ->
 		{
 			File f0 = new File(path);
-			SystemUtils.createFile(f0, true, true, true);
+			SystemUtils.createDir(f0, true, true);
 			File f = new File(f0.getAbsolutePath() + "/" + classNumberCombobox2.getSelectionModel().getSelectedItem());
-			SystemUtils.createFile(f, true, true, true);
+			SystemUtils.createDir(f, true, true);
 			classLetterCombobox.getItems().clear();
 			if (f.listFiles() != null)
 				for (File f2 : f.listFiles())
 					classLetterCombobox.getItems().add(f2.getName());
-			saveTestingSettingsButton.setDisable(false);
-
+			saveTestSettings();
 		});
-		EventHandler<ActionEvent> action = (e) -> saveTestingSettingsButton.setDisable(false);
-		EventHandler<ActionEvent> action2 = (e) -> InitTeachersTestsControlPart.instance.saveLookSettingsButton.setDisable(false);
+		EventHandler<ActionEvent> action = (e) ->
+		{
+			checkPermissions.handle(e);
+			saveTestingSettingsButton.setDisable(false);
+		};
+		EventHandler<ActionEvent> action2 = (e) ->
+		{
+			checkPermissions.handle(e);
+			InitTeachersTestsControlPart.instance.saveLookSettingsButton.setDisable(false);
+		};
 		EventHandler<ActionEvent> testPropsAction = (e) ->
 		{
+			checkPermissions.handle(e);
 			action.handle(e);
 			indicateAllAnswersQuality.setDisable(!indicateLastAnswerQualityRadiobutton.isSelected());
 			showRightAnswer.setDisable(!indicateLastAnswerQualityRadiobutton.isSelected());
@@ -317,9 +363,9 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.setOnAction(action2);
 		InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.setOnAction(e ->
 		{
-			InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.setText("" + Math.max(Math.min(MathAndTextUtils.parseI(
+			InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.setText("" + Math.max(Math.min(MathWithText.parseI(
 					InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getText()), 20), 1));
-			InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsBar.setProgress(MathAndTextUtils.parseI(
+			InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsBar.setProgress(MathWithText.parseI(
 					InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getText())
 					/ InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsBar.getPrefWidth());
 			action2.handle(null);
@@ -327,38 +373,8 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.focusedProperty().addListener(
 				e -> InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getOnAction().handle(null));
 
-		saveTestingSettingsButton.setOnAction(event ->
-		{
-			String text = "";
-			text += "pause: " + pause.isSelected();
-			text += "\npauseOnUnfocus: " + pauseOnUnfocus.isSelected();
-			text += "\ntestProps: " + "\"" + (goToAllQuestions.isSelected() ? "gtaq" : (indicateLastAnswerQualityRadiobutton.isSelected() ? "iaq" : "none"))
-					+ "\"";
-			text += "\nindicateAnswersQuality: " + indicateAllAnswersQuality.isSelected();
-			text += "\nshowRightAnswer: " + showRightAnswer.isSelected();
-			text += "\nskip: " + skip.isSelected();
-			text += "\nanticntrlc: " + anticopy.isSelected();
-			text += "\nantiscreenshot: " + antiscreenshot.isSelected();
-			text += "\nfixedQSelectBtnHeight: " + fixedQSelectBtnHeight.isSelected();
-
-			text += "\nclassNumber: \"" + classNumberCombobox1.getSelectionModel().getSelectedItem() + "\"";
-			text += "\nclassLetter: \"" + classLetterCombobox.getSelectionModel().getSelectedItem() + "\"";
-			text += "\nselectedSurname: \"" + surnameCombobox.getSelectionModel().getSelectedItem() + "\"";
-			text += "\nselectedName: \"" + nameCombobox.getSelectionModel().getSelectedItem() + "\"";
-			text += "\nselectedSecondName: \"" + secondNameCombobox.getSelectionModel().getSelectedItem() + "\"";
-			SystemUtils.writeFile(new File("testingSettings.cfg"), text, "Cp1251");
-			saveTestingSettingsButton.setDisable(true);
-		});
-		InitTeachersTestsControlPart.instance.saveLookSettingsButton.setOnAction(event ->
-		{
-			String text = "";
-			text += "fixedQSelectBtnHeight: " + InitTeachersTestsControlPart.instance.fixedQSelectBtnHeightCheckbox.isSelected();
-			text += "\nfillAllHeightOfAnswersPanel: " + InitTeachersTestsControlPart.instance.fillAllHeightOfAnswersPanelCheckbox.isSelected();
-			text += "\nmaximazeAnswerButtonHeight: " + InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.isSelected();
-			text += "\nspaceBetweenAnswerButtons: " + MathAndTextUtils.parseI(InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getText());
-			SystemUtils.writeFile(new File("lookSettings.cfg"), text, "Cp1251");
-			InitTeachersTestsControlPart.instance.saveLookSettingsButton.setDisable(true);
-		});
+		saveTestingSettingsButton.setOnAction(event -> saveTestingSettings());
+		InitTeachersTestsControlPart.instance.saveLookSettingsButton.setOnAction(event -> saveLookSettings());
 		InitTeachersTestsControlPart.instance.statisticsTab.setOnSelectionChanged(e ->
 		{
 			if (InitTeachersTestsControlPart.instance.statisticsTab.isSelected())
@@ -494,14 +510,6 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testWithFiltersNotExist"), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION,
 						Main.isFxWindowFrame(), true);
 		});
-		InitTeachersTestsControlPart.instance.defaultRadiobutton.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.indicateLastAnswerQualityRadiobutton.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.indicateAllAnswersQualityCheckbox.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.showRightAnswerCheckbox.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.goToAllQuestionsRadiobutton.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.skipCheckbox.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.pauseCheckbox.setOnAction(checkPermissions);
-		InitTeachersTestsControlPart.instance.startTestButton.setOnAction(checkPermissions);
 	}
 
 	private Test[] tests;
@@ -567,10 +575,11 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 			if (!b)
 				selectedTest = null;
 		});
-		selectedTest=tests[0];
+		selectedTest = tests[0];
 		boolean hide = true;
 		startTestButton.setOnAction(e ->
 		{
+			checkPermissions.handle(e);
 			if (classNumberCombobox1.getSelectionModel().getSelectedItem() == null || classLetterCombobox.getSelectionModel().getSelectedItem() == null
 					|| classNumberCombobox1.getSelectionModel().getSelectedItem().equals("") || classLetterCombobox.getSelectionModel().getSelectedItem()
 							.equals(""))
@@ -651,19 +660,21 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				theme.setSpecialButtonsBackground(new javafx.scene.paint.Color(150 / 255f, 220 / 255f, 30 / 255f, 1));
 				theme.setSpecialButtonsForeground(new javafx.scene.paint.Color(255f / 255f, 255f / 255f, 255f / 255f, 1));
 				theme.setSpecialButtonsFrame(new javafx.scene.paint.Color(110 / 255f, 200 / 255f, 50 / 255f, 1));
-				TestingPart studentsTestingPartFX = new TestingPart(null, getClass().getResource("/TestingPart.fxml"),
-						new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), test, theme,
-						classNumberCombobox1.getSelectionModel().getSelectedItem(), classLetterCombobox.getSelectionModel().getSelectedItem(), surnameCombobox
-								.getSelectionModel().getSelectedItem(), nameCombobox.getSelectionModel().getSelectedItem(), secondNameCombobox
-										.getSelectionModel().getSelectedItem(), indicateLastAnswerQualityRadiobutton.isSelected(),
-						indicateAllAnswersQualityCheckbox.isSelected() && !indicateAllAnswersQualityCheckbox.isDisable(), showRightAnswerCheckbox.isSelected()
-								&& !showRightAnswerCheckbox.isDisable(), goToAllQuestionsRadiobutton.isSelected() && !goToAllQuestionsRadiobutton.isDisable(),
-						skipCheckbox.isSelected(), pauseCheckbox.isSelected(), pauseOnUnfocusCheckbox.isSelected(), anticopyCheckbox.isSelected(),
-						antiscreenshotCheckbox.isSelected(), fixedQSelectBtnHeightCheckbox.isSelected(), hide, MathAndTextUtils.parseI(
+				TestingPart studentsTestingPartFX = new TestingPart(null, getClass().getResource("/TestingPart.fxml"), new Rectangle((int) stage.getX(),
+						(int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()), test, theme, classNumberCombobox1.getSelectionModel()
+								.getSelectedItem(), classLetterCombobox.getSelectionModel().getSelectedItem(), surnameCombobox.getSelectionModel()
+										.getSelectedItem(), nameCombobox.getSelectionModel().getSelectedItem(), secondNameCombobox.getSelectionModel()
+												.getSelectedItem(), indicateLastAnswerQualityRadiobutton.isSelected(), indicateAllAnswersQualityCheckbox
+														.isSelected() && !indicateAllAnswersQualityCheckbox.isDisable(), showRightAnswerCheckbox.isSelected()
+																&& !showRightAnswerCheckbox.isDisable(), goToAllQuestionsRadiobutton.isSelected()
+																		&& !goToAllQuestionsRadiobutton.isDisable(), skipCheckbox.isSelected(), pauseCheckbox
+																				.isSelected(), pauseOnUnfocusCheckbox.isSelected(), anticopyCheckbox
+																						.isSelected(), antiscreenshotCheckbox.isSelected(),
+						fixedQSelectBtnHeightCheckbox.isSelected(), hide, MathWithText.parseI(
 								InitTeachersTestsControlPart.instance.spaceBetweenAnswerButtonsField.getText()),
 						InitTeachersTestsControlPart.instance.fillAllHeightOfAnswersPanelCheckbox.isSelected(),
 						InitTeachersTestsControlPart.instance.fillAllHeightOfAnswersPanelCheckbox.isSelected()
-								&& InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.isSelected());
+								&& InitTeachersTestsControlPart.instance.maximazeAnswerButtonHeightCheckbox.isSelected(),false);
 				try
 				{
 					studentsTestingPartFX.open(new Rectangle((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight()),
@@ -769,4 +780,15 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				|| InitTeachersTestsControlPart.instance.pauseCheckbox.isSelected() && !perms.isPausePermission())
 			e.consume();
 	};
+
+	public Test getSelectedTest()
+	{
+		return selectedTest;
+	}
+
+	@Override
+	public String name()
+	{
+		return "testsControl";
+	}
 }

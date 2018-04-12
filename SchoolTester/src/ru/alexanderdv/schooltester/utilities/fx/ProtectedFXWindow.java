@@ -5,7 +5,7 @@ import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.NetworkUtils;
@@ -17,22 +17,22 @@ import ru.alexanderdv.schooltester.utilities.types.Account;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public abstract class ProtectedFXWindow extends FXWindow
 {
 
 	private final int level;
 
-	public ProtectedFXWindow(String secondaryTitle, AnchorPane panel, int type, int level)
+	public ProtectedFXWindow(String secondaryTitle, Pane panel, int type, int level,boolean inDevelope)
 	{
-		super(secondaryTitle, panel, type);
+		super(secondaryTitle, panel, type,inDevelope);
 		this.level = level;
 	}
 
-	public ProtectedFXWindow(String secondaryTitle, URL url, int type, int level)
+	public ProtectedFXWindow(String secondaryTitle, URL url, int type, int level,boolean inDevelope)
 	{
-		super(secondaryTitle, url, type);
+		super(secondaryTitle, url, type,inDevelope);
 		this.level = level;
 	}
 

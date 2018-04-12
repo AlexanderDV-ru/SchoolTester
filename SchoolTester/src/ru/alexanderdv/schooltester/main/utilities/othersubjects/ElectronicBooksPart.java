@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.othersubjects;
 
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
@@ -19,22 +19,22 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import ru.alexanderdv.schooltester.utilities.Config;
-import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class ElectronicBooksPart extends ProtectedFXWindow
 {
 	private TabPane tabPane = InitElectronicBooksPart.instance.tabPane;
 
-	public ElectronicBooksPart(URL url)
+	public ElectronicBooksPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1);
+		super(null, url, 1, 1,inDevelope);
 		updateBooks();
 	}
 
@@ -74,7 +74,7 @@ public class ElectronicBooksPart extends ProtectedFXWindow
 				cb1.getItems().add(s2.split(":\t")[0]);
 				String text = getByName(s, cfg2.getString(s2.split(":\t")[0], null, false));
 				map.put(s2.split(":\t")[0], text);
-				map2.put(s2.split(":\t")[0], MathAndTextUtils.changeTextToWidth(text, (int) (textArea.getPrefWidth() / (test2(text.replace("\n", " "), font)
+				map2.put(s2.split(":\t")[0], MathWithText.changeTextToWidth(text, (int) (textArea.getPrefWidth() / (test2(text.replace("\n", " "), font)
 						.getWidth() / text.length())), true, false));
 			}
 			cb1.setOnAction(e -> textArea.setText(map.get(cb1.getSelectionModel().getSelectedItem())));
@@ -143,5 +143,11 @@ public class ElectronicBooksPart extends ProtectedFXWindow
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public String name()
+	{
+		return "electronicBooks";
 	}
 }

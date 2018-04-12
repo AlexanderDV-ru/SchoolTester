@@ -4,7 +4,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.utils.InitCrossWordGeneratorPart">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="695.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.alexanderdv.schooltester.main.utilities.othersubjects.InitCrossWordGeneratorPart">
    <children>
       <TextArea fx:id="words" layoutX="11.0" layoutY="424.0" prefHeight="79.0" prefWidth="400.0" promptText="Split word by ','" wrapText="true" />
       <Pane fx:id="crossword" layoutX="11.0" layoutY="14.0" prefHeight="399.0" prefWidth="400.0" style="-fx-border-color: black;" />

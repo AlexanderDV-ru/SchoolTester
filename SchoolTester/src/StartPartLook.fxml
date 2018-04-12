@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.web.*?>
@@ -33,6 +35,8 @@
                         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                      </padding>
                   </Label>
+                  <ProgressBar fx:id="serverConnectionQualityProgressbar" layoutX="362.0" layoutY="14.0" prefWidth="200.0" progress="0.0" />
+                  <Label fx:id="serverConnectionQualityLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="187.0" layoutY="15.0" prefHeight="17.0" prefWidth="171.0" text="Server connection quality" textAlignment="CENTER" />
                </children>
             </AnchorPane>
         </content>

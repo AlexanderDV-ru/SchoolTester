@@ -24,18 +24,21 @@ import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.StartPart.F;
 import ru.alexanderdv.schooltester.main.StartPart.G;
 import ru.alexanderdv.schooltester.main.developer.TestDevPart;
 import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart;
-import ru.alexanderdv.schooltester.main.utils.CalculatorPart;
-import ru.alexanderdv.schooltester.main.utils.ChemicalCompoundsDescriptionPart;
-import ru.alexanderdv.schooltester.main.utils.CrossWordGeneratorPart;
-import ru.alexanderdv.schooltester.main.utils.ElectronicBooksPart;
-import ru.alexanderdv.schooltester.main.utils.FunctionsWorkPart;
-import ru.alexanderdv.schooltester.main.utils.SubjectUtilitiesPart;
-import ru.alexanderdv.schooltester.main.utils.SubjectUtilitiesPart.ButtonWithWindow;
+import ru.alexanderdv.schooltester.main.utilities.InitMarketPart.SearchType;
+import ru.alexanderdv.schooltester.main.utilities.MarketPart;
+import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart;
+import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart.ButtonWithWindow;
+import ru.alexanderdv.schooltester.main.utilities.chemistry.ChemicalCompoundsDescriptionPart;
+import ru.alexanderdv.schooltester.main.utilities.math.CalculatorPart;
+import ru.alexanderdv.schooltester.main.utilities.math.FunctionsWorkPart;
+import ru.alexanderdv.schooltester.main.utilities.othersubjects.CrossWordGeneratorPart;
+import ru.alexanderdv.schooltester.main.utilities.othersubjects.ElectronicBooksPart;
 import ru.alexanderdv.schooltester.utilities.ByteUtils;
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
@@ -45,17 +48,21 @@ import ru.alexanderdv.schooltester.utilities.SecurityUtils;
 import ru.alexanderdv.schooltester.utilities.Subject;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.network.BytePacket;
+import ru.alexanderdv.schooltester.utilities.network.ConnectionQualityChecker;
 import ru.alexanderdv.schooltester.utilities.network.InfoPacket;
 import ru.alexanderdv.schooltester.utilities.network.NetworkPacket;
 import ru.alexanderdv.schooltester.utilities.network.Packet;
+import ru.alexanderdv.schooltester.utilities.network.SearchInMarketPacket;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class Main extends Application
 {
@@ -71,9 +78,10 @@ public class Main extends Application
 	private static final boolean developmentMode = false;
 	private static boolean fxWindowFrame;
 	public static final String programName = "SchoolTester";
-	public static final String programVersion = "5.9.0a";
+	public static final String programVersion = "5.9.5a";
 	public static final String programAuthors = "AlexanderDV";
 	public static final String program = programName + " v" + programVersion + " by " + programAuthors;
+	private static MarketPart marketPart;
 	private static StartPart startPart;
 	private static AccountsPart accountsPart;
 	private static ElectronicBooksPart electronicBooksPart;
@@ -83,6 +91,7 @@ public class Main extends Application
 	private static CrossWordGeneratorPart crossWordGeneratorPart;
 	private static ChemicalCompoundsDescriptionPart chemicalCompoundsDescriptionPart;
 	private static CalculatorPart calculatorPart;
+	private static FXWindow[] parts;
 
 	private static int menuHeight = 24;
 	private static ArrayList<SubjectUtilitiesPart> subjectUtilitiesParts = new ArrayList<SubjectUtilitiesPart>();
@@ -416,31 +425,48 @@ public class Main extends Application
 
 	private void initParts()
 	{
-		electronicBooksPart = new ElectronicBooksPart(getClass().getResource("/ElectronicBooksPart.fxml"));
-		functionsWorkPart = new FunctionsWorkPart(getClass().getResource("/FunctionsWorkPart.fxml"));
-		setCrossWordGeneratorPart(new CrossWordGeneratorPart(getClass().getResource("/CrossWordGenerator.fxml")));
-		calculatorPart = new CalculatorPart(getClass().getResource("/Calculator.fxml"));
-		chemicalCompoundsDescriptionPart = new ChemicalCompoundsDescriptionPart(getClass().getResource("/ChemicalCompoundsDescriptor.fxml"));
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Math, new ButtonWithWindow(new Button("Calc"), calculatorPart), new ButtonWithWindow(
+		marketPart = new MarketPart(getClass().getResource("/MarketPart.fxml"), true);
+		Pane p = new Pane();
+		p.setPrefSize(1000, 700);
+		testDevPart = new TestDevPart(p, true);
+		electronicBooksPart = new ElectronicBooksPart(getClass().getResource("/ElectronicBooksPart.fxml"), true);
+		functionsWorkPart = new FunctionsWorkPart(getClass().getResource("/FunctionsWorkPart.fxml"), true);
+		crossWordGeneratorPart = new CrossWordGeneratorPart(getClass().getResource("/CrossWordGenerator.fxml"), false);
+		calculatorPart = new CalculatorPart(getClass().getResource("/Calculator.fxml"), true);
+		chemicalCompoundsDescriptionPart = new ChemicalCompoundsDescriptionPart(getClass().getResource("/ChemicalCompoundsDescriptor.fxml"), false);
+		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Math, false, new ButtonWithWindow(new Button("Calc"), calculatorPart), new ButtonWithWindow(
 				new Button("Functions"), functionsWorkPart)));
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Chemistry, new ButtonWithWindow(new Button("Chemical compounds descriptor"),
+		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Chemistry, false, new ButtonWithWindow(new Button("Chemical compounds descriptor"),
 				chemicalCompoundsDescriptionPart)));
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.OtherSubject, new ButtonWithWindow(new Button("Electronic book"), electronicBooksPart),
-				new ButtonWithWindow(new Button("Crossword generator"), crossWordGeneratorPart)));
+		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.OtherSubject, false, new ButtonWithWindow(new Button("Electronic book"),
+				electronicBooksPart), new ButtonWithWindow(new Button("Crossword generator"), crossWordGeneratorPart)));
 
-		setStartPart(new StartPart(null, getClass().getResource("/StartPartLook.fxml")));
-		setAccountsPart(new AccountsPart(null, getClass().getResource("/AccountPart.fxml")));
-		setTeachersTestsControlPart(new TeachersTestsControlPart(null, getClass().getResource("/TestsControlPart.fxml")));
+		accountsPart = (new AccountsPart(null, getClass().getResource("/AccountPart.fxml"), true));
+		teachersTestsControlPart = (new TeachersTestsControlPart(getClass().getResource("/TestsControlPart.fxml"), false));
 		{
 			AnchorPane pane = new AnchorPane();
 			pane.setPrefSize(500, 800);
-			setTestDevPart(new TestDevPart(null, pane));
+			setTestDevPart(new TestDevPart(pane, false));
 		}
+		startPart = (new StartPart(null, getClass().getResource("/StartPartLook.fxml"), false));
+		parts = new FXWindow[]
+		{
+				marketPart,
+				startPart,
+				accountsPart,
+				electronicBooksPart,
+				functionsWorkPart,
+				teachersTestsControlPart,
+				testDevPart,
+				crossWordGeneratorPart,
+				chemicalCompoundsDescriptionPart,
+				calculatorPart
+		};
 
-		getStartPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		getAccountsPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		getTeachersTestsControlPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		getCrossWordGeneratorPart().focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		startPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		accountsPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		teachersTestsControlPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		crossWordGeneratorPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 		electronicBooksPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 		functionsWorkPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 	}
@@ -474,6 +500,7 @@ public class Main extends Application
 
 	public synchronized void startHandling()
 	{
+		int soTimeout = 1000;
 		try
 		{
 			socketThread = new Thread(() ->
@@ -512,10 +539,11 @@ public class Main extends Application
 									addRequest(new InfoPacket("checkTestsList", macAddress, "", st.substring(0, st.contains(",") ? st.lastIndexOf(",")
 											: st.length()), null, false));
 								}
+							addRequest(new ConnectionQualityChecker("checkTestsList", macAddress, "", Calendar.getInstance().getTimeInMillis()));
 							for (NetworkPacket packet : requests.toArray(new NetworkPacket[0]))
 								NetworkUtils.sendData(socket, packet, server, 21577, 14);
 							requests.clear();
-							socket.setSoTimeout(500);
+							socket.setSoTimeout(soTimeout);
 							NetworkPacket packet = NetworkUtils.recieveData(socket, NetworkPacket.class, 13);
 							if (packet instanceof AccountPacket)
 								Platform.runLater(() -> AccountsPart.instance.handleAccountRequest((AccountPacket) packet));
@@ -562,6 +590,17 @@ public class Main extends Application
 													t.add(s);
 											break;
 									}
+							}
+							else if (packet instanceof ConnectionQualityChecker)
+								Platform.runLater(() -> InitStartPart.instance.serverConnectionQualityProgressbar.setProgress((soTimeout - (Calendar
+										.getInstance().getTimeInMillis() - ((ConnectionQualityChecker) packet).getTime())) / 1000d));
+							else if (packet instanceof SearchInMarketPacket)
+								MarketPart.instance.setSearchResult((SearchInMarketPacket) packet);
+							switch (packet.getRequest())
+							{
+								case "addedToMarket":
+									System.out.println("addedToMarket");
+									break;
 							}
 						}
 						catch (SocketTimeoutException e)
@@ -642,27 +681,10 @@ public class Main extends Application
 	public void updateAllLabels()
 	{
 		SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "cp1251");
-		for (MenuItem item : startPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : accountsPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : teachersTestsControlPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : testDevPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : electronicBooksPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : functionsWorkPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
-		for (MenuItem item : crossWordGeneratorPart.getLanguage().getItems())
-			if (item instanceof RadioMenuItem)
-				((RadioMenuItem) item).setSelected(false);
+		for (FXWindow window : parts)
+			for (MenuItem item : window.getLanguage().getItems())
+				if (item instanceof RadioMenuItem)
+					((RadioMenuItem) item).setSelected(false);
 		for (SubjectUtilitiesPart window : subjectUtilitiesParts)
 		{
 			for (MenuItem item : window.getLanguage().getItems())
@@ -673,13 +695,8 @@ public class Main extends Application
 					if (item instanceof RadioMenuItem)
 						((RadioMenuItem) item).setSelected(false);
 		}
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), startPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), accountsPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), testDevPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), teachersTestsControlPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), electronicBooksPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), functionsWorkPart.getLanguage().getItems())).setSelected(true);
-		((RadioMenuItem) getWithText(msgSys.getLanguage(), crossWordGeneratorPart.getLanguage().getItems())).setSelected(true);
+		for (FXWindow window : parts)
+			((RadioMenuItem) getWithText(msgSys.getLanguage(), window.getLanguage().getItems())).setSelected(true);
 		for (SubjectUtilitiesPart window : subjectUtilitiesParts)
 		{
 			((RadioMenuItem) getWithText(msgSys.getLanguage(), window.getLanguage().getItems())).setSelected(true);
@@ -687,13 +704,8 @@ public class Main extends Application
 				((RadioMenuItem) getWithText(msgSys.getLanguage(), btnWithWindow.getWindow().getLanguage().getItems())).setSelected(true);
 		}
 
-		startPart.updateLabelsInPart();
-		accountsPart.updateLabelsInPart();
-		testDevPart.updateLabelsInPart();
-		teachersTestsControlPart.updateLabelsInPart();
-		electronicBooksPart.updateLabelsInPart();
-		functionsWorkPart.updateLabelsInPart();
-		crossWordGeneratorPart.updateLabelsInPart();
+		for (FXWindow window : parts)
+			window.updateLabelsInPart();
 		for (SubjectUtilitiesPart window : subjectUtilitiesParts)
 		{
 			window.updateLabelsInPart();
@@ -890,5 +902,15 @@ public class Main extends Application
 	public static void setSubjectUtilitiesParts(ArrayList<SubjectUtilitiesPart> subjectUtilitiesParts)
 	{
 		Main.subjectUtilitiesParts = subjectUtilitiesParts;
+	}
+
+	public void addSearch(String search, int page, SearchType searchType)
+	{
+		addRequest(new SearchInMarketPacket(search, macAddress, "", searchType, page));
+	}
+
+	public static ProtectedFXWindow getMarketPart()
+	{
+		return marketPart;
 	}
 }

@@ -1,4 +1,4 @@
-package ru.alexanderdv.schooltester.main.utils;
+package ru.alexanderdv.schooltester.main.utilities.othersubjects;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
@@ -7,7 +7,7 @@ import javafx.scene.control.TabPane;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class InitElectronicBooksPart
 {

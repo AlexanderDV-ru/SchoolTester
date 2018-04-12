@@ -17,7 +17,7 @@ import java.nio.file.Paths;
  * SystemUtils - the utils class used to interaction with system
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class SystemUtils
 {
@@ -78,6 +78,7 @@ public class SystemUtils
 			e.printStackTrace();
 		}
 	}
+
 	public static void writeFile(File file, String text, String charset)
 	{
 		writeFile(file, text, Charset.forName(charset));
@@ -136,27 +137,54 @@ public class SystemUtils
 	 * @param file
 	 *            - the file to creating
 	 */
-	public static boolean createFile(File file, boolean dir, boolean createDirs, boolean prinudi)
+	public static boolean createFile(File file, boolean createDirs, boolean prinudi)
 	{
+		if (file == null)
+			return true;
 		try
 		{
-			String path = file.getAbsolutePath().replace("\\", "/").split("/")[0];
-			for (int i = 1; i < file.getAbsolutePath().replace("\\", "/").split("/").length - 1; path += "\\" + file.getAbsolutePath().replace("\\", "/").split(
-					"/")[i], i++)
-				if (createDirs)
-					if (!createFile(new File(path), true, false, prinudi))
-						return false;
+			if (createDirs)
+				if (!createDir(file.getAbsoluteFile().getParentFile(), true, prinudi))
+					return false;
 			if (file.exists())
 			{
 				if (!prinudi)
 					return false;
-				if (file.isDirectory() && !dir || file.isFile() && dir)
+				if (file.isDirectory())
 					file.delete();
 			}
-			if (dir)
-				file.mkdir();
-			if (!dir)
-				file.createNewFile();
+			return file.createNewFile();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+	/**
+	 * Creates file - 'file'
+	 * 
+	 * @param file
+	 *            - the file to creating
+	 */
+	public static boolean createDir(File file, boolean createDirs, boolean prinudi)
+	{
+		if (file == null)
+			return true;
+		try
+		{
+			if (createDirs)
+				if (!createDir(file.getAbsoluteFile().getParentFile(), true, prinudi))
+					return false;
+			if (file.exists())
+			{
+				if (!prinudi)
+					return false;
+				if (file.isFile())
+					file.delete();
+			}
+			file.mkdir();
 		}
 		catch (Exception e)
 		{
@@ -185,7 +213,7 @@ public class SystemUtils
 
 	public static String readFile(File file, Charset charset)
 	{
-		if (file!=null&&file.exists()&&file.isFile())
+		if (file != null && file.exists() && file.isFile())
 			try
 			{
 				return String.join("\n", Files.readAllLines(Paths.get(file.toURI()), charset));

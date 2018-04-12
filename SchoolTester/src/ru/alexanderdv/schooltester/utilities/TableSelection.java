@@ -10,6 +10,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import ru.alexanderdv.simpleutilities.MathWithText;
+
 /**
  * A <code>Transferable</code> which implements the capability required to transfer a <code>String</code>.
  *
@@ -21,7 +23,7 @@ import java.io.IOException;
  * @see java.awt.datatransfer.DataFlavor#imageFlavor
  * @see java.awt.datatransfer.DataFlavor#fragmentHtmlFlavor
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class TableSelection implements Transferable, ClipboardOwner
 {
@@ -201,8 +203,8 @@ public class TableSelection implements Transferable, ClipboardOwner
 						if (s.equals(""))
 							g.setColor(Color.decode(efg));
 						else g.setColor(Color.decode(cfg));
-						g.drawString(s, b * cellW + cellW / 2 - (int) MathAndTextUtils.size(s, g.getFont()).getWidth() / 2, a * cellH + cellH / 2
-								+ (int) MathAndTextUtils.size(s, g.getFont()).getHeight() / 2);
+						g.drawString(s, b * cellW + cellW / 2 - (int) MathWithText.size(s, g.getFont()).getWidth() / 2, a * cellH + cellH / 2
+								+ (int) MathWithText.size(s, g.getFont()).getHeight() / 2);
 					}
 				}
 			image = bi;

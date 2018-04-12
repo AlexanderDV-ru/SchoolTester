@@ -1,6 +1,7 @@
 package ru.alexanderdv.schooltester.utilities.types;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -33,11 +34,12 @@ import ru.alexanderdv.simpleutilities.Entry;
 /**
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class Test
 {
 	private static final MessageSystem msgSys = Main.msgSys;
+	private static final Image defaultIcon=loadDefaultIcon();
 	private static final Random random = new Random();
 	private final String syntaxLanguage;
 	private final String programVersion;
@@ -59,11 +61,12 @@ public class Test
 	private final Background rightAnswerBackground;
 	private final Background perfectAnswerBackground;
 	private final TableQuestionSelector tableQuestionSelector;
+	private final Image icon;
 
 	public Test(String syntaxLanguage, String programVersion, String colorType, String testVersion, String testCreationDate, String testLanguage,
 			String testSubject, String authors, String name, String description, int maxTestTime, boolean unlimitedTime, Permissions permissionsToStart,
 			Permissions permissionsToUseHints, Question[] questions, Image wrongAnswer, Image rightAnswer, Image perfectAnswer,
-			TableQuestionSelector tableQuestionSelector)
+			TableQuestionSelector tableQuestionSelector,Image icon)
 	{
 		this.syntaxLanguage = syntaxLanguage;
 		this.programVersion = programVersion;
@@ -75,6 +78,7 @@ public class Test
 		this.authors = authors;
 		this.name = name;
 		this.description = description;
+		this.icon = icon!=null?icon:defaultIcon;
 		if (unlimitedTime || maxTestTime < 1)
 		{
 			this.unlimitedTime = true;
@@ -97,14 +101,28 @@ public class Test
 		else questionsByIndexes = null;
 		this.wrongAnswerBackground = wrongAnswer != null ? new Background(new BackgroundImage(wrongAnswer, BackgroundRepeat.NO_REPEAT,
 				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT))
-				: new Background(new BackgroundFill(Color.RED, new CornerRadii(5), new Insets(0)));
+				: new Background(new BackgroundFill(Color.RED, new CornerRadii(0), new Insets(0)));
 		this.rightAnswerBackground = wrongAnswer != null ? new Background(new BackgroundImage(rightAnswer, BackgroundRepeat.NO_REPEAT,
 				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT))
-				: new Background(new BackgroundFill(Color.YELLOW, new CornerRadii(5), new Insets(0)));
+				: new Background(new BackgroundFill(Color.YELLOW, new CornerRadii(0), new Insets(0)));
 		this.perfectAnswerBackground = wrongAnswer != null ? new Background(new BackgroundImage(perfectAnswer, BackgroundRepeat.NO_REPEAT,
 				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT))
-				: new Background(new BackgroundFill(Color.LIME, new CornerRadii(5), new Insets(0)));
+				: new Background(new BackgroundFill(Color.LIME, new CornerRadii(0), new Insets(0)));
 		this.tableQuestionSelector = tableQuestionSelector;
+	}
+
+	private static Image loadDefaultIcon()
+	{
+		try
+		{
+			return new Image(Test.class.getResource("/defaultTestIcon.png").openStream());
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		throw new RuntimeException("defaultTestIcon.png was not loaded!");
 	}
 
 	public static class TableQuestionSelector
@@ -621,7 +639,7 @@ public class Test
 											false)), true)
 									: getImage(new File("rightAnswerImage.png"), false), cfg.hasValue("perfectAnswerImage") ? getImage(new File("Tests/" + cfg
 											.getFile().getName().replace(".test", "") + "/" + cfg.getString("perfectAnswerImage", null, false)), true)
-											: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector);
+											: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector,getImage(new File("testIcon.png"), false));
 		}
 		catch (Exception exception)
 		{
@@ -793,5 +811,10 @@ public class Test
 		for (Question q : questions)
 			qs.add(q);
 		return qs.indexOf(questionsByIndexes.get(questionNumber));
+	}
+
+	public Image getIcon()
+	{
+		return icon;
 	}
 }

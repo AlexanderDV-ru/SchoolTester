@@ -15,7 +15,7 @@ import javafx.scene.paint.Color;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class FXConsole extends FXWindow
 {
@@ -23,9 +23,9 @@ public class FXConsole extends FXWindow
 	@FXML
 	private TextArea text;
 
-	public FXConsole(String secondaryTitle, URL url)
+	public FXConsole(String secondaryTitle, URL url,boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1);
+		super(secondaryTitle, url, 1,inDevelope);
 		baked = "";
 	}
 
@@ -53,5 +53,11 @@ public class FXConsole extends FXWindow
 			if (text.getText().length() < baked.length())
 				text.setText(baked);
 		});
+	}
+
+	@Override
+	public String name()
+	{
+		return "console";
 	}
 }

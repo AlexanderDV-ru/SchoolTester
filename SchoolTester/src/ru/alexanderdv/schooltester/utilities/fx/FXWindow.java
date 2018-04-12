@@ -32,7 +32,7 @@ import ru.alexanderdv.schooltester.utilities.types.StageContainer;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public abstract class FXWindow extends StageContainer
 {
@@ -48,10 +48,12 @@ public abstract class FXWindow extends StageContainer
 	protected CheckMenuItem fxWindowFrameState;
 	protected RadioMenuItem languageRU, languageEN;
 	protected MenuItem privacyPolicy, usersManual, site;
+	protected boolean inDevelope;
 
-	public FXWindow(String secondaryTitle, Pane panel, int type)
+	public FXWindow(String secondaryTitle, Pane panel, int type, boolean inDevelope)
 	{
 		super(new Stage());
+		this.inDevelope = inDevelope;
 		try
 		{
 			stage.setTitle(Main.program + (secondaryTitle != null && !secondaryTitle.equals("") ? " - " + secondaryTitle : ""));
@@ -94,9 +96,9 @@ public abstract class FXWindow extends StageContainer
 		}
 	}
 
-	public FXWindow(String secondaryTitle, URL url, int type)
+	public FXWindow(String secondaryTitle, URL url, int type, boolean inDevelope)
 	{
-		this(secondaryTitle, load(url), type);
+		this(secondaryTitle, load(url), type, inDevelope);
 	}
 
 	private static AnchorPane load(URL url)
@@ -516,12 +518,10 @@ public abstract class FXWindow extends StageContainer
 		this.site = site;
 	}
 
-	// /**
-	// * @param stage
-	// * the stage to set
-	// */
-	// public void setStage(Stage stage)
-	// {
-	// this.stage = stage;
-	// }
+	public abstract String name();
+
+	public boolean inDevelope()
+	{
+		return inDevelope;
+	}
 }

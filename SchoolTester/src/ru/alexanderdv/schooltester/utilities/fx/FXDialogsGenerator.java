@@ -18,14 +18,14 @@ import javafx.stage.StageStyle;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
-import ru.alexanderdv.schooltester.utilities.MathAndTextUtils;
 import ru.alexanderdv.schooltester.utilities.types.StageContainer;
+import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.5a
  */
 public class FXDialogsGenerator
 {
@@ -64,16 +64,16 @@ public class FXDialogsGenerator
 		{
 			Pane panel = new Pane();
 			Pane canvas = new Pane();
-			Dimension size = MathAndTextUtils.size((String) msg, new Font("System", 0, 12));
+			Dimension size = MathWithText.size((String) msg, new Font("System", 0, 12));
 
 			if (msg instanceof String)
 			{
-				int w = ((int) (MathAndTextUtils.size(((String) msg).split("\n")[0], new Font("System", 0, 12)).getWidth() / ((String) msg).split("\n")[0]
+				int w = ((int) (MathWithText.size(((String) msg).split("\n")[0], new Font("System", 0, 12)).getWidth() / ((String) msg).split("\n")[0]
 						.length()));
 				if (size.getWidth() > 800)
 				{
-					msg = MathAndTextUtils.changeTextToWidth((String) msg, 800 / w, true, true);
-					size = MathAndTextUtils.size((String) msg, new Font("System", 0, 12));
+					msg = MathWithText.changeTextToWidth((String) msg, 800 / w, true, true);
+					size = MathWithText.size((String) msg, new Font("System", 0, 12));
 				}
 			}
 			Label label = new Label(msg.toString());
@@ -93,7 +93,7 @@ public class FXDialogsGenerator
 				stage.initStyle(StageStyle.UNDECORATED);
 				FXScene fxScene = new FXScene(stage, 1, Main.program, false, 1);
 				fxScene.setContent(panel, Math.max(((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getWidth() : size.getWidth()),
-						40 + MathAndTextUtils.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene.getButtonsWidth()),
+						40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene.getButtonsWidth()),
 						((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getHeight() : size.getHeight()));
 				stage.setScene(new Scene(fxScene));
 			}
