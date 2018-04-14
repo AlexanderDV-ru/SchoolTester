@@ -62,7 +62,7 @@ import ru.alexanderdv.schooltester.utilities.network.SearchInMarketPacket;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class Main extends Application
 {
@@ -78,7 +78,7 @@ public class Main extends Application
 	private static final boolean developmentMode = false;
 	private static boolean fxWindowFrame;
 	public static final String programName = "SchoolTester";
-	public static final String programVersion = "5.9.5a";
+	public static final String programVersion = "5.9.8a";
 	public static final String programAuthors = "AlexanderDV";
 	public static final String program = programName + " v" + programVersion + " by " + programAuthors;
 	private static MarketPart marketPart;
@@ -134,34 +134,37 @@ public class Main extends Application
 			getStartPart().open(primaryStage);
 			getStartPart().getStage().centerOnScreen();
 			getAccountsPart().open(getStartPart().getStage());
-			getStartPart().hide();
+			//getStartPart().hide();
 			getAccountsPart().addOnCloseRequest(e -> getStartPart().open((Stage) null));
 			startHandling();
 		}
+		boolean b=true;
+		if(b)
+		return;
 		switch (request)
 		{
 			case "youAreInBlacklist":
 				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null,
 						isFxWindowFrame(), true);
 				exit(ExitCodes.YouAreInBlacklist);
 				break;
 			case "keyIsBad":
 				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null,
 						isFxWindowFrame(), true);
 				exit(ExitCodes.KeyIsBad);
 				break;
 			case "notVerified":
 			case "verifyRequestSended":
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null,
 						isFxWindowFrame(), true);
 				SystemUtils.openUrl(msgSys.getMsg("siteURL"));
 				exit(ExitCodes.NotVerified);
 				break;
 			case "keyIsRight":
 				FXDialogsGenerator.showFXDialog(getStartPart().getStage(), (Stage) null, msgSys.getMsg(request), JOptionPane.INFORMATION_MESSAGE,
-						JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
+						null, isFxWindowFrame(), true);
 				break;
 		}
 
@@ -361,7 +364,7 @@ public class Main extends Application
 					else
 					{
 						FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("openSetupFile").replace("%1", canOpen ? setupManual.getName()
-								: setupManual.getAbsolutePath()), JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
+								: setupManual.getAbsolutePath()), JOptionPane.INFORMATION_MESSAGE, null, isFxWindowFrame(), true);
 						if (canOpen)
 							try
 							{
@@ -376,7 +379,7 @@ public class Main extends Application
 				}
 			}
 			FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE,
-					JOptionPane.DEFAULT_OPTION, isFxWindowFrame(), true);
+					null, isFxWindowFrame(), true);
 			SystemUtils.openUrl(urlStr);
 		}
 		return requestStr;
@@ -718,7 +721,7 @@ public class Main extends Application
 	{
 		setFxWindowFrame(b);
 		SystemUtils.writeFile(new File("LookInfo.data"), ByteUtils.objectToByteArray(isFxWindowFrame()));
-		FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("fxWindowStateChanged"), 0, 0, b, true);
+		FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("fxWindowStateChanged"), 0, null, b, true);
 	}
 
 	public static Main instance;

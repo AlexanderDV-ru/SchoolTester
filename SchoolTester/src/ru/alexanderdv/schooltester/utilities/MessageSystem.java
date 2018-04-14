@@ -7,7 +7,7 @@ import java.util.HashMap;
  * MessageSystem
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.9.5a
+ * @version 5.9.8a
  *
  */
 public class MessageSystem
@@ -35,6 +35,13 @@ public class MessageSystem
 			messages.get(language).put("testNotSelected", "Test don't selected!");
 			messages.get(language).put("undefined", "Undefined");
 			messages.get(language).put("openSetupFile", "Open file '%1' to start setup.");
+			
+			messages.get(language).put("image", "image");
+			messages.get(language).put("images", "images");
+			messages.get(language).put("video", "video");
+			messages.get(language).put("videos", "videos");
+			messages.get(language).put("audio", "audio");
+			messages.get(language).put("audios", "audios");
 
 			messages.get(language).put("classMustBeSelected", "Class must be selected!");
 			messages.get(language).put("surnameMustBeSelected", "Surname must be selected!");
@@ -285,6 +292,9 @@ public class MessageSystem
 			messages.get(language).put("ignoredCharacters", "ignoredCharacters");
 			messages.get(language).put("minimalResult", "minimalResult");
 			messages.get(language).put("questionsToTestAmount", "questionsToTestAmount");
+			messages.get(language).put("randomize", "randomize");
+			messages.get(language).put("randomizeBlocks", "randomizeBlocks");
+			messages.get(language).put("randomizeGroups", "randomizeGroups");
 			messages.get(language).put("answerFontSize", "answerFontSize");
 			messages.get(language).put("handleOnlyMaximal", "handleOnlyMaximal");
 			messages.get(language).put("awardsForAnswers", "awardsForAnswers");
@@ -674,6 +684,13 @@ public class MessageSystem
 			messages.get(language).put("testNotSelected", "“ест не выбран!");
 			messages.get(language).put("undefined", "Ќе определено");
 			messages.get(language).put("openSetupFile", "«апустите файл '%1' дл€ того, чтобы начать установку.");
+			
+			messages.get(language).put("image", "изображение");
+			messages.get(language).put("images", "изображени€");
+			messages.get(language).put("video", "видео");
+			messages.get(language).put("videos", "видео");
+			messages.get(language).put("audio", "аудио");
+			messages.get(language).put("audios", "аудио");
 
 			messages.get(language).put("classMustBeSelected", " ласс должен быть выбран!");
 			messages.get(language).put("surnameMustBeSelected", "‘амили€ должна быть выбрана!");
@@ -918,6 +935,9 @@ public class MessageSystem
 			messages.get(language).put("ignoredCharacters", "игноруемые—имволы");
 			messages.get(language).put("minimalResult", "минимальный–езультат");
 			messages.get(language).put("questionsToTestAmount", "количество¬опросовƒл€“еста");
+			messages.get(language).put("randomize", "рандомизировать");
+			messages.get(language).put("randomizeBlocks", "рандомизироватьЅлоки");
+			messages.get(language).put("randomizeGroups", "рандомизировать√руппы");
 			messages.get(language).put("answerFontSize", "размерЎрифтаќтвета");
 			messages.get(language).put("handleOnlyMaximal", "обрабатывать“олькоћаксимальный");
 			messages.get(language).put("awardsForAnswers", "баллы«аќтветы");

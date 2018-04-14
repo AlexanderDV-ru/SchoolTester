@@ -1,6 +1,5 @@
 package ru.alexanderdv.schooltester.main;
 
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -8,6 +7,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,6 +20,7 @@ import javax.swing.Timer;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
+import javafx.geometry.Side;
 import javafx.geometry.VPos;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -28,15 +29,24 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.alexanderdv.fxutilities.components.ButtonFX;
+import ru.alexanderdv.fxutilities.components.ButtonFX.ButtonFXHtmlContent;
+import ru.alexanderdv.fxutilities.components.ButtonFX.ButtonFXTextContent;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
@@ -55,7 +65,7 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class TestingPart extends ProtectedFXWindow
 {
@@ -89,6 +99,34 @@ public class TestingPart extends ProtectedFXWindow
 	private boolean finished;
 	private boolean unlimitedTime;
 	private ButtonFX curBtn;
+	private String timerText = "";
+	private int answerButtonSpace, answerButtonHeightWithSpace, answerButtonHeight, defaultAswerButtonHeight;
+	private boolean showLogs;
+	private int spaceText;
+	private boolean fillAllHeight, maxHeight;
+	private static BackgroundImage clip, image, video, audio;
+	private static double questionSignRounding = 40;
+	static
+	{
+		try
+		{
+			double offset = questionSignRounding - Math.sqrt(Math.pow(questionSignRounding, 2) / 2);
+			BackgroundPosition position = new BackgroundPosition(Side.RIGHT, offset, false, Side.BOTTOM, offset, false);
+			clip = new BackgroundImage(new Image(TestingPart.class.getResource("/clip.png").openStream()), BackgroundRepeat.NO_REPEAT,
+					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			image = new BackgroundImage(new Image(TestingPart.class.getResource("/image.png").openStream()), BackgroundRepeat.NO_REPEAT,
+					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			video = new BackgroundImage(new Image(TestingPart.class.getResource("/video.png").openStream()), BackgroundRepeat.NO_REPEAT,
+					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			audio = new BackgroundImage(new Image(TestingPart.class.getResource("/audio.png").openStream()), BackgroundRepeat.NO_REPEAT,
+					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			Main.exit(ExitCodes.UnknownError);
+		}
+	}
 
 	/**
 	 * 
@@ -115,10 +153,25 @@ public class TestingPart extends ProtectedFXWindow
 	public TestingPart(String secondaryTitle, URL url, Rectangle parentPosition, final Test test, final Theme theme, String classNumber, String classLetter,
 			String surname, String name, String secondName, boolean indicateQualityOfLastAnswer, boolean indicateQualityOfAllAnswers, boolean showRightAnswer,
 			boolean canGoToAllQuestions, boolean skipButtonOption, boolean pauseOption, boolean pauseOnUnfocus, boolean anticopy, boolean antiscreenshot,
-			boolean fixedQSelectBtnHeight, boolean hide, int spaceText, boolean fillAllHeight, boolean maxHeight,boolean inDevelope)
+			boolean fixedQSelectBtnHeight, boolean hide, int spaceText, boolean fillAllHeight, boolean maxHeight, boolean inDevelope)
 	{
-		super(secondaryTitle, url, 0, 1,inDevelope);
-
+		super(secondaryTitle, url, 0, 1, inDevelope);
+		for (Question q : test.getQuestions())
+		{
+			ArrayList<MediaPlayer> pl = new ArrayList<MediaPlayer>();
+			for (Media au : q.getAudios())
+			{
+				pl.add(new MediaPlayer(au));
+				pl.get(pl.size() - 1).play();
+			}
+			for (Media v : q.getVideos())
+			{
+				pl.add(new MediaPlayer(v));
+				pl.get(pl.size() - 1).play();
+			}
+			for (MediaPlayer m : pl)
+				m.stop();
+		}
 		this.questionSelectPanel = InitTestingPart.instance.questionSelectPanel;
 		this.answersPanel = InitTestingPart.instance.answersPanel;
 		this.questionSign = InitTestingPart.instance.questionSign;
@@ -163,9 +216,9 @@ public class TestingPart extends ProtectedFXWindow
 		{
 			class ImageSelection implements Transferable
 			{
-				private Image image;
+				private java.awt.Image image;
 
-				private ImageSelection(Image image)
+				private ImageSelection(java.awt.Image image)
 				{
 					this.image = image;
 				}
@@ -194,7 +247,7 @@ public class TestingPart extends ProtectedFXWindow
 			{
 				if (e.getCode() == KeyCode.PRINTSCREEN)
 				{
-					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("printscreenWasClicked"), 0, 0, Main.isFxWindowFrame(), true);
+					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("printscreenWasClicked"), 0, null, Main.isFxWindowFrame(), true);
 					Timer timer = new Timer(100, ae ->
 					{
 						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -239,7 +292,7 @@ public class TestingPart extends ProtectedFXWindow
 					String newTimerText = toSize((timeToTest - (int) timeOfTest) / 60, 2).substring(0, 2) + ":" + toSize((timeToTest - (int) timeOfTest) % 60,
 							2).substring(0, 2);
 					if (!timerText.equals(newTimerText))
-						Platform.runLater(() -> timer.setText(timerText = newTimerText));
+						Platform.runLater(() -> ((ButtonFXTextContent) timer.getContent()).setText(timerText = newTimerText));
 					if (timeOfTest >= timeToTest)
 						Platform.runLater(() -> finish.click());
 				}
@@ -248,10 +301,6 @@ public class TestingPart extends ProtectedFXWindow
 		}).start();
 		updateLabelsInPart();
 	}
-
-	String timerText = "";
-	int answerButtonSpace, answerButtonHeightWithSpace, answerButtonHeight, defaultAswerButtonHeight;
-	boolean showLogs;
 
 	/**
 	 * 
@@ -270,7 +319,8 @@ public class TestingPart extends ProtectedFXWindow
 				stage.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean focused) -> pause(!focused
 						&& !showLogs));
 
-		questionSign = new ButtonFX("", new CornerRadii(0, 0, 40, 40, false), new CornerRadii(0, 0, 32, 32, false));
+		questionSign = new ButtonFX(null, new CornerRadii(0, 0, questionSignRounding, questionSignRounding, false), new CornerRadii(0, 0, questionSignRounding
+				* 0.8, questionSignRounding * 0.8, false));
 		questionSign.setFramesize(6);
 		InitTestingPart.instance.signPanel.getChildren().add(questionSign);
 		questionSign.setBounds(0, 0, InitTestingPart.instance.signPanel.getPrefWidth(), InitTestingPart.instance.signPanel.getPrefHeight());
@@ -290,8 +340,7 @@ public class TestingPart extends ProtectedFXWindow
 				{
 					w[x + 1] = MathWithText.size(test.getTableQuestionSelector().getCols()[x], font).width + 20;
 					for (int y = 0; y < test.getTableQuestionSelector().getRows().length; y++)
-						w[x + 1] = Math.max(w[x + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).width
-								+ 20);
+						w[x + 1] = Math.max(w[x + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).width + 20);
 				}
 			}
 			{
@@ -302,8 +351,7 @@ public class TestingPart extends ProtectedFXWindow
 				{
 					h[y + 1] = MathWithText.size(test.getTableQuestionSelector().getRows()[y], font).height + 20;
 					for (int x = 0; x < test.getTableQuestionSelector().getCols().length; x++)
-						h[y + 1] = Math.max(h[y + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).height
-								+ 20);
+						h[y + 1] = Math.max(h[y + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).height + 20);
 				}
 			}
 			{
@@ -334,7 +382,8 @@ public class TestingPart extends ProtectedFXWindow
 			for (int x = 0; x < test.getTableQuestionSelector().getQuestionsTable().length; x++)
 				for (int y = 0; y < test.getTableQuestionSelector().getQuestionsTable()[x].length; y++)
 				{
-					ButtonFX btn = new ButtonFX(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), new CornerRadii(0), new CornerRadii(0));
+					ButtonFX btn = new ButtonFX(new ButtonFXTextContent(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText()), new CornerRadii(
+							0), new CornerRadii(0));
 					btn.setFramesize(2);
 					int xx = x, yy = y;
 					btn.addActionListener(e ->
@@ -344,7 +393,7 @@ public class TestingPart extends ProtectedFXWindow
 						openQuestion(currentQuestionNumber, currentQuestionNumber = test.getQuestionNumberAtQuestionsByQuestionIndex(test
 								.getTableQuestionSelector().getQuestionsTable()[xx][yy].getQuestionNumber()));
 						btn.setDisable(true);
-						btn.setText("");
+						((ButtonFXTextContent) btn.getContent()).setText("");
 						curBtn = btn;
 					});
 					btn.setPrefSize(w[x + 1], h[y + 1]);
@@ -357,32 +406,31 @@ public class TestingPart extends ProtectedFXWindow
 
 			if (!unlimitedTime)
 			{
-				timer = new ButtonFX(toSize((int) timeToTest / 60, 2).substring(0, 2) + ":" + toSize((int) timeToTest % 60, 2).substring(0, 2), new CornerRadii(
-						8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				timer = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 				timer.addActionListener(e -> pause(!paused));
 				count++;
 			}
 
 			if (test.getTableQuestionSelector() == null)
 			{
-				skip = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				skip = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 				skip.addActionListener(e -> skip());
 				skip.setEnabled(skipButtonOption);
 				count++;
 
-				next = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				next = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 				next.addActionListener(e -> next());
 				count++;
 			}
 
 			if (test.getTableQuestionSelector() != null)
 			{
-				back = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				back = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 				back.addActionListener(e -> back());
 				count++;
 			}
 
-			finish = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+			finish = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 			finish.addActionListener(e ->
 			{
 				if (skippedQuestions.size() == 1)
@@ -390,7 +438,7 @@ public class TestingPart extends ProtectedFXWindow
 						goNext();
 				if (!e.getActionCommand().equals("user") || skippedQuestions.size() == 0)
 					finish(testName, classNumber, classLetter, surname, name, secondName);
-				else FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("youHaveSkipped"), 0, 0, Main.isFxWindowFrame(), true);
+				else FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("youHaveSkipped"), 0, null, Main.isFxWindowFrame(), true);
 			});
 			count++;
 			// Set bounds
@@ -446,7 +494,7 @@ public class TestingPart extends ProtectedFXWindow
 
 		for (int i = 0; i < answerButtons.length; i++)
 		{
-			answerButtons[i] = new ButtonFX("", new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+			answerButtons[i] = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
 			answersPanel.getChildren().add(answerButtons[i]);
 			answerButtons[i].setBounds(0, answerButtonHeightWithSpace * i, answersPanel.getPrefWidth(), answerButtonHeight);
 		}
@@ -477,8 +525,8 @@ public class TestingPart extends ProtectedFXWindow
 		questionSelectPanel.setPrefHeight((height + space) * test.getQuestions().length - space);
 		for (int i = 0; i < test.getQuestions().length; i++)
 		{
-			questionSelectAnswerButtons[i] = new ButtonFX(i + 1 + "/" + test.getQuestions().length, new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6,
-					6, false));
+			questionSelectAnswerButtons[i] = new ButtonFX(new ButtonFXTextContent(i + 1 + "/" + test.getQuestions().length), new CornerRadii(8, 8, 8, 8, false),
+					new CornerRadii(6, 6, 6, 6, false));
 			int q = i;
 			questionSelectAnswerButtons[i].addActionListener(event ->
 			{
@@ -613,7 +661,7 @@ public class TestingPart extends ProtectedFXWindow
 					curBtn.setBackground(test.getRightAnswerBackground());
 				else curBtn.setBackground(test.getWrongAnswerBackground());
 			if (questionResult > maxResult)
-				FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("questionResultMoreThanMaxResult"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("questionResultMoreThanMaxResult"), 0, null, Main.isFxWindowFrame(), true);
 		}
 		if (showRightAnswer)
 		{
@@ -647,8 +695,7 @@ public class TestingPart extends ProtectedFXWindow
 					}
 					i++;
 				}
-			FXDialogsGenerator.showFXDialog(stage, (Stage) null, rightAnswer, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, Main
-					.isFxWindowFrame(), true);
+			FXDialogsGenerator.showFXDialog(stage, (Stage) null, rightAnswer, JOptionPane.INFORMATION_MESSAGE, null, Main.isFxWindowFrame(), true);
 		}
 		goNext();
 	}
@@ -711,7 +758,7 @@ public class TestingPart extends ProtectedFXWindow
 		SystemUtils.writeFile(new File("Results/Result From " + c.get(Calendar.YEAR) + "_" + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_" + toSize(c.get(
 				Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".log"), text, "cp1251");
 		showLogs = true;
-		FXDialogsGenerator.showFXDialog(stage, (Stage) null, text, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+		FXDialogsGenerator.showFXDialog(stage, (Stage) null, text, JOptionPane.INFORMATION_MESSAGE, null, Main.isFxWindowFrame(), true);
 	}
 
 	/**
@@ -735,13 +782,13 @@ public class TestingPart extends ProtectedFXWindow
 	{
 		super.updateLabelsInPart();
 		if (next != null)
-			next.setText(msgSys.getMsg("next"));
+			((ButtonFXTextContent) next.getContent()).setText(msgSys.getMsg("next"));
 		if (skip != null)
-			skip.setText(msgSys.getMsg("skip"));
+			((ButtonFXTextContent) skip.getContent()).setText(msgSys.getMsg("skip"));
 		if (back != null)
-			back.setText(msgSys.getMsg("back"));
+			((ButtonFXTextContent) back.getContent()).setText(msgSys.getMsg("back"));
 		if (finish != null)
-			finish.setText(msgSys.getMsg("finish"));
+			((ButtonFXTextContent) finish.getContent()).setText(msgSys.getMsg("finish"));
 	}
 
 	/**
@@ -777,11 +824,9 @@ public class TestingPart extends ProtectedFXWindow
 			if (selectedAnswers[j])
 				selectedNumber = j;
 		answers[questionNumber] = new UserAnswer(selectedNumber, selectedAnswers.clone(), buttonsArrangement.clone(), buttonsArrangementForDistribution.clone(),
-				test.getQuestions()[questionNumber].getType() == QuestionType.EnterText ? answerButtons[0].getMainFieldText() : null);
+				test.getQuestions()[questionNumber].getType() == QuestionType.EnterText ? ((ButtonFXTextContent) answerButtons[0].getContent())
+						.getMainFieldText() : null);
 	}
-
-	int spaceText;
-	boolean fillAllHeight, maxHeight;
 
 	private void updateButtonPose(int questionNumber, int btn)
 	{
@@ -815,10 +860,10 @@ public class TestingPart extends ProtectedFXWindow
 			for (ButtonFX button : answerButtons)
 				button.setVisible(false);
 			answerButtons[0].setVisible(true);
-			answerButtons[0].setEditable(true);
-			answerButtons[0].setText(answers[questionNumber] != null ? answers[questionNumber].getAnswerText() : "");
-			answerButtons[0].setFont(new javafx.scene.text.Font(answerButtons[0].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[0]
-					.getFont().getSize()));
+			((ButtonFXTextContent) answerButtons[0].getContent()).setEditable(true);
+			((ButtonFXTextContent) answerButtons[0].getContent()).setText(answers[questionNumber] != null ? answers[questionNumber].getAnswerText() : "");
+			((ButtonFXTextContent) answerButtons[0].getContent()).setFont(new javafx.scene.text.Font(((ButtonFXTextContent) answerButtons[0].getContent())
+					.getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[0].getFont().getSize()));
 			answerButtons[0].setClicked(false);
 			answerButtons[0].setEnabled(true);
 		}
@@ -828,10 +873,10 @@ public class TestingPart extends ProtectedFXWindow
 				answerButtons[i].setVisible(test.getQuestions()[questionNumber].getAnswers().length > i);
 			for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
 			{
-				answerButtons[i].setEditable(false);
-				answerButtons[i].setText(test.getQuestions()[questionNumber].getAnswers()[i].getText());
-				answerButtons[i].setFont(new Font(answerButtons[i].getFont().getName(), test.getQuestions()[questionNumber].getAnswers()[i].getFont()
-						.getSize()));
+				((ButtonFXTextContent) answerButtons[i].getContent()).setEditable(false);
+				((ButtonFXTextContent) answerButtons[i].getContent()).setText(test.getQuestions()[questionNumber].getAnswers()[i].getText());
+				((ButtonFXTextContent) answerButtons[i].getContent()).setFont(new Font(((ButtonFXTextContent) answerButtons[i].getContent()).getFont()
+						.getName(), test.getQuestions()[questionNumber].getAnswers()[i].getFont().getSize()));
 				answerButtons[i].setClicked(false);
 				answerButtons[i].setEnabled(true);
 			}
@@ -941,15 +986,64 @@ public class TestingPart extends ProtectedFXWindow
 		if (!skippedQuestions.contains(questionNumber))
 			lastNotSkippedQuestion = questionNumber;
 		selectedAnswers = new boolean[test.getQuestions()[questionNumber].getAnswers().length];
-		questionSign.setFont(new Font(questionSign.getFont().getName(), test.getQuestions()[questionNumber].getFont().getSize()));
-		questionSign.setText(test.getQuestions()[questionNumber].getText());
+		if (test.getQuestions()[questionNumber].getHtml() != null)
+		{
+			if (!(questionSign.getContent() instanceof ButtonFXHtmlContent))
+				questionSign.setContent(new ButtonFXHtmlContent(""));
+			((ButtonFXHtmlContent) questionSign.getContent()).setHtml(test.getQuestions()[questionNumber].getHtml());
+		}
+		else
+		{
+			if (!(questionSign.getContent() instanceof ButtonFXTextContent))
+				questionSign.setContent(new ButtonFXTextContent(""));
+			((ButtonFXTextContent) questionSign.getContent()).setFont(new Font(((ButtonFXTextContent) questionSign.getContent()).getFont().getName(), test
+					.getQuestions()[questionNumber].getFont().getSize()));
+			((ButtonFXTextContent) questionSign.getContent()).setText(test.getQuestions()[questionNumber].getText());
+		}
+		MenuItem[] items = new MenuItem[test.getQuestions()[questionNumber].getImages().length + test.getQuestions()[questionNumber].getVideos().length + test
+				.getQuestions()[questionNumber].getAudios().length];
+		int j = 0;
+		for (int ii = 0; ii < test.getQuestions()[questionNumber].getImages().length; ii++)
+		{
+			int i = ii;
+			items[j + i] = new MenuItem(msgSys.getMsg("image").split("")[0].toUpperCase() + msgSys.getMsg("image").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getImages()[i], 0, null,
+					Main.isFxWindowFrame(), true));
+		}
+		j += test.getQuestions()[questionNumber].getImages().length;
+		for (int ii = 0; ii < test.getQuestions()[questionNumber].getVideos().length; ii++)
+		{
+			int i = ii;
+			items[j + i] = new MenuItem(msgSys.getMsg("video").split("")[0].toUpperCase() + msgSys.getMsg("video").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getVideos()[i], 0, null,
+					Main.isFxWindowFrame(), true));
+		}
+		j += test.getQuestions()[questionNumber].getVideos().length;
+		for (int ii = 0; ii < test.getQuestions()[questionNumber].getAudios().length; ii++)
+		{
+			int i = ii;
+			items[j + i] = new MenuItem(msgSys.getMsg("audio").split("")[0].toUpperCase() + msgSys.getMsg("audio").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getAudios()[i], 0, null,
+					Main.isFxWindowFrame(), true));
+		}
+		questionSign.setContextMenu(new ContextMenu(items));
+		ArrayList<BackgroundImage> images = new ArrayList<BackgroundImage>();
+		if (items.length != 0)
+			images.add(clip);
+		if (test.getQuestions()[questionNumber].getImages().length != 0)
+			images.add(image);
+		if (test.getQuestions()[questionNumber].getVideos().length != 0)
+			images.add(video);
+		if (test.getQuestions()[questionNumber].getAudios().length != 0)
+			images.add(audio);
+		questionSign.setImageBackgrounds(images.toArray(new BackgroundImage[0]));
 
 		if ((questionNumber >= test.getQuestions().length - 1))
 			wasGoToEnd = true;
 
 		if (test.getTableQuestionSelector() == null)
 		{
-			next.setEnabled(questionNumber < test.getQuestions().length - 1 && (canGoToAllQuestions || skippedQuestions.size() > 1||!wasGoToEnd));
+			next.setEnabled(questionNumber < test.getQuestions().length - 1 && (canGoToAllQuestions || skippedQuestions.size() > 1 || !wasGoToEnd));
 			skip.setEnabled(questionNumber < test.getQuestions().length - 1);
 		}
 		finish.setEnabled(wasGoToEnd || test.getTableQuestionSelector() != null);

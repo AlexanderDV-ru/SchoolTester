@@ -22,7 +22,7 @@ import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
  * StartPart - the GUI part for working after program launch
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class StartPart extends FXWindow
 {
@@ -30,9 +30,9 @@ public class StartPart extends FXWindow
 	private MenuItem openAccountsMenu;
 	private Menu accounts;
 
-	public StartPart(String secondaryTitle, URL url,boolean inDevelope)
+	public StartPart(String secondaryTitle, URL url, boolean inDevelope)
 	{
-		super(secondaryTitle, url, 3,inDevelope);
+		super(secondaryTitle, url, 3, inDevelope);
 		instance = this;
 		AccountsPart.account.addActionListener(e -> updateLabelsInPart());
 		AccountsPart.account.addActionListener(e ->
@@ -134,12 +134,12 @@ public class StartPart extends FXWindow
 		InitStartPart.instance.openTeachersTestsControlPart.setText(msgSys.getMsg(TeachersTestsControlPart.instance.name()));
 		InitStartPart.instance.openTestDevPart.setText(msgSys.getMsg(TestDevPart.instance.name()));
 		InitStartPart.instance.openMarketPart.setText(msgSys.getMsg(MarketPart.instance.name()));
-		
+
 		for (Button btn : InitStartPart.instance.subjectUtilitiesButtons.keySet())
 		{
-			btn.setText(msgSys.getMsg(InitStartPart.instance.subjectUtilitiesButtons.get(btn).name()).replace("%1", msgSys.getMsg(InitStartPart.instance.subjectUtilitiesButtons.get(btn).getSubject()
-					.name())));
-			for(ButtonWithWindow btnWithWindow:InitStartPart.instance.subjectUtilitiesButtons.get(btn).getButtonsAndWindows())
+			btn.setText(msgSys.getMsg(InitStartPart.instance.subjectUtilitiesButtons.get(btn).name()).replace("%1", msgSys.getMsg(
+					InitStartPart.instance.subjectUtilitiesButtons.get(btn).getSubject().name())));
+			for (ButtonWithWindow btnWithWindow : InitStartPart.instance.subjectUtilitiesButtons.get(btn).getButtonsAndWindows())
 				btnWithWindow.getButton().setText(msgSys.getMsg(btnWithWindow.getWindow().name()));
 		}
 	}

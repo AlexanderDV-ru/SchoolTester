@@ -37,7 +37,7 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  * 
  * 
  * @author AlexandrDV/AlexanderDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class TeachersTestsControlPart extends ProtectedFXWindow
 {
@@ -396,7 +396,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 		{
 			if (testNameCombobox2.getSelectionModel().isEmpty())
 			{
-				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testNotSelected"), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, Main
+				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testNotSelected"), JOptionPane.WARNING_MESSAGE, null, Main
 						.isFxWindowFrame(), true);
 				return;
 			}
@@ -507,7 +507,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 			cell44.setText(numberToString(perfectTime, 2) + "");
 			cell45.setText(numberToString(time, 2) + "");
 			if (testsList.getTabs().size() == 0)
-				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testWithFiltersNotExist"), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("testWithFiltersNotExist"), JOptionPane.WARNING_MESSAGE, null,
 						Main.isFxWindowFrame(), true);
 		});
 	}
@@ -583,17 +583,17 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 			if (classNumberCombobox1.getSelectionModel().getSelectedItem() == null || classLetterCombobox.getSelectionModel().getSelectedItem() == null
 					|| classNumberCombobox1.getSelectionModel().getSelectedItem().equals("") || classLetterCombobox.getSelectionModel().getSelectedItem()
 							.equals(""))
-				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("classMustBeSelected"), JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("classMustBeSelected"), JOptionPane.INFORMATION_MESSAGE, null,
 						Main.isFxWindowFrame(), true);
 			else if (surnameCombobox.getSelectionModel().getSelectedItem() == null || "".equals(surnameCombobox.getSelectionModel().getSelectedItem()))
 				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("surnameMustBeSelected"), JOptionPane.INFORMATION_MESSAGE,
-						JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+						null, Main.isFxWindowFrame(), true);
 			else if (nameCombobox.getSelectionModel().getSelectedItem() == null || "".equals(nameCombobox.getSelectionModel().getSelectedItem()))
-				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("nameMustBeSelected"), JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
+				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("nameMustBeSelected"), JOptionPane.INFORMATION_MESSAGE, null,
 						Main.isFxWindowFrame(), true);
 			else if (secondNameCombobox.getSelectionModel().getSelectedItem() == null || "".equals(secondNameCombobox.getSelectionModel().getSelectedItem()))
 				FXDialogsGenerator.showFXDialog(stage, stage, msgSys.getMsg("secondNameMustBeSelected"), JOptionPane.INFORMATION_MESSAGE,
-						JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+						null, Main.isFxWindowFrame(), true);
 			else
 			{
 				Test test = null;
@@ -682,7 +682,7 @@ public class TeachersTestsControlPart extends ProtectedFXWindow
 				}
 				catch (Exception e1)
 				{
-					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
 				}
 				Main.instance.hideAll();
 			}

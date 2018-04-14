@@ -21,7 +21,7 @@ import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 /**
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class SubjectUtilitiesPart extends FXWindow
 {
@@ -56,7 +56,7 @@ public class SubjectUtilitiesPart extends FXWindow
 					}
 					catch (Exception e1)
 					{
-						FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+						FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
 					}
 				else buttonWithWindow.getWindow().open(StartPart.instance.getStage());
 			});

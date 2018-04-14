@@ -30,7 +30,7 @@ import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.8a
  */
 public class InitAccountsPart
 {
@@ -170,7 +170,7 @@ public class InitAccountsPart
 						InitAccountsPart.instance.accountTypeCombobox.getSelectionModel().getSelectedItem(), InitAccountsPart.instance.loginField.getText(),
 						InitAccountsPart.instance.passwordField.getText())));
 			}
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
 		});
 		InitAccountsPart.instance.signInButton.setOnAction(e ->
 		{
@@ -182,7 +182,7 @@ public class InitAccountsPart
 			if (passwordField.getText().equals(passwordRepeatField.getText()))
 				Main.instance.addRequest(new AccountPacket("deleteAccount", Main.macAddress, null, AccountsPart.account.get(), new Account(accountTypeCombobox
 						.getSelectionModel().getSelectedItem(), loginField.getText(), passwordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
 		});
 		signOutButton.setOnAction(e ->
 		{
@@ -254,14 +254,14 @@ public class InitAccountsPart
 				account.setHomeCity(homeCityField.getText());
 				Main.instance.addRequest(new AccountPacket("changeProfileInfo", Main.macAddress, null, account, account));
 			}
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
 		});
 		changePasswordButton.setOnAction(e ->
 		{
 			if (newPasswordField.getText().equals(newPasswordRepeatField.getText()) && passwordField.getText().equals(passwordRepeatField.getText()))
 				Main.instance.addRequest(new AccountPacket("changeSecurityInfo", Main.macAddress, null, AccountsPart.account.get(), new Account(
 						accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(), newPasswordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, 1, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
 		});
 
 		signInTab.setOnSelectionChanged(e -> handleTabSelect());

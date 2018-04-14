@@ -32,7 +32,7 @@ import ru.alexanderdv.schooltester.utilities.types.StageContainer;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public abstract class FXWindow extends StageContainer
 {
@@ -183,10 +183,10 @@ public abstract class FXWindow extends StageContainer
 		};
 		languageEN.setOnAction(actionHandler);
 		languageRU.setOnAction(actionHandler);
-		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("privacyPolicyText"), 0, 0, Main.isFxWindowFrame(),
-				true));
-		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("usersManualText"), 0, 0, Main.isFxWindowFrame(),
-				true));
+		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null,  msgSys.getMsg("privacyPolicyText") , 0, null, Main
+				.isFxWindowFrame(), true));
+		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null,  msgSys.getMsg("usersManualText") , 0, null, Main
+				.isFxWindowFrame(), true));
 		site.setOnAction(event -> SystemUtils.openUrl(msgSys.getMsg("site")));
 
 		EventHandler<Event> eh = e -> e.consume();

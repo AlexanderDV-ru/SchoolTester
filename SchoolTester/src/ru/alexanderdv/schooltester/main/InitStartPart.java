@@ -21,7 +21,7 @@ import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class InitStartPart
 {
@@ -51,7 +51,7 @@ public class InitStartPart
 		subjectUtilitiesButtons = new HashMap<Button, SubjectUtilitiesPart>();
 		int o = 10;
 		openTeachersTestsControlPart = new Button();
-		openTeachersTestsControlPart.setTextFill(TeachersTestsControlPart.instance.inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
+		openTeachersTestsControlPart.setTextFill(TeachersTestsControlPart.instance.inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 		openTeachersTestsControlPart.setOnAction(e ->
 		{
 			try
@@ -61,7 +61,7 @@ public class InitStartPart
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
 			}
 		});
 		specialPane.getChildren().add(openTeachersTestsControlPart);
@@ -69,7 +69,7 @@ public class InitStartPart
 		openTeachersTestsControlPart.setLayoutX(o);
 
 		openTestDevPart = new Button();
-		openTestDevPart.setTextFill(TestDevPart.instance.inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
+		openTestDevPart.setTextFill(TestDevPart.instance.inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 		openTestDevPart.setOnAction(e ->
 		{
 			try
@@ -79,7 +79,7 @@ public class InitStartPart
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
 			}
 		});
 		openTestDevPart.setPrefWidth(special.getPrefWidth() - o * 2);
@@ -87,7 +87,7 @@ public class InitStartPart
 		specialPane.getChildren().add(openTestDevPart);
 
 		openMarketPart = new Button();
-		openMarketPart.setTextFill(MarketPart.instance.inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
+		openMarketPart.setTextFill(MarketPart.instance.inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 		openMarketPart.setOnAction(e ->
 		{
 			try
@@ -97,18 +97,18 @@ public class InitStartPart
 			}
 			catch (Exception e1)
 			{
-				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, 0, Main.isFxWindowFrame(), true);
+				FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
 			}
 		});
 		openMarketPart.setPrefWidth(special.getPrefWidth() - o * 2);
 		openMarketPart.setLayoutX(o);
 		specialPane.getChildren().add(openMarketPart);
-		
+
 		for (SubjectUtilitiesPart subjectUtilities : Main.getSubjectUtilitiesParts())
 		{
 			Button subjectUtilitiesButton = new Button(msgSys.getMsg("openSubjectUtilities").replace("%1", msgSys.getMsg(subjectUtilities.getSubject()
 					.name())));
-			subjectUtilitiesButton.setTextFill(subjectUtilities.inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
+			subjectUtilitiesButton.setTextFill(subjectUtilities.inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 			subjectUtilitiesButtons.put(subjectUtilitiesButton, subjectUtilities);
 			subjectUtilitiesButton.setOnAction(e ->
 			{

@@ -3,6 +3,8 @@ package ru.alexanderdv.schooltester.utilities.types;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javafx.scene.image.Image;
+import javafx.scene.media.Media;
 import javafx.scene.text.Font;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
@@ -12,12 +14,16 @@ import ru.alexanderdv.simpleutilities.Entry;
  * Question - the class with data about question.
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.8a
  *
  */
 public class Question
 {
 	private static final MessageSystem msgSys = Main.msgSys;
+	private final Image[] images;
+	private final Media[] videos;
+	private final Media[] audios;
+	private final String html;
 	private final String text;
 	private final Font font;
 	private final int award;
@@ -49,13 +55,17 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	private Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
+	private Question(Image[] images, Media[] videos, Media[] audios, String html, String text, Font font, int award, int minResult, QuestionType type,
+			Answer[] answers, boolean handleOnlyMaximal,
 			HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution,
 			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForMatching,
 			HashMap<HashMap<Integer, Integer>, Integer> answerArrangementForArrangement, String[] indexesForNames, int[] indexesForNamesIndexes,
 			String ignoredCharacters, boolean ignoreCase, int index)
 	{
-		super();
+		this.images = images;
+		this.videos = videos;
+		this.audios = audios;
+		this.html = html;
 		this.text = text;
 		this.font = font;
 		this.award = award;
@@ -125,12 +135,13 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
+	public Question(Image[] images, Media[] videos, Media[] audios, String html, String text, Font font, int award, int minResult, QuestionType type,
+			Answer[] answers, boolean handleOnlyMaximal,
 			HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerArrangementForDistribution, String[] indexesForNames,
 			int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase, int index)
 	{
-		this(text, font, award, minResult, type, answers, handleOnlyMaximal, answerArrangementForDistribution, null, null, indexesForNames,
-				indexesForNamesIndexes, ignoredCharacters, ignoreCase, index);
+		this(images, videos, audios, html, text, font, award, minResult, type, answers, handleOnlyMaximal, answerArrangementForDistribution, null, null,
+				indexesForNames, indexesForNamesIndexes, ignoredCharacters, ignoreCase, index);
 		if (type != QuestionType.Distribution)
 			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Distribution'"));
 	}
@@ -148,12 +159,14 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, boolean handleOnlyMaximal,
-			HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames, int[] indexesForNamesIndexes, String ignoredCharacters,
-			boolean ignoreCase, boolean n, int index)
+	public Question(Image[] images, Media[] videos, Media[] audios, String html, String text, Font font, int award, int minResult, QuestionType type,
+			Answer[] answers, boolean handleOnlyMaximal, HashMap<HashMap<Integer, Integer>, Integer> answerArrangement, String[] indexesForNames,
+			int[] indexesForNamesIndexes, String ignoredCharacters, boolean ignoreCase, boolean n, int index)
 	{
-		this(text, font, award, minResult, type, answers, handleOnlyMaximal, null, type == QuestionType.Matching ? answerArrangement : null,
-				type == QuestionType.Arrangement ? answerArrangement : null, indexesForNames, indexesForNamesIndexes, ignoredCharacters, ignoreCase, index);
+		this(images, videos, audios, html, text, font, award, minResult, type, answers, handleOnlyMaximal, null, type == QuestionType.Matching
+				? answerArrangement
+				: null, type == QuestionType.Arrangement ? answerArrangement : null, indexesForNames, indexesForNamesIndexes, ignoredCharacters, ignoreCase,
+				index);
 		if (type != QuestionType.Arrangement && type != QuestionType.Matching)
 			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'Arrangement' or 'Matching'"));
 	}
@@ -171,10 +184,11 @@ public class Question
 	 * @param ignoredCharacters
 	 * @param ignoreCase
 	 */
-	public Question(String text, Font font, int award, int minResult, QuestionType type, Answer[] answers, String ignoredCharacters, boolean ignoreCase,
-			int index)
+	public Question(Image[] images, Media[] videos, Media[] audios, String html, String text, Font font, int award, int minResult, QuestionType type,
+			Answer[] answers, String ignoredCharacters, boolean ignoreCase, int index)
 	{
-		this(text, font, award, minResult, type, answers, false, null, null, null, null, null, ignoredCharacters, ignoreCase, index);
+		this(images, videos, audios, html, text, font, award, minResult, type, answers, false, null, null, null, null, null, ignoredCharacters, ignoreCase,
+				index);
 		if (type != QuestionType.SelectSome && type != QuestionType.PickOne && type != QuestionType.EnterText)
 			throw new NullPointerException(msgSys.getMsg("questionTypeMustBe").replace("%1", "'SelectSome', 'PickOne' or 'EnterText''"));
 	}
@@ -324,6 +338,38 @@ public class Question
 	}
 
 	/**
+	 * @return the html
+	 */
+	public String getHtml()
+	{
+		return html;
+	}
+
+	/**
+	 * @return the images
+	 */
+	public Image[] getImages()
+	{
+		return images.clone();
+	}
+
+	/**
+	 * @return the videos
+	 */
+	public Media[] getVideos()
+	{
+		return videos;
+	}
+
+	/**
+	 * @return the audios
+	 */
+	public Media[] getAudios()
+	{
+		return audios;
+	}
+
+	/**
 	 * Answer - the class with data about answer to question.
 	 * 
 	 * @author AlexanderDV/AlexandrDV
@@ -331,6 +377,7 @@ public class Question
 	 */
 	public static class Answer
 	{
+		private final String html;
 		private final String text;
 		private final Font font;
 		private final int award;
@@ -342,8 +389,9 @@ public class Question
 		 * @param text
 		 * @param font
 		 */
-		public Answer(String text, Font font, int award, int index)
+		public Answer(String html, String text, Font font, int award, int index)
 		{
+			this.html = html;
 			this.text = text;
 			this.font = font;
 			this.award = award;
@@ -380,6 +428,14 @@ public class Question
 		public Font getFont()
 		{
 			return font;
+		}
+
+		/**
+		 * @return the html
+		 */
+		public String getHtml()
+		{
+			return html;
 		}
 
 	}

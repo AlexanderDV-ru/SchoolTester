@@ -17,6 +17,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -34,12 +35,12 @@ import ru.alexanderdv.simpleutilities.Entry;
 /**
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class Test
 {
 	private static final MessageSystem msgSys = Main.msgSys;
-	private static final Image defaultIcon=loadDefaultIcon();
+	private static final Image defaultIcon = loadDefaultIcon();
 	private static final Random random = new Random();
 	private final String syntaxLanguage;
 	private final String programVersion;
@@ -66,7 +67,7 @@ public class Test
 	public Test(String syntaxLanguage, String programVersion, String colorType, String testVersion, String testCreationDate, String testLanguage,
 			String testSubject, String authors, String name, String description, int maxTestTime, boolean unlimitedTime, Permissions permissionsToStart,
 			Permissions permissionsToUseHints, Question[] questions, Image wrongAnswer, Image rightAnswer, Image perfectAnswer,
-			TableQuestionSelector tableQuestionSelector,Image icon)
+			TableQuestionSelector tableQuestionSelector, Image icon)
 	{
 		this.syntaxLanguage = syntaxLanguage;
 		this.programVersion = programVersion;
@@ -78,7 +79,7 @@ public class Test
 		this.authors = authors;
 		this.name = name;
 		this.description = description;
-		this.icon = icon!=null?icon:defaultIcon;
+		this.icon = icon != null ? icon : defaultIcon;
 		if (unlimitedTime || maxTestTime < 1)
 		{
 			this.unlimitedTime = true;
@@ -442,7 +443,7 @@ public class Test
 			}
 			if (!cfg.getString(MessageSystem.getMsg("programVersion", syntaxLanguage), null, false).equals(Main.programVersion))
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testVersionNotMatchWithProgramVersion"),
-						JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+						JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
 
 			String colorType = cfg.getString(MessageSystem.getMsg("colorType", syntaxLanguage), null, false);
 
@@ -452,6 +453,7 @@ public class Test
 			String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
 			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
 			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
+			String htmlStr = "html";
 			String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
 			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
 			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
@@ -468,6 +470,16 @@ public class Test
 			String nameStr = MessageSystem.getMsg("naming", syntaxLanguage);
 			String onlyThisIndexesStr = MessageSystem.getMsg("onlyThisIndexes", syntaxLanguage);
 			String groupStr = MessageSystem.getMsg("group", syntaxLanguage);
+			String randomizeStr = MessageSystem.getMsg("randomize", syntaxLanguage);
+			String randomizeBlocksStr = MessageSystem.getMsg("randomizeBlocks", syntaxLanguage);
+			String randomizeGroupsStr = MessageSystem.getMsg("randomizeGroups", syntaxLanguage);
+			String imagesStr = MessageSystem.getMsg("images", syntaxLanguage);
+			String imageStr = MessageSystem.getMsg("image", syntaxLanguage);
+			String videosStr = MessageSystem.getMsg("videos", syntaxLanguage);
+			String videoStr = MessageSystem.getMsg("video", syntaxLanguage);
+			String audiosStr = MessageSystem.getMsg("audios", syntaxLanguage);
+			String audioStr = MessageSystem.getMsg("audio", syntaxLanguage);
+			String path = cfg.getFile().getAbsoluteFile().getParentFile().getAbsolutePath() + "\\";
 
 			// Table how in game "Svoya igra"
 			TableQuestionSelector tableQuestionSelector;
@@ -494,8 +506,8 @@ public class Test
 			int dqFont = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 14, true);
 			int daFont = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 14, true);
 			int stMinRes = cfg.getInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE, true);
-			boolean randomizeAll = cfg.getBoolean(qnsStr + ":" + "randomize", !tabledView, true);
-			boolean randomizeBlocks = cfg.getBoolean(qnsStr + ":" + "randomizeBlocks", !tabledView, true);
+			boolean randomizeAll = cfg.getBoolean(qnsStr + ":" + randomizeStr, !tabledView, true);
+			boolean randomizeBlocks = cfg.getBoolean(qnsStr + ":" + randomizeBlocksStr, !tabledView, true);
 			if (tabledView)
 				if (randomizeAll || randomizeBlocks)
 				{
@@ -523,9 +535,10 @@ public class Test
 						boolean b = false;
 						for (int i = 0; group.hasValue(qnStr + (i + 1)) ? (question = group.getConfig(qnStr + (i + 1), true)) != null || true : false; i++)
 						{
-							Question questionQ = loadQuestion(question, anrsStr, syntaxLanguage, daFont, ansStr, txtStr, awdStr, fsStr, questionType, minResStr,
-									stMinRes, handleOnlyMaximalStr, dqFont, igrdChrsStr, igreCaseStr, awardsForAnswersStr, awardForAnswerStr, answersIndexesStr,
-									answerIndexStr, numberStr, indexStr, indexesStr, indexesForNamesStr, nameStr, onlyThisIndexesStr, tabledView);
+							Question questionQ = loadQuestion(question, path, anrsStr, syntaxLanguage, daFont, imagesStr, imageStr, videosStr, videoStr,
+									audiosStr, audioStr, ansStr, htmlStr, txtStr, awdStr, fsStr, questionType, minResStr, stMinRes, handleOnlyMaximalStr,
+									dqFont, igrdChrsStr, igreCaseStr, awardsForAnswersStr, awardForAnswerStr, answersIndexesStr, answerIndexStr, numberStr,
+									indexStr, indexesStr, indexesForNamesStr, nameStr, onlyThisIndexesStr, tabledView);
 							if (!b)
 								maxAward = questionQ.getMaxAward();
 							b = true;
@@ -533,8 +546,7 @@ public class Test
 							{
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("awardsInGroupNotMatch")
 										+ "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents() + "'" + " a1: " + maxAward
-										+ " a2: " + questionQ.getMaxAward(), JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(),
-										true);
+										+ " a2: " + questionQ.getMaxAward(), JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
 								Main.exit(ExitCodes.TestAwardsOfQuestionsInGroupNotMatch);
 							}
 							typedGroupQuestions.add(questionQ);
@@ -543,7 +555,7 @@ public class Test
 						{
 							int questionsToTestAmount = group.getInteger(MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage), typedGroupQuestions
 									.size(), true);
-							boolean randomize = group.getBoolean(MessageSystem.getMsg("randomize", syntaxLanguage), !tabledView, true);
+							boolean randomize = group.getBoolean(randomizeStr, !tabledView, true);
 							if (tabledView)
 								if (randomize)
 								{
@@ -555,15 +567,14 @@ public class Test
 								questionsToTestAmount = typedGroupQuestions.size();
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
 										"questionsToTestAmountMoreThanQuestionsAmount") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group
-												.getFullPathInParents() + "'", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(),
-										true);
+												.getFullPathInParents() + "'", JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
 							}
 							if (questionsToTestAmount <= 0)
 							{
 								questionsToTestAmount = typedGroupQuestions.size();
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
 										"questionsToTestAmountLessThanOne") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents()
-										+ "'", JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+										+ "'", JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
 							}
 							Question[] array = new Question[questionsToTestAmount];
 							if (randomize)
@@ -571,8 +582,8 @@ public class Test
 							else mList.add(nonrandomizeToArray(typedGroupQuestions, array));
 						}
 					}
-					boolean randomize1 = cfg.getBoolean(gr + ":" + MessageSystem.getMsg("randomize", syntaxLanguage), !tabledView, true);
-					boolean randomizeGroups = cfg.getBoolean(gr + ":" + MessageSystem.getMsg("randomizeGroups", syntaxLanguage), !tabledView, true);
+					boolean randomize1 = cfg.getBoolean(gr + ":" + randomizeStr, !tabledView, true);
+					boolean randomizeGroups = cfg.getBoolean(gr + ":" + randomizeGroupsStr, !tabledView, true);
 					if (tabledView)
 						if (randomize1 || randomizeGroups)
 						{
@@ -601,7 +612,7 @@ public class Test
 			if (questions.size() <= 0)
 			{
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testNotHaveQuestions") + "\nFile: '" + cfg
-						.getFile().getName() + "'", JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+						.getFile().getName() + "'", JOptionPane.ERROR_MESSAGE, null, Main.isFxWindowFrame(), true);
 				Main.exit(ExitCodes.TestNotHaveQuestions);
 			}
 			Question[] array = new Question[questions.size()];
@@ -639,7 +650,8 @@ public class Test
 											false)), true)
 									: getImage(new File("rightAnswerImage.png"), false), cfg.hasValue("perfectAnswerImage") ? getImage(new File("Tests/" + cfg
 											.getFile().getName().replace(".test", "") + "/" + cfg.getString("perfectAnswerImage", null, false)), true)
-											: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector,getImage(new File("testIcon.png"), false));
+											: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector, getImage(new File("testIcon.png"),
+													false));
 		}
 		catch (Exception exception)
 		{
@@ -659,7 +671,7 @@ public class Test
 		{
 			if (b)
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("imageNotLoaded"), JOptionPane.ERROR_MESSAGE,
-						JOptionPane.DEFAULT_OPTION, Main.isFxWindowFrame(), true);
+						null, Main.isFxWindowFrame(), true);
 			return null;
 		}
 	}
@@ -671,8 +683,9 @@ public class Test
 		return maxTestTime;
 	}
 
-	private static Question loadQuestion(Config question, String anrsStr, String syntaxLanguage, int daFont, String ansStr, String txtStr, String awdStr,
-			String fsStr, QuestionType type, String minResStr, int stMinRes, String handleOnlyMaximalStr, int dqFont, String igrdChrsStr, String igreCaseStr,
+	private static Question loadQuestion(Config question, String path, String anrsStr, String syntaxLanguage, int daFont, String imagesStr, String imageStr,
+			String videosStr, String videoStr, String audiosStr, String audioStr, String ansStr, String htmlStr, String txtStr, String awdStr, String fsStr,
+			QuestionType type, String minResStr, int stMinRes, String handleOnlyMaximalStr, int dqFont, String igrdChrsStr, String igreCaseStr,
 			String awardsForAnswersStr, String awardForAnswerStr, String answersIndexesStr, String answerIndexStr, String numberStr, String indexStr,
 			String indexesStr, String indexesForNamesStr, String nameStr, String onlyThisIndexesStr, boolean tabledView)
 	{
@@ -684,18 +697,26 @@ public class Test
 		for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null || true
 				: false; j++)
 		{
-			answers.add(new Answer(ans.getString(txtStr, null, false).replace("\\n", multiline ? "\n" : "\\n"), new Font("Ms Comic Sans", ans.getInteger(fsStr,
-					dqaFont, true)), ans.getInteger(awdStr, 0, true), j));
+			answers.add(new Answer(ans.getString(htmlStr, null, true), ans.getString(txtStr, null, false).replace("\\n", multiline ? "\n" : "\\n"), new Font(
+					"Ms Comic Sans", ans.getInteger(fsStr, dqaFont, true)), ans.getInteger(awdStr, 0, true), j));
 		}
 		ArrayList<String> isfmsList = new ArrayList<String>();
-		String ifmO = question.getString(indexesForNamesStr + ":" + nameStr + (1), null, true);
-		for (int j = 0; question.hasValue(indexesForNamesStr + ":" + nameStr + (j + 1)); j++, ifmO = question.getString(indexesForNamesStr + ":" + nameStr + (j
-				+ 1), null, true))
-			isfmsList.add(ifmO);
+		// String ifmO = question.getString(indexesForNamesStr + ":" + nameStr + (1), null, true);
+		for (int j = 0; question.hasValue(indexesForNamesStr + ":" + nameStr + (j + 1)); isfmsList.add(question.getString(indexesForNamesStr + ":" + nameStr
+				+ (j + 1), null, true)), j++);
 		String[] isfms = randomizeToArray(isfmsList, new String[isfmsList.size()]);
 		int[] isfms2 = new int[isfms.length];
 		for (int i = 0; i < isfms2.length; i++)
 			isfms2[i] = isfmsList.indexOf(isfms[i]);
+		ArrayList<Image> imagesList = new ArrayList<Image>();
+		for (int j = 0; question.hasValue(imagesStr + ":" + imageStr + (j + 1)); imagesList.add(new Image(new File(path + question.getString(imagesStr + ":"
+				+ imageStr + (j + 1), null, true)).toURI().toString())), j++);
+		ArrayList<Media> videosList = new ArrayList<Media>();
+		for (int j = 0; question.hasValue(videosStr + ":" + videoStr + (j + 1)); videosList.add(new Media(new File(path + question.getString(videosStr + ":"
+				+ videoStr + (j + 1), null, true)).toURI().toString())), j++);
+		ArrayList<Media> audiosList = new ArrayList<Media>();
+		for (int j = 0; question.hasValue(audiosStr + ":" + audioStr + (j + 1)); audiosList.add(new Media(new File(path + question.getString(audiosStr + ":"
+				+ audioStr + (j + 1), null, true)).toURI().toString())), j++);
 		Question q;
 		switch (type)
 		{
@@ -715,10 +736,13 @@ public class Test
 					answerss.put(answersss, answerssn.getInteger(awdStr, 0, true));
 				}
 
-				q = new Question(question.getString(txtStr, null, false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question
-						.getInteger(awdStr, 0, true), question.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers
-								.size()]), question.getBoolean(handleOnlyMaximalStr, null, false), answerss, isfms, isfms2, question.getString(igrdChrsStr, "",
-										true), question.getBoolean(igreCaseStr, true, true), false, tabledView ? question.getInteger(indexStr, -1, true) : -1);
+				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
+						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
+								false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question.getInteger(awdStr, 0, true), question
+										.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers.size()]), question
+												.getBoolean(handleOnlyMaximalStr, null, false), answerss, isfms, isfms2, question.getString(igrdChrsStr, "",
+														true), question.getBoolean(igreCaseStr, true, true), false, tabledView ? question.getInteger(indexStr,
+																-1, true) : -1);
 				if (tabledView && q.getIndex() < 0)
 				{
 					System.out.println("error: with tabled view must be index");
@@ -749,10 +773,13 @@ public class Test
 					answerss2.put(answersss, answerssn.getInteger(awdStr, 0, true));
 				}
 
-				q = new Question(question.getString(txtStr, null, false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question
-						.getInteger(awdStr, 0, true), question.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers
-								.size()]), question.getBoolean(handleOnlyMaximalStr, null, false), answerss2, isfms, isfms2, question.getString(igrdChrsStr, "",
-										true), question.getBoolean(igreCaseStr, true, true), tabledView ? question.getInteger(indexStr, -1, true) : -1);
+				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
+						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
+								false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question.getInteger(awdStr, 0, true), question
+										.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers.size()]), question
+												.getBoolean(handleOnlyMaximalStr, null, false), answerss2, isfms, isfms2, question.getString(igrdChrsStr, "",
+														true), question.getBoolean(igreCaseStr, true, true), tabledView ? question.getInteger(indexStr, -1,
+																true) : -1);
 				if (tabledView && q.getIndex() < 0)
 				{
 					System.out.println("error: with tabled view must be index");
@@ -765,10 +792,18 @@ public class Test
 			case SelectSome:
 			default:
 			{
-				q = new Question(question.getString(txtStr, null, false).replace("\\n", multiline ? "\n" : "\\n"), new Font("Ms Comic Sans", question
-						.getInteger(fsStr, dqFont, true)), question.getInteger(awdStr, 0, true), question.getInteger(minResStr, stMinRes, true), type,
-						randomizeToArray(answers, new Answer[answers.size()]), question.getString(igrdChrsStr, "", true), question.getBoolean(igreCaseStr, true,
-								true), tabledView ? question.getInteger(indexStr, -1, true) : -1);
+				String ignoredCharacters = question.getString(igrdChrsStr, "", true);
+				boolean ignoreCase = question.getBoolean(igreCaseStr, true, true);
+				if (question.hasValue(igrdChrsStr) && type != QuestionType.EnterText)
+					System.out.println("To use ignored characters type must be EnterText");
+				if (question.hasValue(igreCaseStr) && type != QuestionType.EnterText)
+					System.out.println("To use ignore case type must be EnterText");
+				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
+						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
+								false).replace("\\n", multiline ? "\n" : "\\n"), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question
+										.getInteger(awdStr, 0, true), question.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers,
+												new Answer[answers.size()]), ignoredCharacters, ignoreCase, tabledView ? question.getInteger(indexStr, -1, true)
+														: -1);
 				if (tabledView && q.getIndex() < 0)
 				{
 					System.out.println("error: with tabled view must be index");

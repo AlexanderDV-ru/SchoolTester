@@ -18,7 +18,7 @@ import ru.alexanderdv.schooltester.utilities.types.Person.Rodstvennik;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class Database
 {
@@ -30,11 +30,11 @@ public class Database
 	private static final String accountsUPDATE = "UPDATE " + accountsTable + " SET " + r2() + " WHERE _login=?";
 	private static final String accountsDELETE = "DELETE FROM " + accountsTable + " WHERE _login=?";
 
-	private static final String marketTable = "ACCOUNTS", marketFields = r0();
+	private static final String marketTable = "TESTS", marketFields = rc0();
 	private static final String marketSELECT = "SELECT " + marketFields + " FROM " + marketTable + " ORDER BY _login";
 	private static final String marketSELECT_ONE = "SELECT " + marketFields + " FROM " + marketTable + " WHERE _login=?";
-	private static final String marketINSERT = "INSERT INTO " + marketTable + " (" + marketFields + ") VALUES (" + r() + ")";
-	private static final String marketUPDATE = "UPDATE " + marketTable + " SET " + r2() + " WHERE _login=?";
+	private static final String marketINSERT = "INSERT INTO " + marketTable + " (" + marketFields + ") VALUES (" + rc() + ")";
+	private static final String marketUPDATE = "UPDATE " + marketTable + " SET " + rc2() + " WHERE _login=?";
 	private static final String marketDELETE = "DELETE FROM " + marketTable + " WHERE _login=?";
 	private static Connection connection;
 
@@ -111,6 +111,86 @@ public class Database
 	}
 
 	private static String r2()
+	{
+		String s = "";
+		for (int i = 0; i < accountsFields.split(", ").length; i++)
+			s += (i != 0 ? ", " : "") + accountsFields.split(", ")[i] + "=?";
+		return s;
+	}
+
+	private static String rc0()
+	{
+		String s = "";
+		s += "_active" + ", ";
+		s += "_deleted" + ", ";
+		s += "_surname" + ", ";
+		s += "_name" + ", ";
+		s += "_secondname" + ", ";
+		s += "_phonenumbers" + ", ";
+		s += "_emails" + ", ";
+		s += "_gender" + ", ";
+		s += "_age" + ", ";
+		s += "_country" + ", ";
+		s += "_region" + ", ";
+		s += "_city" + ", ";
+		s += "_school" + ", ";
+		s += "_sites" + ", ";
+		s += "_othersites" + ", ";
+		s += "_othercontacts" + ", ";
+		s += "_biografy" + ", ";
+		s += "_mirovozrenie" + ", ";
+		s += "_education" + ", ";
+		s += "_carriere" + ", ";
+		s += "_politica" + ", ";
+		s += "_maininlife" + ", ";
+		s += "_maininpeoples" + ", ";
+		s += "_aboutsmoking" + ", ";
+		s += "_aboutalhogol" + ", ";
+		s += "_aboutnarcotics" + ", ";
+		s += "_mainlanguages" + ", ";
+		s += "_otherlanguages" + ", ";
+		s += "_rcountry" + ", ";
+		s += "_rregion" + ", ";
+		s += "_rcity" + ", ";
+		s += "_interests" + ", ";
+		s += "_likemusic" + ", ";
+		s += "_likefilms" + ", ";
+		s += "_likeshows" + ", ";
+		s += "_likeblogs" + ", ";
+		s += "_likebooks" + ", ";
+		s += "_likegames" + ", ";
+		s += "_likecomputergames" + ", ";
+		s += "_likepeoples" + ", ";
+		s += "_vdohnovlenie" + ", ";
+		s += "_quotes" + ", ";
+		s += "_ideas" + ", ";
+		s += "_othervsglyadi" + ", ";
+		s += "_semeinoepolozhenie" + ", ";
+		s += "_parents" + ", ";
+		s += "_grandparents" + ", ";
+		s += "_brothersandsisters" + ", ";
+		s += "_childrens" + ", ";
+		s += "_grandchildrens" + ", ";
+		s += "_otherrodstvenniki" + ", ";
+		s += "_suprugibivshie" + ", ";
+		s += "_suprug" + ", ";
+		s += "_subjects" + ", ";
+
+		s += "_accounttype" + ", ";
+		s += "_login" + ", ";
+		s += "_passwordhash";
+		return s;
+	}
+
+	private static String rc()
+	{
+		String s = "";
+		for (int i = 0; i < accountsFields.split(", ").length; i++)
+			s += i != 0 ? ", ?" : "?";
+		return s;
+	}
+
+	private static String rc2()
 	{
 		String s = "";
 		for (int i = 0; i < accountsFields.split(", ").length; i++)

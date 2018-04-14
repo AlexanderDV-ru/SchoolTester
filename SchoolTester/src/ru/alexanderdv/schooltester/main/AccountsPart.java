@@ -16,7 +16,7 @@ import ru.alexanderdv.schooltester.utilities.types.StageContainer;
  * AccountsPart - the GUI part for woking with accounts
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class AccountsPart extends FXWindow implements ActionListener
 {
@@ -72,7 +72,7 @@ public class AccountsPart extends FXWindow implements ActionListener
 		InitAccountsPart.instance.newPasswordField.setText("");
 		InitAccountsPart.instance.newPasswordRepeatField.setText("");
 		InitAccountsPart.instance.passwordRepeatField.setText("");
-		FXDialogsGenerator.showFXDialog((StageContainer)null, (Stage)null, msgSys.getMsg(packet.getRequest()), 0, 0, Main.isFxWindowFrame(), true);
+		FXDialogsGenerator.showFXDialog((StageContainer)null, (Stage)null, msgSys.getMsg(packet.getRequest()), 0, null, Main.isFxWindowFrame(), true);
 		InitAccountsPart.instance.changeVisibleTabs(account.get());
 	}
 

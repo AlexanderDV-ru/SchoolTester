@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @version 5.9.8a
  */
 public abstract class Person implements Serializable
 {
@@ -122,11 +122,11 @@ public abstract class Person implements Serializable
 		{
 			if (s == null)
 				return null;
-			Rodstvennik r = new Rodstvennik(getString(s, "login"));
-			r.setSurname(getString(s, "surname"));
-			r.setName(getString(s, "name"));
-			r.setSecondName(getString(s, "secondname"));
-			r.setUpdateByLogin(Boolean.parseBoolean(getString(s, "updateByLogin")));
+			Rodstvennik r = new Rodstvennik((s + "\n \n \n \n ").split("\n")[0]);
+			r.setSurname((s + "\n \n \n \n ").split("\n")[0]);
+			r.setName((s + "\n \n \n \n ").split("\n")[0]);
+			r.setSecondName((s + "\n \n \n \n ").split("\n")[0]);
+			r.setUpdateByLogin(Boolean.parseBoolean((s + "\n \n \n \ntrue").split("\n")[0]));
 			return r;
 		}
 
@@ -138,36 +138,7 @@ public abstract class Person implements Serializable
 		@Override
 		public final String toString()
 		{
-			return "Rodstvennik[updateByLogin=" + prepareString(updateByLogin) + ", login=" + prepareString(getLogin()) + ", surname=" + prepareString(
-					getSurname()) + ", name=" + prepareString(getName()) + ", secondname=" + prepareString(getSecondName()) + "]";
-		}
-
-		private static String prepareString(Object o)
-		{
-			if (o == null)
-				return null;
-			return "[" + o.getClass() + "]'" + o.toString().replace("\\", "\\s").replace("'", "\\q").replace("\n", "\\n").replace("\t", "\\t").replace("=",
-					"\\e").replace("[", "\\l").replace("]", "\\r") + "'";
-		}
-
-		private static String getString(String s, String name)
-		{
-			if (s == null || name == null)
-				return null;
-			try
-			{
-				String s2 = s.substring(s.indexOf(name + "=[") + name.length() + 2);
-				s2 = s2.substring(0, s2.indexOf("]"));
-				s = s.substring(s.indexOf(name + "=[" + s2 + "]'"));
-				s = s.substring(0, s.indexOf("'"));
-				return s.replace("\\e", "=").replace("\\q", "'").replace("\\n", "\n").replace("\\t", "\t").replace("\\s", "\\").replace("\\l", "[").replace(
-						"\\r", "]");
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				return null;
-			}
+			return getLogin() + "\n" + getSurname() + "\n" + getName() + "\n" + getSecondName() + "\n" + updateByLogin;
 		}
 
 	}

@@ -4,17 +4,23 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 
+import javax.swing.Timer;
+
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
+import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
@@ -25,7 +31,7 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  * 
  * 
  * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @version 5.9.8a
  */
 public class FXDialogsGenerator
 {
@@ -48,23 +54,34 @@ public class FXDialogsGenerator
 	 * @param frameIsFX
 	 *            - the type of window frame
 	 */
-	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
 	{
-		Stage comp=_comp!=null?_comp.getStage(new StageContainer.Wrapper()
+		Stage comp = _comp != null ? _comp.getStage(new StageContainer.Wrapper()
 		{
 
 			@Override
 			public char[] check(int algo)
 			{
-				return (algo/10000%10+""+algo/1000%10+""+algo/100%10+""+algo/10%10+""+algo%10).toCharArray();
+				return (algo / 10000 % 10 + "" + algo / 1000 % 10 + "" + algo / 100 % 10 + "" + algo / 10 % 10 + "" + algo % 10).toCharArray();
 			}
-		}):null;
+		}) : null;
 		Stage stage = lastDialogStage = new Stage();
 		try
 		{
+			class cccc
+			{
+				Runnable r;
+			}
+			cccc ccccv = new cccc();
+			stage.setTitle(Main.program);
+			if (frameIsFX)
+				stage.initStyle(StageStyle.UNDECORATED);
+			else stage.initStyle(StageStyle.DECORATED);
+			FXScene fxScene = new FXScene(stage, 1, Main.program, false, 1);
 			Pane panel = new Pane();
-			Pane canvas = new Pane();
-			Dimension size = MathWithText.size((String) msg, new Font("System", 0, 12));
+			ImageView imageView;
+			MediaView mediaView = new MediaView();
+			Dimension size = msg instanceof String ? MathWithText.size((String) msg, new Font("System", 0, 12)) : new Dimension();
 
 			if (msg instanceof String)
 			{
@@ -77,37 +94,148 @@ public class FXDialogsGenerator
 				}
 			}
 			Label label = new Label(msg.toString());
-			if (msg instanceof javafx.scene.image.Image)
+			if (msg instanceof Image)
 			{
-				canvas.setBackground(new Background(new BackgroundImage((javafx.scene.image.Image) msg, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-						BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
-				canvas.setPrefWidth(((javafx.scene.image.Image) msg).getWidth());
-				canvas.setPrefHeight(((javafx.scene.image.Image) msg).getHeight());
-				panel.getChildren().add(canvas);
+				imageView = new ImageView();
+				imageView.setImage((Image) msg);
+				Dimension screenedSize = toScreen(((Image) msg).getWidth(), ((Image) msg).getHeight());
+				int width = Math.max(screenedSize.width, 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + 30);
+				int height = screenedSize.height;
+				imageView.setFitWidth(width);
+				imageView.setFitHeight(height);
+				panel.getChildren().add(imageView);
+				size = new Dimension(width, height);
 			}
-			else panel.getChildren().add(label);
+			else if (msg instanceof String)
+				panel.getChildren().add(label);
+			else if (msg instanceof Media)
+			{
+				Media media = (Media) msg;
+				MediaPlayer mediaPlayer = new MediaPlayer(media);
+				mediaView.setMediaPlayer(mediaPlayer);
+				mediaPlayer.play();
+				panel.getChildren().add(mediaView);
+				Dimension screenedSize = toScreen(media.getWidth(), media.getHeight());
+				int width = Math.max(screenedSize.width, 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + 30);
+				int height = screenedSize.height;
+				mediaView.setFitWidth(Math.min(media.getWidth(), width));
+				mediaView.setFitHeight(Math.min(media.getHeight(), height));
+				Button btn = new Button("||");
+				btn.setOnAction(e ->
+				{
+					if (btn.getText().equals("||"))
+					{
+						mediaPlayer.pause();
+						btn.setText(">");
+					}
+					else
+					{
+						mediaPlayer.play();
+						btn.setText("||");
+					}
+				});
+				btn.setPrefSize(30, 30);
+				btn.setLayoutY(height);
+				class B
+				{
+					boolean b;
+				}
+				B moving = new B();
+				Timer timer = new Timer(100, e ->
+				{
+					if (!moving.b)
+						mediaPlayer.stop();
+					if (moving.b)
+						if (btn.getText().equals("||"))
+							mediaPlayer.play();
+					moving.b = false;
+				});
+				ccccv.r = () -> timer.stop();
+				panel.getChildren().add(btn);
+				{
+					Slider slider = new Slider(0, media.getDuration().toSeconds(), 0);
+					B bbb = new B();
+					Runnable rr = () ->
+					{
+						if (bbb.b)
+						{
+							mediaPlayer.stop();
+							mediaPlayer.setStartTime(new Duration(slider.getValue() * 1000));
+							if (btn.getText().equals("||"))
+								mediaPlayer.play();
+						}
+					};
+					Runnable on = () ->
+					{
+						bbb.b = true;
+						rr.run();
+					};
+					Runnable off = () ->
+					{
+						bbb.b = false;
+					};
+					slider.setOnMousePressed(e -> on.run());
+					slider.setOnMouseReleased(e -> off.run());
+					slider.setOnMouseClicked(e -> rr.run());
+					slider.setOnMouseMoved(e -> moving.b = true);
+					slider.valueProperty().addListener((a, b, c) -> rr.run());
+					slider.setPrefSize(width - 30, 30);
+					slider.setLayoutX(30);
+					slider.setLayoutY(height);
+					panel.getChildren().add(slider);
+					mediaPlayer.currentTimeProperty().addListener((a, b, c) ->
+					{
+						if (!bbb.b)
+							slider.setValue(mediaPlayer.getCurrentTime().toSeconds());
+					});
+				}
+				{
+					Slider slider = new Slider(-2, 2, 0);
+					slider.valueProperty().addListener((a, b, c) ->
+					{
+						double x = slider.getValue();
+						double d = 1d / Math.abs(((Math.abs(x) - x) / 2d + 1d)) + (Math.abs(x) + x) / 2d / 4d * 3d;
+						mediaPlayer.setRate(d);
+					});
+					slider.setPrefSize(width / 2, 30);
+					slider.setLayoutX(0);
+					slider.setLayoutY(height + 30);
+					panel.getChildren().add(slider);
+				}
+				{
+					Slider slider = new Slider(0, 1, 0);
+					slider.setValue(mediaPlayer.getVolume());
+					slider.valueProperty().addListener((a, b, c) -> mediaPlayer.setVolume(slider.getValue()));
+					slider.setPrefSize(width / 2, 30);
+					slider.setLayoutX(width / 2);
+					slider.setLayoutY(height + 30);
+					panel.getChildren().add(slider);
+				}
+				size = new Dimension(width, media.getHeight() + 60);
+			}
 
-			stage.setTitle(Main.program);
+			if (region != null)
+			{
+				panel.getChildren().add(region);
+				region.setLayoutY(size.height);
+				size.height += (int) region.getPrefHeight();
+				size.width = Math.max(size.width, (int) region.getPrefHeight());
+			}
 			if (frameIsFX)
 			{
-				stage.initStyle(StageStyle.UNDECORATED);
-				FXScene fxScene = new FXScene(stage, 1, Main.program, false, 1);
-				fxScene.setContent(panel, Math.max(((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getWidth() : size.getWidth()),
-						40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene.getButtonsWidth()),
-						((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getHeight() : size.getHeight()));
+				fxScene.setContent(panel, Math.max(size.getWidth(), 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene
+						.getButtonsWidth()), size.getHeight());
 				stage.setScene(new Scene(fxScene));
 			}
 			else
 			{
-				stage.initStyle(StageStyle.DECORATED);
-				panel.setPrefSize(((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getWidth() : size.getWidth()),
-						((msg instanceof javafx.scene.image.Image) ? ((javafx.scene.image.Image) msg).getHeight() : size.getHeight()));
+				panel.setPrefSize(size.getWidth(), size.getHeight());
 				stage.setScene(new Scene(panel));
 			}
 			stage.sizeToScene();
 			stage.setResizable(false);
 			stage.getIcons().clear();
-			stage.getIcons().add(new javafx.scene.image.Image(Logger.class.getResource("/Icon32x.png").openStream()));
+			stage.getIcons().add(new Image(Logger.class.getResource("/Icon32x.png").openStream()));
 			stage.initModality(Modality.WINDOW_MODAL);
 			stage.initOwner(comp);
 			if (parPos != null)
@@ -115,14 +243,18 @@ public class FXDialogsGenerator
 				stage.setX((int) (parPos.getX() + parPos.getHeight() / 2 - stage.getWidth() / 2));
 				stage.setY((int) (parPos.getY() + parPos.getHeight() / 2 - stage.getHeight() / 2));
 			}
-			if (comp != null)
-				stage.setOnCloseRequest(e ->
-				{
-					if (lastDialogStage == stage)
-						lastDialogStage = null;
-					stage.close();
+			stage.setOnCloseRequest(e ->
+			{
+				if (ccccv.r != null)
+					ccccv.r.run();
+				if (lastDialogStage == stage)
+					lastDialogStage = null;
+				stage.close();
+				if (mediaView.getMediaPlayer() != null)
+					mediaView.getMediaPlayer().stop();
+				if (comp != null)
 					comp.requestFocus();
-				});
+			});
 			if (wait)
 				stage.showAndWait();
 			else stage.show();
@@ -135,20 +267,31 @@ public class FXDialogsGenerator
 		return stage;
 	}
 
-	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	private static Dimension toScreen(double d1, double d2)
+	{
+		if (d1 < 1 || d2 < 1)
+			return new Dimension(0, 0);
+		double r1 = Math.max(0, d1 - (FXScene.maxX - FXScene.minX));
+		double r2 = Math.max(0, d2 - (FXScene.maxY - FXScene.minY));
+		if (r1 > r2)
+			return new Dimension((int) (d1 / d1 * (d1 - r1 - 100)), (int) (d2 / d1 * (d1 - r1 - 100)));
+		else return new Dimension((int) (d1 / d2 * (d2 - r2 - 100)), (int) (d2 / d2 * (d2 - r2 - 100)));
+	}
+
+	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
 	{
 		return showFXDialog(comp, parPos != null ? new Rectangle((int) parPos.getX(), (int) parPos.getY(), (int) parPos.getWidth(), (int) parPos.getHeight())
-				: null, msg, messageType, optionType, frameIsFX, wait);
+				: null, msg, messageType, region, frameIsFX, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, optionType, frameIsFX, wait);
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, frameIsFX, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, int optionType, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, optionType, frameIsFX, wait);
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, frameIsFX, wait);
 	}
 
 	public static boolean hasShowedDialog()
