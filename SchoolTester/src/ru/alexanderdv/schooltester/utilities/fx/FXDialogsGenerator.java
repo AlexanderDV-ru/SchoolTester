@@ -29,11 +29,10 @@ import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class FXDialogsGenerator
+public final class FXDialogsGenerator
 {
 	private static Stage lastDialogStage;
 
@@ -54,8 +53,9 @@ public class FXDialogsGenerator
 	 * @param frameIsFX
 	 *            - the type of window frame
 	 */
-	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msgm, int messageType, Region region, boolean wait)
 	{
+		Object msg = msgm;
 		Stage comp = _comp != null ? _comp.getStage(new StageContainer.Wrapper()
 		{
 
@@ -74,9 +74,7 @@ public class FXDialogsGenerator
 			}
 			cccc ccccv = new cccc();
 			stage.setTitle(Main.program);
-			if (frameIsFX)
-				stage.initStyle(StageStyle.UNDECORATED);
-			else stage.initStyle(StageStyle.DECORATED);
+			stage.initStyle(StageStyle.UNDECORATED);
 			FXScene fxScene = new FXScene(stage, 1, Main.program, false, 1);
 			Pane panel = new Pane();
 			ImageView imageView;
@@ -217,21 +215,15 @@ public class FXDialogsGenerator
 			if (region != null)
 			{
 				panel.getChildren().add(region);
+				System.out.println(region.getPrefHeight());
 				region.setLayoutY(size.height);
 				size.height += (int) region.getPrefHeight();
 				size.width = Math.max(size.width, (int) region.getPrefHeight());
 			}
-			if (frameIsFX)
-			{
-				fxScene.setContent(panel, Math.max(size.getWidth(), 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene
-						.getButtonsWidth()), size.getHeight());
-				stage.setScene(new Scene(fxScene));
-			}
-			else
-			{
-				panel.setPrefSize(size.getWidth(), size.getHeight());
-				stage.setScene(new Scene(panel));
-			}
+			int pw = (int) Math.max(size.getWidth(), 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene.getButtonsWidth()),
+					ph = (int) size.getHeight(), mw = pw, mh = ph;
+			fxScene.setContent(panel, pw, ph, mw, mh);
+			stage.setScene(new Scene(fxScene));
 			stage.sizeToScene();
 			stage.setResizable(false);
 			stage.getIcons().clear();
@@ -255,16 +247,20 @@ public class FXDialogsGenerator
 				if (comp != null)
 					comp.requestFocus();
 			});
-			if (wait)
-				stage.showAndWait();
-			else stage.show();
+			return stage;
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 			Main.exit(ExitCodes.UnknownError);
+			return null;
 		}
-		return stage;
+		finally
+		{
+			if (wait)
+				stage.showAndWait();
+			else stage.show();
+		}
 	}
 
 	private static Dimension toScreen(double d1, double d2)
@@ -278,20 +274,20 @@ public class FXDialogsGenerator
 		else return new Dimension((int) (d1 / d2 * (d2 - r2 - 100)), (int) (d2 / d2 * (d2 - r2 - 100)));
 	}
 
-	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, Region region, boolean wait)
 	{
 		return showFXDialog(comp, parPos != null ? new Rectangle((int) parPos.getX(), (int) parPos.getY(), (int) parPos.getWidth(), (int) parPos.getHeight())
-				: null, msg, messageType, region, frameIsFX, wait);
+				: null, msg, messageType, region, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, Region region, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, frameIsFX, wait);
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, Region region, boolean frameIsFX, boolean wait)
+	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, Region region, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, frameIsFX, wait);
+		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, wait);
 	}
 
 	public static boolean hasShowedDialog()
@@ -303,6 +299,12 @@ public class FXDialogsGenerator
 	{
 		if (hasShowedDialog())
 			lastDialogStage.requestFocus();
+	}
+
+	public static void closeLast()
+	{
+		if (lastDialogStage != null)
+			lastDialogStage.close();
 	}
 
 }

@@ -9,19 +9,24 @@ import ru.alexanderdv.simpleutilities.MathWithText.MathAction;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class CalculatorPart extends ProtectedFXWindow
+public final class CalculatorPart extends ProtectedFXWindow
 {
 	public static CalculatorPart instance;
 
-	public CalculatorPart(URL url,boolean inDevelope)
+	public CalculatorPart(URL url, boolean inDevelope)
 	{
-		super(null, url, 1, 1,inDevelope);
+		super(null, url, 1, 1, inDevelope, false);
 		instance = this;
 		createActionListeners();
+	}
+
+	@Override
+	protected void _resize(int w, int h)
+	{
+
 	}
 
 	boolean piSym;
@@ -43,9 +48,9 @@ public class CalculatorPart extends ProtectedFXWindow
 							new MathAction("round>", (l, r) -> Math.round(r)),
 							new MathAction("abs>", (l, r) -> Math.abs(r)),
 							new MathAction("√", (l, r) -> Math.pow(r, 1d / 2d)),
-							//new MathAction("Int>", (l, r) -> Math.int(r)),
-							//new MathAction("dms>", (l, r) -> Math.dms(r)),
-							//new MathAction("Inv>", (l, r) -> Math.inv(r)),
+							// new MathAction("Int>", (l, r) -> Math.int(r)),
+							// new MathAction("dms>", (l, r) -> Math.dms(r)),
+							// new MathAction("Inv>", (l, r) -> Math.inv(r)),
 							new MathAction("sinh>", (l, r) -> Math.sinh(r)),
 							new MathAction("cosh>", (l, r) -> Math.cosh(r)),
 							new MathAction("tanh>", (l, r) -> Math.tanh(r)),
@@ -53,7 +58,7 @@ public class CalculatorPart extends ProtectedFXWindow
 							new MathAction("cos>", (l, r) -> Math.cos(r)),
 							new MathAction("tan>", (l, r) -> Math.tan(r)),
 							new MathAction("log>", (l, r) -> Math.log(r)),
-							//new MathAction("In>", (l, r) -> Math.)
+					// new MathAction("In>", (l, r) -> Math.)
 					}
 			},
 			{
@@ -303,7 +308,6 @@ public class CalculatorPart extends ProtectedFXWindow
 			}
 		});
 	}
-
 
 	@Override
 	public String name()

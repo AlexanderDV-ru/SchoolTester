@@ -14,15 +14,13 @@ import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 
 /**
- * Config - the class of configuration file parser
  * 
- * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
- *
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class Config
+public final class Config
 {
-	private static final MessageSystem msgSys=Main.msgSys;
+	private static final MessageSystem msgSys = Main.msgSys;
 	private static final Logger logger = Logger.mainLogger;
 	private final Config parent;
 	private File file;
@@ -88,7 +86,8 @@ public class Config
 		{
 			try
 			{
-				throw new NullPointerException(msgSys.getMsg("valueNotExist").replace("%1",path).replace("%1",getFullPathInParents()));
+				throw new NullPointerException(msgSys.getMsg("valueNotExist").replace("%1", path).replace("%2", getFullFileNameInParents()).replace("%3",
+						getFullPathInParents()));
 			}
 			catch (Exception e)
 			{
@@ -97,6 +96,15 @@ public class Config
 			}
 			exit(ExitCodes.WrongSyntax);
 		}
+	}
+
+	private String getFullFileNameInParents()
+	{
+		Config cfg = this;
+		for (; cfg != null; cfg = cfg.getParent())
+			if (cfg.file != null)
+				return cfg.file.getName();
+		return "null";
 	}
 
 	private String getObject(String text, String path, boolean deleteTabs)
@@ -225,9 +233,14 @@ public class Config
 
 	public String getString(String path, String safeString, boolean safety)
 	{
+		return getString(path, safeString, safety, false);
+	}
+
+	public String getString(String path, String safeString, boolean safety, boolean safe)
+	{
 		if (!safety)
 			check(path);
-		return hasValue(path) ? getString(path) : safeString;
+		return hasValue(path) ? getString(path, safe) : safeString;
 	}
 
 	public double getDouble(String path, Double safeDouble, boolean safety)
@@ -279,19 +292,24 @@ public class Config
 		return hasValue(path) ? getColor(path, getDefaultColorType()) : safeColor;
 	}
 
-	private String getString(String path)
+	private String getString(String path, boolean safe)
 	{
 		String text1 = getValue(path);
 		if (text1.indexOf("\"") == -1)
-		{
-			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","String"));
-			exit(ExitCodes.WrongSyntax);
-		}
-		if (text1.indexOf("\"") == text1.lastIndexOf("\""))
-		{
-			print(msgSys.getMsg("quoteMustBeDouble").replace("%1",text1));
-			exit(ExitCodes.WrongSyntax);
-		}
+			if (safe)
+			{
+				print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", text1).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4",
+						"String"));
+				exit(ExitCodes.WrongSyntax);
+			}
+			else return text1;
+		if (text1.indexOf("\"") == text1.lastIndexOf("\"") && !safe)
+			if (safe)
+			{
+				print(msgSys.getMsg("quoteMustBeDouble").replace("%1", text1));
+				exit(ExitCodes.WrongSyntax);
+			}
+			else return text1;
 		return text1.substring(text1.indexOf("\"") + 1, text1.lastIndexOf("\""));
 	}
 
@@ -303,7 +321,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Double"));
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", text1).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4", "Double"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		return parseD(text1);
@@ -317,7 +335,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Integer"));
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", text1).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4", "Integer"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		return parseI(text1);
@@ -344,7 +362,7 @@ public class Config
 		if (value.equals(MessageSystem.getMsg("Config.boolean.false3", language)))
 			return false;
 
-			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",value).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Boolean"));
+		print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", value).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4", "Boolean"));
 		exit(ExitCodes.WrongSyntax);
 		return false;
 	}
@@ -362,7 +380,7 @@ public class Config
 			text2 = text2.replace(c + "", "");
 		if (!text2.equals(""))
 		{
-			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1",text1).replace("%2",path).replace("%3",getFullPathInParents()).replace("%4","Time"));
+			print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", text1).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4", "Time"));
 			exit(ExitCodes.WrongSyntax);
 		}
 		int time = 0;
@@ -382,7 +400,7 @@ public class Config
 		}
 		if (chars.length != 3 && chars.length != 4)
 		{
-			print(msgSys.getMsg("valueMustContainsComma").replace("%1",getValue(path)).replace("%2",path));
+			print(msgSys.getMsg("valueMustContainsComma").replace("%1", getValue(path)).replace("%2", path));
 			exit(ExitCodes.WrongSyntax);
 		}
 

@@ -1,5 +1,7 @@
 package ru.alexanderdv.schooltester.main.teacher;
 
+import java.io.File;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -11,15 +13,19 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import ru.alexanderdv.schooltester.utilities.ByteUtils;
+import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.types.TestSettings;
+import ru.alexanderdv.schooltester.utilities.types.TestingPartSettings;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class InitTeachersTestsControlPart
+public final class InitTeachersTestsControlPart
 {
 	public static InitTeachersTestsControlPart instance;
 	@FXML
@@ -79,6 +85,76 @@ public class InitTeachersTestsControlPart
 	public Label cell14, cell24, cell34, cell44;
 	@FXML
 	public Label cell15, cell25, cell35, cell45;
+
+	@FXML
+	public Button getCodeButton;
+	@FXML
+	public TextField codeField;
+	@FXML
+	public VBox resultsBox;
+
+	@FXML
+	public Button btn;
+	@FXML
+	public TextField login;
+
+	public void saveTestSettings()
+	{
+		SystemUtils.writeFile(new File("testSettings.data"), ByteUtils.objectToByteArray(new TestSettings(indicateLastAnswerQualityRadiobutton.isSelected(),
+				indicateAllAnswersQualityCheckbox.isSelected(), showRightAnswerCheckbox.isSelected(), goToAllQuestionsRadiobutton.isSelected(), skipCheckbox
+						.isSelected(), pauseCheckbox.isSelected(), pauseOnUnfocusCheckbox.isSelected(), anticopyCheckbox.isSelected(), antiscreenshotCheckbox
+								.isSelected())));
+	}
+
+	public void saveTestingPartSettings()
+	{
+		SystemUtils.writeFile(new File("testSettings.data"), ByteUtils.objectToByteArray(new TestingPartSettings(fixedQSelectBtnHeightCheckbox.isSelected(),
+				fillAllHeightOfAnswersPanelCheckbox.isSelected(), maximazeAnswerButtonHeightCheckbox.isSelected())));
+	}
+
+	public void changeTestSettings()
+	{
+		TestSettings testSettings;
+		try
+		{
+			byte[] bytes = SystemUtils.readFile(new File("testSettings.data"));
+			if (bytes != null)
+				testSettings = (TestSettings) ByteUtils.byteArrayToObject(bytes);
+			else throw new NullPointerException();
+		}
+		catch (Exception e)
+		{
+			testSettings = new TestSettings(false, false, false, false, false, false, false, false, false);
+		}
+		indicateLastAnswerQualityRadiobutton.setSelected(testSettings.isIndicateQualityOfLastAnswer());
+		indicateAllAnswersQualityCheckbox.setSelected(testSettings.isIndicateQualityOfAllAnswers());
+		showRightAnswerCheckbox.setSelected(testSettings.isShowRightAnswer());
+		goToAllQuestionsRadiobutton.setSelected(testSettings.isCanGoToAllQuestions());
+		skipCheckbox.setSelected(testSettings.isSkipButtonOption());
+		pauseCheckbox.setSelected(testSettings.isPauseOption());
+		pauseOnUnfocusCheckbox.setSelected(testSettings.isPauseOnUnfocus());
+		anticopyCheckbox.setSelected(testSettings.isAnticopy());
+		antiscreenshotCheckbox.setSelected(testSettings.isCanGoToAllQuestions());
+	}
+
+	public void changeTestingPartSettings()
+	{
+		TestingPartSettings testingPartSettings;
+		try
+		{
+			byte[] bytes = SystemUtils.readFile(new File("testingPartSettings.data"));
+			if (bytes != null)
+				testingPartSettings = (TestingPartSettings) ByteUtils.byteArrayToObject(bytes);
+			else throw new NullPointerException();
+		}
+		catch (Exception e)
+		{
+			testingPartSettings = new TestingPartSettings(false, false, false);
+		}
+		fixedQSelectBtnHeightCheckbox.setSelected(testingPartSettings.isFixedHeightOfQuestionSelectButton());
+		fillAllHeightOfAnswersPanelCheckbox.setSelected(testingPartSettings.isFillAllHeightOfAnswersPanel());
+		maximazeAnswerButtonHeightCheckbox.setSelected(testingPartSettings.isMaximazeAnswerButtonHeight());
+	}
 
 	@FXML
 	public void initialize()

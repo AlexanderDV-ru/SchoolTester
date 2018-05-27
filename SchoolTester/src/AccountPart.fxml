@@ -50,7 +50,7 @@
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <GridPane hgap="5.0" layoutX="50.0" layoutY="48.0" prefHeight="226.0" prefWidth="510.0" vgap="5.0">
+                                          <GridPane fx:id="profileMainFields" hgap="5.0" layoutX="50.0" layoutY="48.0" prefHeight="226.0" prefWidth="510.0" vgap="5.0">
                                              <children>
                                                 <TextField fx:id="surnameField" prefHeight="25.0" prefWidth="131.0" promptText="Surname" />
                                                 <TextField fx:id="nameField" prefHeight="25.0" prefWidth="149.0" promptText="Name" GridPane.columnIndex="1" />
@@ -174,7 +174,7 @@
                                                 <ComboBox fx:id="genderCombobox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                              </children>
                                           </GridPane>
-                                          <GridPane hgap="5.0" layoutX="65.0" layoutY="144.0" prefHeight="180.0" prefWidth="480.0" vgap="5.0">
+                                          <GridPane fx:id="lifeFields2" hgap="5.0" layoutX="65.0" layoutY="144.0" prefHeight="180.0" prefWidth="480.0" vgap="5.0">
                                             <columnConstraints>
                                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -197,7 +197,7 @@
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <ScrollPane hbarPolicy="NEVER" layoutX="1.0" layoutY="3.0" prefHeight="322.0" prefWidth="610.0">
+                                          <ScrollPane fx:id="ideasScrollpane" hbarPolicy="NEVER" layoutX="1.0" layoutY="3.0" prefHeight="322.0" prefWidth="610.0">
                                             <content>
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="720.0" prefWidth="603.0">
                                                    <children>
@@ -282,7 +282,7 @@
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <GridPane hgap="5.0" layoutX="99.0" layoutY="14.0" prefHeight="268.0" prefWidth="412.0" vgap="5.0">
+                                          <GridPane fx:id="aboutYouFields" hgap="5.0" layoutX="99.0" layoutY="14.0" prefHeight="268.0" prefWidth="412.0" vgap="5.0">
                                             <columnConstraints>
                                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

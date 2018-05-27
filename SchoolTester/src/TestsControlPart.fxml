@@ -39,7 +39,7 @@
                                     <ComboBox fx:id="classNumberCombobox1" prefHeight="25.0" prefWidth="205.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                  </children>
                               </GridPane>
-                              <Button fx:id="startTestButton" defaultButton="true" layoutX="70.0" layoutY="190.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="260.0" text="Start test" />
+                              <Button fx:id="startTestButton" defaultButton="true" layoutX="14.0" layoutY="195.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Start test" />
                         <TabPane layoutX="30.0" layoutY="220.0" prefHeight="345.0" prefWidth="340.0" style="-fx-border-color: gray; -fx-border-radius: 0 0 10 10;" tabClosingPolicy="UNAVAILABLE">
                           <tabs>
                             <Tab fx:id="testingSettingsTab" text="Testing options">
@@ -82,6 +82,8 @@
                             </Tab>
                           </tabs>
                         </TabPane>
+                        <TextField fx:id="login" layoutX="126.0" layoutY="195.0" />
+                        <Button fx:id="btn" layoutX="288.0" layoutY="195.0" mnemonicParsing="false" text="Button" />
                            </children>
                         </Pane>
                </content>
@@ -197,6 +199,21 @@
                            </children>
                         </Pane>
                </content>
+            </Tab>
+            <Tab text="Results of students">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ScrollPane layoutY="28.0" prefHeight="550.0" prefWidth="400.0">
+                           <content>
+                              <VBox fx:id="resultsBox" prefHeight="544.0" prefWidth="398.0" />
+                           </content>
+                        </ScrollPane>
+                        <Button fx:id="getCodeButton" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="150.0" text="Get code" />
+                        <TextField fx:id="codeField" layoutX="151.0" layoutY="2.0" prefHeight="25.0" prefWidth="243.0" />
+                     </children>
+                  </AnchorPane>
+              </content>
             </Tab>
         </tabs>
       </TabPane>

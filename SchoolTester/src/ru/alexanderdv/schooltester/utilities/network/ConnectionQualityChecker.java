@@ -2,17 +2,17 @@ package ru.alexanderdv.schooltester.utilities.network;
 
 /**
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class ConnectionQualityChecker extends NetworkPacket
+public final class ConnectionQualityChecker extends NetworkPacket
 {
 	private static final long serialVersionUID = 2690334887038126568L;
 	private long time;
 
-	public ConnectionQualityChecker(String request, String mac, String ip, long time)
+	public ConnectionQualityChecker(String request, long time)
 	{
-		super(request, mac, ip);
+		super(request);
 		this.time = time;
 	}
 

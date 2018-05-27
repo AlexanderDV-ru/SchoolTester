@@ -11,20 +11,20 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import ru.alexanderdv.schooltester.main.developer.TestDevPart;
+import ru.alexanderdv.schooltester.main.student.StudentsTestsControlPart;
 import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart;
+import ru.alexanderdv.schooltester.main.teacher.TestDevPart;
 import ru.alexanderdv.schooltester.main.utilities.MarketPart;
 import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart.ButtonWithWindow;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 
 /**
- * StartPart - the GUI part for working after program launch
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class StartPart extends FXWindow
+public final class StartPart extends FXWindow
 {
 	public static StartPart instance;
 	private MenuItem openAccountsMenu;
@@ -32,28 +32,11 @@ public class StartPart extends FXWindow
 
 	public StartPart(String secondaryTitle, URL url, boolean inDevelope)
 	{
-		super(secondaryTitle, url, 3, inDevelope);
+		super(secondaryTitle, url, 3, inDevelope, true);
 		instance = this;
-		AccountsPart.account.addActionListener(e -> updateLabelsInPart());
-		AccountsPart.account.addActionListener(e ->
-		{
-			InitStartPart.instance.openTeachersTestsControlPart.setVisible(false);
-			InitStartPart.instance.openTestDevPart.setVisible(false);
-			switch (AccountsPart.account.get() != null ? AccountsPart.account.get().getAccountType().name().toLowerCase() : "none")
-			{
-				case "administrator":
-				case "teacher":
-					InitStartPart.instance.openTeachersTestsControlPart.setVisible(true);
-					InitStartPart.instance.openTestDevPart.setVisible(true);
-				case "student":
-					for (Button subjectUtilitiesButton : InitStartPart.instance.subjectUtilitiesButtons.keySet())
-						subjectUtilitiesButton.setVisible(true);
-				case "none":
-					break;
-			}
-		});
-		AccountsPart.account.set(null);
 		stage.setOnCloseRequest(e -> Main.exit(ExitCodes.UserCloseProgram));
+		stage.setOnShown(e -> resize());
+		createActionHandlers();
 	}
 
 	public Stage getStage()
@@ -103,6 +86,12 @@ public class StartPart extends FXWindow
 		byte[] b;
 	}
 
+	@Override
+	protected void _resize(int w, int h)
+	{
+		InitStartPart.instance.resize(w, h);
+	}
+
 	@FXML
 	public void initialize()
 	{
@@ -127,11 +116,13 @@ public class StartPart extends FXWindow
 			InitStartPart.instance.message.setText(msgSys.getMsg("in" + AccountsPart.account.get().getAccountType().name() + "AccountMsg"));
 			InitStartPart.instance.mainPane.setText(msgSys.getMsg(AccountsPart.account.get().getAccountType().name() + "Account"));
 		}
+		InitStartPart.instance.serverConnectionSpeedLabel.setText(msgSys.getMsg("serverConnectionSpeed"));
 		InitStartPart.instance.common.setText(msgSys.getMsg("common"));
 		InitStartPart.instance.special.setText(msgSys.getMsg("special"));
 		InitStartPart.instance.utils.setText(msgSys.getMsg("utils"));
 
 		InitStartPart.instance.openTeachersTestsControlPart.setText(msgSys.getMsg(TeachersTestsControlPart.instance.name()));
+		InitStartPart.instance.openStundentsTestsControlPart.setText(msgSys.getMsg(StudentsTestsControlPart.instance.name()));
 		InitStartPart.instance.openTestDevPart.setText(msgSys.getMsg(TestDevPart.instance.name()));
 		InitStartPart.instance.openMarketPart.setText(msgSys.getMsg(MarketPart.instance.name()));
 

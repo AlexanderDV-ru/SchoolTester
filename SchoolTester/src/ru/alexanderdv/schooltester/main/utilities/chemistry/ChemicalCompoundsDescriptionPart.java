@@ -10,20 +10,24 @@ import ru.alexanderdv.chemistryutilities.ChemicalElement;
 import ru.alexanderdv.chemistryutilities.Localization;
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- *@version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class ChemicalCompoundsDescriptionPart extends ProtectedFXWindow
+public final class ChemicalCompoundsDescriptionPart extends ProtectedFXWindow
 {
 	public static ChemicalCompoundsDescriptionPart instance;
 
 	public ChemicalCompoundsDescriptionPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1,inDevelope);
+		super(null, url, 1, 1,inDevelope,true);
 		instance = this;
 		createActionListeners();
 	}
+		@Override
+		protected void _resize(int w, int h)
+		{
+			
+		}
 
 	private void createActionListeners()
 	{

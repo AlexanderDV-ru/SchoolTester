@@ -13,25 +13,26 @@ import ru.alexanderdv.schooltester.utilities.types.Account;
 import ru.alexanderdv.schooltester.utilities.types.StageContainer;
 
 /**
- * AccountsPart - the GUI part for woking with accounts
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class AccountsPart extends FXWindow implements ActionListener
+public final class AccountsPart extends FXWindow implements ActionListener
 {
 	public static final Property<Account> account = new Property<Account>();
 	public static AccountsPart instance;
 
-	public AccountsPart(String secondaryTitle, URL url,boolean inDevelope)
+	public AccountsPart(String secondaryTitle, URL url, boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1,inDevelope);
+		super(secondaryTitle, url, 1, inDevelope, true);
 		instance = this;
 		InitAccountsPart.instance.createActionHandlers();
+		stage.setOnShown(e -> resize());
 	}
 
 	public void handleAccountRequest(AccountPacket packet)
 	{
+		boolean showDialog = true;
 		switch (packet.getRequest())
 		{
 			case "signUpPerformed":
@@ -42,15 +43,16 @@ public class AccountsPart extends FXWindow implements ActionListener
 				break;
 
 			case "accountInfoChangedByYou":
-				if (packet.getOldAccount().getPassword().equals(packet.getNewAccount().getPassword()))
+				if (packet.getOldAccount()._getPasswordHash()==packet.getNewAccount()._getPasswordHash())
 					InitAccountsPart.instance.passwordField.setText(InitAccountsPart.instance.newPasswordField.getText());
+			case "passwordIsInvalid":
+				InitAccountsPart.instance.newPasswordField.setText("");
+				InitAccountsPart.instance.newPasswordRepeatField.setText("");
+				InitAccountsPart.instance.passwordRepeatField.setText("");
 				break;
 
 			case "accountInfoChanged":
 				account.set(null);
-				break;
-
-			case "passwordIsInvalid":
 				break;
 
 			case "accountNotExists":
@@ -68,11 +70,12 @@ public class AccountsPart extends FXWindow implements ActionListener
 			case "signOutPerformed":
 				account.set(null);
 				break;
+			default:
+				showDialog = false;
+				break;
 		}
-		InitAccountsPart.instance.newPasswordField.setText("");
-		InitAccountsPart.instance.newPasswordRepeatField.setText("");
-		InitAccountsPart.instance.passwordRepeatField.setText("");
-		FXDialogsGenerator.showFXDialog((StageContainer)null, (Stage)null, msgSys.getMsg(packet.getRequest()), 0, null, Main.isFxWindowFrame(), true);
+		if (showDialog)
+			FXDialogsGenerator.showFXDialog((StageContainer) null, (Stage) null, msgSys.getMsg(packet.getRequest()), 0, null, true);
 		InitAccountsPart.instance.changeVisibleTabs(account.get());
 	}
 
@@ -83,7 +86,7 @@ public class AccountsPart extends FXWindow implements ActionListener
 			try
 			{
 				if (account != null)
-					Main.instance.addRequest(new AccountPacket("signOut", Main.macAddress, null, account.get(), null));
+					Main.sendToServer(new AccountPacket("signOut", account.get(), null));
 			}
 			catch (Exception e1)
 			{
@@ -268,6 +271,12 @@ public class AccountsPart extends FXWindow implements ActionListener
 			if (listener != null)
 				listeners.add(listener);
 		}
+	}
+
+	@Override
+	protected void _resize(int w, int h)
+	{
+		InitAccountsPart.instance.resize(w, h);
 	}
 
 	@Override

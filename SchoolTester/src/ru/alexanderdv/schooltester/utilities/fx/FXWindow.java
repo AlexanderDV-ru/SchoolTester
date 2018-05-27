@@ -1,8 +1,10 @@
 package ru.alexanderdv.schooltester.utilities.fx;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.event.ActionEvent;
@@ -15,8 +17,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -24,21 +24,21 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.schooltester.utilities.ByteUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
 import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.types.StageContainer;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
 public abstract class FXWindow extends StageContainer
 {
 	protected static final MessageSystem msgSys = Main.msgSys;
 	protected Pane panel, mainPanel;
-	protected ScrollPane scroller;
+	// protected ScrollPane scroller;
 	protected FXScene fxScene;
 
 	protected MenuBar menubar;
@@ -46,59 +46,90 @@ public abstract class FXWindow extends StageContainer
 	protected Menu language;
 	protected Menu help;
 	protected CheckMenuItem fxWindowFrameState;
-	protected RadioMenuItem languageRU, languageEN;
+	protected HashMap<String, RadioMenuItem> languageBtns;
 	protected MenuItem privacyPolicy, usersManual, site;
 	protected boolean inDevelope;
+	protected Pane adPane;
+	public static final HashMap<String, FXWindow> windows = new HashMap<String, FXWindow>();
 
-	public FXWindow(String secondaryTitle, Pane panel, int type, boolean inDevelope)
+	public FXWindow(String secondaryTitle, Pane panel, int type, boolean inDevelope, boolean resizable)
 	{
 		super(new Stage());
+		windows.put(name(), this);
+		Dimension dimension;
+		try
+		{
+			byte[] bytes = SystemUtils.readFile(new File(name() + ".windowinf"));
+			if (bytes != null)
+				dimension = (Dimension) ByteUtils.byteArrayToObject(bytes);
+			else dimension = null;
+		}
+		catch (Exception e)
+		{
+			dimension = null;
+		}
 		this.inDevelope = inDevelope;
 		try
 		{
 			stage.setTitle(Main.program + (secondaryTitle != null && !secondaryTitle.equals("") ? " - " + secondaryTitle : ""));
 			mainPanel = new AnchorPane();
-			scroller = new ScrollPane(this.panel = panel);
-			mainPanel.getChildren().add(scroller);
-			scroller.setLayoutY(Main.getMenuHeight());
-			if (Main.isFxWindowFrame())
+			mainPanel.setPrefWidth(panel.getPrefWidth());
+			mainPanel.getChildren().add(createMenu());
+			mainPanel.getChildren().add(this.panel = panel);
+			mainPanel.getChildren().add(createAdPane());
+			panel.setLayoutY(Main.getMenuHeight());
+			mainPanel.setPrefHeight(panel.getLayoutY() + panel.getPrefHeight());
+			int mw=(int) mainPanel.getPrefWidth(),mh=(int) mainPanel.getPrefHeight();
+			if (dimension != null)
 			{
-				stage.initStyle(StageStyle.UNDECORATED);
-				fxScene = new FXScene(stage, 1, stage.getTitle(), false, type);
-				scroller.setPrefSize(Math.min(panel.getPrefWidth(), Toolkit.getDefaultToolkit().getScreenSize().getWidth() - 10 - fxScene.getAddingWidth()),
-						Math.min(panel.getPrefHeight(), Toolkit.getDefaultToolkit().getScreenSize().getHeight() - Main.getMenuHeight() - 10 - fxScene
-								.getAddingHeight()));
-				mainPanel.setPrefSize(scroller.getPrefWidth(), Main.getMenuHeight() + scroller.getPrefHeight());
-				fxScene.setContent(mainPanel, mainPanel.getPrefWidth(), mainPanel.getPrefHeight());
-				stage.setScene(new Scene(fxScene));
-				stage.sizeToScene();
+				mainPanel.setPrefWidth(dimension.getWidth());
+				mainPanel.setPrefHeight(dimension.getHeight());
 			}
-			else
-			{
-				stage.initStyle(StageStyle.DECORATED);
-				scroller.setPrefSize(Math.min(panel.getPrefWidth(), Toolkit.getDefaultToolkit().getScreenSize().getWidth() - 10 - (20)), Math.min(panel
-						.getPrefHeight(), Toolkit.getDefaultToolkit().getScreenSize().getHeight() - Main.getMenuHeight() - 10 - (50)));
-				mainPanel.setPrefSize(scroller.getPrefWidth(), Main.getMenuHeight() + scroller.getPrefHeight());
-				stage.setScene(new Scene(mainPanel));
-				stage.sizeToScene();
-			}
-			scroller.setHbarPolicy(scroller.getPrefWidth() == panel.getPrefWidth() ? ScrollBarPolicy.NEVER : ScrollBarPolicy.ALWAYS);
-			scroller.setVbarPolicy(scroller.getPrefHeight() == panel.getPrefHeight() ? ScrollBarPolicy.NEVER : ScrollBarPolicy.ALWAYS);
-			stage.setResizable(false);
+			stage.initStyle(StageStyle.UNDECORATED);
+			fxScene = new FXScene(stage, 1, stage.getTitle(), false, type);
+			fxScene.setContent(mainPanel, mainPanel.getPrefWidth(), mainPanel.getPrefHeight(),mw,mh);
+			stage.setScene(new Scene(fxScene));
+			stage.sizeToScene();
+			stage.setResizable(resizable);
 			stage.getIcons().clear();
 			stage.getIcons().add(new Image(getClass().getResource("/Icon32x.png").openStream()));
-
-			mainPanel.getChildren().add(createMenu());
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
 	}
 
-	public FXWindow(String secondaryTitle, URL url, int type, boolean inDevelope)
+	protected void createActionHandlers()
 	{
-		this(secondaryTitle, load(url), type, inDevelope);
+		getMainPanel().prefWidthProperty().addListener((a, b, c) -> resize(c.intValue(), getMainPanel().getPrefHeight()));
+		getMainPanel().prefHeightProperty().addListener((a, b, c) -> resize(getMainPanel().getPrefWidth(), c.intValue()));
+	}
+
+	public final void resize()
+	{
+		resize(getMainPanel().getPrefWidth(), getMainPanel().getPrefHeight());
+	}
+
+	private final void resize(double panelWithMenuWidth, double panelWithMenuHeight)
+	{
+		_resize((int) panelWithMenuWidth, (int) panelWithMenuHeight - Main.getMenuHeight());
+	}
+
+	protected abstract void _resize(int w, int h);
+
+	private Pane createAdPane()
+	{
+		this.adPane = new Pane();
+		panel.prefHeightProperty().addListener((e, oldV, newV) -> adPane.setLayoutY(Main.getMenuHeight() + newV.intValue()));
+		mainPanel.prefWidthProperty().addListener((e, oldV, newV) -> adPane.setPrefWidth(newV.intValue()));
+		return adPane;
+	}
+
+	public FXWindow(String secondaryTitle, URL url, int type, boolean inDevelope, boolean resizable)
+	{
+		this(secondaryTitle, load(url), type, inDevelope, resizable);
 	}
 
 	private static AnchorPane load(URL url)
@@ -163,15 +194,11 @@ public abstract class FXWindow extends StageContainer
 	public MenuBar createMenu()
 	{
 		menubar = new MenuBar();
-		menubar.setPrefSize(mainPanel.getPrefWidth(), Main.getMenuHeight());
+		menubar.prefWidthProperty().bind(mainPanel.prefWidthProperty());
+		menubar.setPrefHeight(Main.getMenuHeight());
 		menubar.getMenus().add(window = new Menu());
-		// window.getItems().add(fxWindowFrameState = new CheckMenuItem("Window frame is FX"));
-		// fxWindowFrameState.setSelected(Main.fxWindowFrame);
-		// fxWindowFrameState.setOnAction(e -> Main.instance.changeFXWindowFrameState(fxWindowFrameState.isSelected()));
 		menubar.getMenus().add(settings = new Menu());
 		settings.getItems().add(setLanguage(new Menu()));
-		getLanguage().getItems().add(languageEN = new RadioMenuItem("English (en_uk)"));
-		getLanguage().getItems().add(languageRU = new RadioMenuItem("Русский (ru_ru)"));
 		menubar.getMenus().add(help = new Menu());
 		help.getItems().add(privacyPolicy = new MenuItem());
 		help.getItems().add(usersManual = new MenuItem());
@@ -181,22 +208,26 @@ public abstract class FXWindow extends StageContainer
 			msgSys.setLanguage(((RadioMenuItem) event.getSource()).getText().replace("(", ":").split(":")[1].replace(")", ":").split(":")[0]);
 			Main.instance.updateAllLabels();
 		};
-		languageEN.setOnAction(actionHandler);
-		languageRU.setOnAction(actionHandler);
-		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null,  msgSys.getMsg("privacyPolicyText") , 0, null, Main
-				.isFxWindowFrame(), true));
-		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null,  msgSys.getMsg("usersManualText") , 0, null, Main
-				.isFxWindowFrame(), true));
-		site.setOnAction(event -> SystemUtils.openUrl(msgSys.getMsg("site")));
+		languageBtns = new HashMap<String, RadioMenuItem>();
 
 		EventHandler<Event> eh = e -> e.consume();
+		for (String language : MessageSystem.getMessages().keySet())
+		{
+			RadioMenuItem btn = new RadioMenuItem(MessageSystem.getMsg("currentLanguageName", language) + " (" + language + ")");
+			getLanguage().getItems().add(btn);
+			languageBtns.put(language, btn);
+			btn.setMnemonicParsing(false);
+			btn.setOnAction(actionHandler);
+			btn.setOnMenuValidation(eh);
+		}
+		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("privacyPolicyText"), 0, null, true));
+		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("usersManualText"), 0, null, true));
+		site.setOnAction(event -> SystemUtils.openUrl(msgSys.getMsg("site")));
 		window.setMnemonicParsing(false);
 		settings.setMnemonicParsing(false);
 		language.setMnemonicParsing(false);
 		help.setMnemonicParsing(false);
 		// fxWindowFrameState.setMnemonicParsing(false);
-		languageEN.setMnemonicParsing(false);
-		languageRU.setMnemonicParsing(false);
 		privacyPolicy.setMnemonicParsing(false);
 		usersManual.setMnemonicParsing(false);
 		site.setMnemonicParsing(false);
@@ -206,8 +237,6 @@ public abstract class FXWindow extends StageContainer
 		language.setOnMenuValidation(eh);
 		help.setOnMenuValidation(eh);
 		// fxWindowFrameState.setOnMenuValidation(eh);
-		languageEN.setOnMenuValidation(eh);
-		languageRU.setOnMenuValidation(eh);
 		privacyPolicy.setOnMenuValidation(eh);
 		usersManual.setOnMenuValidation(eh);
 		site.setOnMenuValidation(eh);
@@ -314,22 +343,22 @@ public abstract class FXWindow extends StageContainer
 		this.mainPanel = mainPanel;
 	}
 
-	/**
-	 * @return the scroller
-	 */
-	public ScrollPane getScroller()
-	{
-		return scroller;
-	}
-
-	/**
-	 * @param scroller
-	 *            the scroller to set
-	 */
-	public void setScroller(ScrollPane scroller)
-	{
-		this.scroller = scroller;
-	}
+	// /**
+	// * @return the scroller
+	// */
+	// public ScrollPane getScroller()
+	// {
+	// return scroller;
+	// }
+	//
+	// /**
+	// * @param scroller
+	// * the scroller to set
+	// */
+	// public void setScroller(ScrollPane scroller)
+	// {
+	// this.scroller = scroller;
+	// }
 
 	/**
 	 * @return the fxScene
@@ -434,40 +463,6 @@ public abstract class FXWindow extends StageContainer
 	}
 
 	/**
-	 * @return the languageRU
-	 */
-	public RadioMenuItem getLanguageRU()
-	{
-		return languageRU;
-	}
-
-	/**
-	 * @param languageRU
-	 *            the languageRU to set
-	 */
-	public void setLanguageRU(RadioMenuItem languageRU)
-	{
-		this.languageRU = languageRU;
-	}
-
-	/**
-	 * @return the languageEN
-	 */
-	public RadioMenuItem getLanguageEN()
-	{
-		return languageEN;
-	}
-
-	/**
-	 * @param languageEN
-	 *            the languageEN to set
-	 */
-	public void setLanguageEN(RadioMenuItem languageEN)
-	{
-		this.languageEN = languageEN;
-	}
-
-	/**
 	 * @return the privacyPolicy
 	 */
 	public MenuItem getPrivacyPolicy()
@@ -523,5 +518,11 @@ public abstract class FXWindow extends StageContainer
 	public boolean inDevelope()
 	{
 		return inDevelope;
+	}
+
+	public void saveWindowInfo()
+	{
+		SystemUtils.writeFile(new File(name() + ".windowinf"), ByteUtils.objectToByteArray(new Dimension((int) mainPanel.getPrefWidth(), (int) mainPanel
+				.getPrefHeight())));
 	}
 }

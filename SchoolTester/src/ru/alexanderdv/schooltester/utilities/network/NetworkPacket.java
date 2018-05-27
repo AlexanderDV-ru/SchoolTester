@@ -3,24 +3,18 @@ package ru.alexanderdv.schooltester.utilities.network;
 import java.io.Serializable;
 
 /**
- * NetworkPacket - the class for communicating with the server
  * 
- * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
 public class NetworkPacket implements Serializable
 {
 	private static final long serialVersionUID = 7833614208511060237L;
 	private String request;
-	private String mac;
-	private String ip;
 
-	public NetworkPacket(String request, String mac, String ip)
+	public NetworkPacket(String request)
 	{
-		super();
 		this.request = request;
-		this.mac = mac;
-		this.ip = ip;
 	}
 
 	/**
@@ -31,21 +25,5 @@ public class NetworkPacket implements Serializable
 	public String getRequest()
 	{
 		return request;
-	}
-
-	/**
-	 * @return the mac
-	 */
-	public String getMac()
-	{
-		return mac;
-	}
-
-	/**
-	 * @return the ip
-	 */
-	public String getIp()
-	{
-		return ip;
 	}
 }

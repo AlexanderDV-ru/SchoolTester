@@ -1,7 +1,6 @@
 package ru.alexanderdv.schooltester.utilities.types;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -19,28 +18,38 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart;
 import ru.alexanderdv.schooltester.utilities.Config;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
+import ru.alexanderdv.schooltester.utilities.ScriptUtils;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
-import ru.alexanderdv.schooltester.utilities.types.Question.Answer;
-import ru.alexanderdv.schooltester.utilities.types.Question.QuestionType;
 import ru.alexanderdv.schooltester.utilities.types.Test.TableQuestionSelector.Cell;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementQuestion;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionQuestion;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextQuestion;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingQuestion;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneQuestion;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.Question;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeQuestion;
 import ru.alexanderdv.simpleutilities.Entry;
 
 /**
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class Test
+public final class Test
 {
 	private static final MessageSystem msgSys = Main.msgSys;
-	private static final Image defaultIcon = loadDefaultIcon();
 	private static final Random random = new Random();
 	private final String syntaxLanguage;
 	private final String programVersion;
@@ -52,22 +61,22 @@ public class Test
 	private final String authors;
 	private final String name;
 	private final String description;
-	private final int maxTestTime;
-	private final boolean unlimitedTime;
+	private final int timeLimit;
+	private final int timeEndWarning;
+	private final boolean smartMode;
 	private final Permissions permissionsToStart;
 	private final Permissions permissionsToUseHints;
-	private final Question[] questions;
-	private final HashMap<Integer, Question> questionsByIndexes;
+	private final Question<?>[] questions;
+	private final HashMap<Integer, Question<?>> questionsByIndexes;
 	private final Background wrongAnswerBackground;
 	private final Background rightAnswerBackground;
 	private final Background perfectAnswerBackground;
 	private final TableQuestionSelector tableQuestionSelector;
-	private final Image icon;
 
 	public Test(String syntaxLanguage, String programVersion, String colorType, String testVersion, String testCreationDate, String testLanguage,
-			String testSubject, String authors, String name, String description, int maxTestTime, boolean unlimitedTime, Permissions permissionsToStart,
-			Permissions permissionsToUseHints, Question[] questions, Image wrongAnswer, Image rightAnswer, Image perfectAnswer,
-			TableQuestionSelector tableQuestionSelector, Image icon)
+			String testSubject, String authors, String name, String description, int timeLimit, int timeEndWarning, boolean smartMode,
+			Permissions permissionsToStart, Permissions permissionsToUseHints, Question<?>[] questions, Image wrongAnswer, Image rightAnswer, Image perfectAnswer,
+			TableQuestionSelector tableQuestionSelector)
 	{
 		this.syntaxLanguage = syntaxLanguage;
 		this.programVersion = programVersion;
@@ -79,24 +88,16 @@ public class Test
 		this.authors = authors;
 		this.name = name;
 		this.description = description;
-		this.icon = icon != null ? icon : defaultIcon;
-		if (unlimitedTime || maxTestTime < 1)
-		{
-			this.unlimitedTime = true;
-			this.maxTestTime = -1;
-		}
-		else
-		{
-			this.unlimitedTime = false;
-			this.maxTestTime = maxTestTime;
-		}
+		this.timeLimit = timeLimit < 1 ? -1 : timeLimit;
+		this.timeEndWarning = timeEndWarning < 1 ? -1 : timeEndWarning;
+		this.smartMode = smartMode;
 		this.permissionsToStart = permissionsToStart;
 		this.permissionsToUseHints = permissionsToUseHints;
 		this.questions = questions;
 		if (tableQuestionSelector != null)
 		{
-			questionsByIndexes = new HashMap<Integer, Question>();
-			for (Question q : questions)
+			questionsByIndexes = new HashMap<Integer, Question<?>>();
+			for (Question<?> q : questions)
 				questionsByIndexes.put(q.getIndex(), q);
 		}
 		else questionsByIndexes = null;
@@ -110,20 +111,6 @@ public class Test
 				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT))
 				: new Background(new BackgroundFill(Color.LIME, new CornerRadii(0), new Insets(0)));
 		this.tableQuestionSelector = tableQuestionSelector;
-	}
-
-	private static Image loadDefaultIcon()
-	{
-		try
-		{
-			return new Image(Test.class.getResource("/defaultTestIcon.png").openStream());
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		throw new RuntimeException("defaultTestIcon.png was not loaded!");
 	}
 
 	public static class TableQuestionSelector
@@ -356,7 +343,7 @@ public class Test
 	/**
 	 * @return the questions
 	 */
-	public Question[] getQuestions()
+	public Question<?>[] getQuestions()
 	{
 		return questions;
 	}
@@ -443,7 +430,7 @@ public class Test
 			}
 			if (!cfg.getString(MessageSystem.getMsg("programVersion", syntaxLanguage), null, false).equals(Main.programVersion))
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testVersionNotMatchWithProgramVersion"),
-						JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
+						JOptionPane.WARNING_MESSAGE, null, true);
 
 			String colorType = cfg.getString(MessageSystem.getMsg("colorType", syntaxLanguage), null, false);
 
@@ -454,31 +441,40 @@ public class Test
 			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
 			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
 			String htmlStr = "html";
-			String fsStr = MessageSystem.getMsg("fontSize", syntaxLanguage);
 			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
 			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
 			String handleOnlyMaximalStr = MessageSystem.getMsg("handleOnlyMaximal", syntaxLanguage);
 			String igrdChrsStr = MessageSystem.getMsg("ignoredCharacters", syntaxLanguage);
-			String awardsForAnswersStr = MessageSystem.getMsg("awardsForAnswers", syntaxLanguage);
-			String awardForAnswerStr = MessageSystem.getMsg("awardForAnswer", syntaxLanguage);
-			String answersIndexesStr = MessageSystem.getMsg("answersIndexes", syntaxLanguage);
-			String answerIndexStr = MessageSystem.getMsg("answerIndex", syntaxLanguage);
-			String numberStr = MessageSystem.getMsg("number", syntaxLanguage);
+
+			String awardsForAnswersStr = MessageSystem.getMsg("awardsForAnswersCombinations", syntaxLanguage);
+			String awardForAnswerStr = MessageSystem.getMsg("awardForAnswersCombination", syntaxLanguage);
+			String answersIndexesStr = MessageSystem.getMsg("answersCombination", syntaxLanguage);
+			String numberStr = MessageSystem.getMsg("answerNumber", syntaxLanguage);
+			String indexesStr = MessageSystem.getMsg("answerIndexes", syntaxLanguage);
 			String indexStr = MessageSystem.getMsg("index", syntaxLanguage);
-			String indexesStr = MessageSystem.getMsg("indexes", syntaxLanguage);
+			String aIndexStr = MessageSystem.getMsg("answerIndex", syntaxLanguage);
+			String onlyThisIndexesStr = MessageSystem.getMsg("onlyThisIndexes", syntaxLanguage);
+
 			String indexesForNamesStr = MessageSystem.getMsg("indexesForNames", syntaxLanguage);
 			String nameStr = MessageSystem.getMsg("naming", syntaxLanguage);
-			String onlyThisIndexesStr = MessageSystem.getMsg("onlyThisIndexes", syntaxLanguage);
 			String groupStr = MessageSystem.getMsg("group", syntaxLanguage);
 			String randomizeStr = MessageSystem.getMsg("randomize", syntaxLanguage);
 			String randomizeBlocksStr = MessageSystem.getMsg("randomizeBlocks", syntaxLanguage);
 			String randomizeGroupsStr = MessageSystem.getMsg("randomizeGroups", syntaxLanguage);
-			String imagesStr = MessageSystem.getMsg("images", syntaxLanguage);
+			String imagesStr = MessageSystem.getMsg("clippedImages", syntaxLanguage);
 			String imageStr = MessageSystem.getMsg("image", syntaxLanguage);
-			String videosStr = MessageSystem.getMsg("videos", syntaxLanguage);
+			String videosStr = MessageSystem.getMsg("clippedVideos", syntaxLanguage);
 			String videoStr = MessageSystem.getMsg("video", syntaxLanguage);
-			String audiosStr = MessageSystem.getMsg("audios", syntaxLanguage);
+			String audiosStr = MessageSystem.getMsg("clippedAudios", syntaxLanguage);
 			String audioStr = MessageSystem.getMsg("audio", syntaxLanguage);
+
+			String scriptsStr = MessageSystem.getMsg("scripts", syntaxLanguage);
+			String scriptStr = MessageSystem.getMsg("script", syntaxLanguage);
+			String scriptNameStr = MessageSystem.getMsg("scriptName", syntaxLanguage);
+			String scriptTextStr = MessageSystem.getMsg("scriptText", syntaxLanguage);
+
+			String usedScriptStr = MessageSystem.getMsg("usedScript", syntaxLanguage);
+
 			String path = cfg.getFile().getAbsoluteFile().getParentFile().getAbsolutePath() + "\\";
 
 			// Table how in game "Svoya igra"
@@ -514,31 +510,44 @@ public class Test
 					randomizeAll = randomizeBlocks = false;
 					System.out.println("with tabled view randomizing is not compatible");
 				}
-			ArrayList<Question> questions = new ArrayList<Question>();
-			// ArrayList<ArrayList<Question>> list1 = new ArrayList<ArrayList<Question>>();
-			ArrayList<Question[]> mList1 = new ArrayList<Question[]>();
-			for (QuestionType questionType : QuestionType.values())
-				if (cfg.hasValue(qnsStr + ":" + MessageSystem.getMsg(questionType.name().toLowerCase(), syntaxLanguage) + ":" + groupStr + 1))
+			HashMap<String, HashMap<String, String>> scripts = new HashMap<String, HashMap<String, String>>();
+			for (int i = 0; cfg.hasValue(scriptsStr + ":" + scriptStr + (i + 1)); scripts.put(cfg.getString(scriptsStr + ":" + scriptStr + (i + 1) + ":"
+					+ scriptNameStr, null, false), ScriptUtils.parseScript(cfg.getString(scriptsStr + ":" + scriptStr + (i + 1) + ":" + scriptTextStr, null,
+							false)).getVarsToString()), i++);
+
+			ArrayList<Question<?>> questions = new ArrayList<Question<?>>();
+			// ArrayList<ArrayList<Question<?>>> list1 = new ArrayList<ArrayList<Question<?>>>();
+			ArrayList<Question<?>[]> mList1 = new ArrayList<Question<?>[]>();
+			for (String questionType : new String[]
+			{
+					"PickOne",
+					"SelectSome",
+					"EnterText",
+					"Arrangement",
+					"Distribution",
+					"Matching"
+			})
+				if (cfg.hasValue(qnsStr + ":" + MessageSystem.getMsg(questionType, syntaxLanguage) + ":" + groupStr + 1))
 				{
-					String gr = qnsStr + ":" + MessageSystem.getMsg(questionType.name().toLowerCase(), syntaxLanguage);
+					String gr = qnsStr + ":" + MessageSystem.getMsg(questionType, syntaxLanguage);
 					String gs = gr + ":" + groupStr;
 					Config group = cfg.getConfig(gs + 1, true);
-					// ArrayList<Question> typedQuestions = new ArrayList<Question>();
-					// ArrayList<Question> list2 = new ArrayList<Question>();
-					// ArrayList<ArrayList<Question>> list = new ArrayList<ArrayList<Question>>();
-					ArrayList<Question[]> mList = new ArrayList<Question[]>();
+					// ArrayList<Question<?>> typedQuestions = new ArrayList<Question<?>>();
+					// ArrayList<Question<?>> list2 = new ArrayList<Question<?>>();
+					// ArrayList<ArrayList<Question<?>>> list = new ArrayList<ArrayList<Question<?>>>();
+					ArrayList<Question<?>[]> mList = new ArrayList<Question<?>[]>();
 					for (int ji = 0; cfg.hasValue(gs + (ji + 1)) ? (group = cfg.getConfig(gs + (ji + 1), true)) != null || true : false; ji++)
 					{
-						ArrayList<Question> typedGroupQuestions = new ArrayList<Question>();
+						ArrayList<Question<?>> typedGroupQuestions = new ArrayList<Question<?>>();
 						Config question;// = group.getConfig(qnStr + 1, true);
 						int maxAward = Integer.MIN_VALUE;
 						boolean b = false;
 						for (int i = 0; group.hasValue(qnStr + (i + 1)) ? (question = group.getConfig(qnStr + (i + 1), true)) != null || true : false; i++)
 						{
-							Question questionQ = loadQuestion(question, path, anrsStr, syntaxLanguage, daFont, imagesStr, imageStr, videosStr, videoStr,
-									audiosStr, audioStr, ansStr, htmlStr, txtStr, awdStr, fsStr, questionType, minResStr, stMinRes, handleOnlyMaximalStr,
-									dqFont, igrdChrsStr, igreCaseStr, awardsForAnswersStr, awardForAnswerStr, answersIndexesStr, answerIndexStr, numberStr,
-									indexStr, indexesStr, indexesForNamesStr, nameStr, onlyThisIndexesStr, tabledView);
+							Question<?> questionQ = loadQuestion(scripts, question, path, anrsStr, syntaxLanguage, daFont, imagesStr, imageStr, videosStr,
+									videoStr, audiosStr, audioStr, ansStr, htmlStr, awdStr, questionType, minResStr, stMinRes, handleOnlyMaximalStr, dqFont,
+									igrdChrsStr, igreCaseStr, awardsForAnswersStr, awardForAnswerStr, answersIndexesStr, ansStr, numberStr, indexStr, aIndexStr,
+									indexesStr, indexesForNamesStr, nameStr, onlyThisIndexesStr, tabledView, txtStr, usedScriptStr);
 							if (!b)
 								maxAward = questionQ.getMaxAward();
 							b = true;
@@ -546,7 +555,7 @@ public class Test
 							{
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("awardsInGroupNotMatch")
 										+ "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents() + "'" + " a1: " + maxAward
-										+ " a2: " + questionQ.getMaxAward(), JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
+										+ " a2: " + questionQ.getMaxAward(), JOptionPane.WARNING_MESSAGE, null, true);
 								Main.exit(ExitCodes.TestAwardsOfQuestionsInGroupNotMatch);
 							}
 							typedGroupQuestions.add(questionQ);
@@ -567,16 +576,16 @@ public class Test
 								questionsToTestAmount = typedGroupQuestions.size();
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
 										"questionsToTestAmountMoreThanQuestionsAmount") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group
-												.getFullPathInParents() + "'", JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
+												.getFullPathInParents() + "'", JOptionPane.WARNING_MESSAGE, null, true);
 							}
 							if (questionsToTestAmount <= 0)
 							{
 								questionsToTestAmount = typedGroupQuestions.size();
 								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
 										"questionsToTestAmountLessThanOne") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents()
-										+ "'", JOptionPane.WARNING_MESSAGE, null, Main.isFxWindowFrame(), true);
+										+ "'", JOptionPane.WARNING_MESSAGE, null, true);
 							}
-							Question[] array = new Question[questionsToTestAmount];
+							Question<?>[] array = new Question<?>[questionsToTestAmount];
 							if (randomize)
 								mList.add(randomizeToArray(typedGroupQuestions, array));
 							else mList.add(nonrandomizeToArray(typedGroupQuestions, array));
@@ -590,32 +599,32 @@ public class Test
 							randomize1 = randomizeGroups = false;
 							System.out.println("with tabled view randomizing is not compatible");
 						}
-					Question[][] arr = randomizeGroups ? randomizeToArray(mList, new Question[mList.size()][]) : mList.toArray(new Question[mList.size()][]);
-					ArrayList<Question> ll = new ArrayList<Question>();
-					for (Question[] qs : arr)
+					Question<?>[][] arr = randomizeGroups ? randomizeToArray(mList, new Question<?>[mList.size()][]) : mList.toArray(new Question<?>[mList.size()][]);
+					ArrayList<Question<?>> ll = new ArrayList<Question<?>>();
+					for (Question<?>[] qs : arr)
 						if (qs != null)
-							for (Question q : qs)
+							for (Question<?> q : qs)
 								ll.add(q);
-					Question[] array = new Question[ll.size()];
+					Question<?>[] array = new Question<?>[ll.size()];
 					if (randomize1)
 						mList1.add(randomizeToArray(ll, array));
 					else mList1.add(nonrandomizeToArray(ll, array));
 				}
-			Question[][] mArray = new Question[mList1.size()][];
+			Question<?>[][] mArray = new Question<?>[mList1.size()][];
 			if (randomizeBlocks)
 				mArray = randomizeToArray(mList1, mArray);
 			else mArray = mList1.toArray(mArray);
-			for (Question[] qs : mArray)
+			for (Question<?>[] qs : mArray)
 				if (qs != null)
-					for (Question q : qs)
+					for (Question<?> q : qs)
 						questions.add(q);
 			if (questions.size() <= 0)
 			{
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testNotHaveQuestions") + "\nFile: '" + cfg
-						.getFile().getName() + "'", JOptionPane.ERROR_MESSAGE, null, Main.isFxWindowFrame(), true);
+						.getFile().getName() + "'", JOptionPane.ERROR_MESSAGE, null, true);
 				Main.exit(ExitCodes.TestNotHaveQuestions);
 			}
-			Question[] array = new Question[questions.size()];
+			Question<?>[] array = new Question<?>[questions.size()];
 			if (randomizeAll)
 				array = randomizeToArray(questions, array);
 			else array = questions.toArray(array);
@@ -635,23 +644,21 @@ public class Test
 											syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("skipPermission",
 													syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("pausePermission",
 															syntaxLanguage), false, false));
-			boolean unlimitedTime = cfg.getValue(MessageSystem.getMsg("maxTestTime", syntaxLanguage)).replace(" ", "").replace("\t", "").equalsIgnoreCase(
-					"unlimited");
 			return new Test(syntaxLanguage, cfg.getString(MessageSystem.getMsg("programVersion", syntaxLanguage), null, false), colorType, cfg.getString(
 					MessageSystem.getMsg("testVersion", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("testCreationDate", syntaxLanguage),
 							null, false), cfg.getString(MessageSystem.getMsg("testLanguage", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg(
-									"testSubject", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("authors", syntaxLanguage), null, false),
-					cfg.getString(MessageSystem.getMsg("naming", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("description",
-							syntaxLanguage), null, false), unlimitedTime ? -1
-									: cfg.getInteger(MessageSystem.getMsg("maxTestTime", syntaxLanguage), null, false), unlimitedTime, startPerms, hintsPerms,
-					array, cfg.hasValue("wrongAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "") + "/" + cfg.getString(
-							"wrongAnswerImage", null, false)), true) : getImage(new File("wrongAnswerImage.png"), false), cfg.hasValue("rightAnswerImage")
-									? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "") + "/" + cfg.getString("rightAnswerImage", null,
-											false)), true)
-									: getImage(new File("rightAnswerImage.png"), false), cfg.hasValue("perfectAnswerImage") ? getImage(new File("Tests/" + cfg
-											.getFile().getName().replace(".test", "") + "/" + cfg.getString("perfectAnswerImage", null, false)), true)
-											: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector, getImage(new File("testIcon.png"),
-													false));
+									"testSubject", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("testAuthors", syntaxLanguage), null,
+											false), cfg.getString(MessageSystem.getMsg("testNaming", syntaxLanguage), null, false), cfg.getString(MessageSystem
+													.getMsg("testDescription", syntaxLanguage), null, false), cfg.getInteger(MessageSystem.getMsg("timeLimit",
+															syntaxLanguage), -1, true), cfg.getInteger(MessageSystem.getMsg("timeEndWarning", syntaxLanguage),
+																	30, true), cfg.getBoolean(MessageSystem.getMsg("smartMode", syntaxLanguage), false, true),
+					startPerms, hintsPerms, array, cfg.hasValue("wrongAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "")
+							+ "/" + cfg.getString("wrongAnswerImage", null, false)), true) : getImage(new File("wrongAnswerImage.png"), false), cfg.hasValue(
+									"rightAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "") + "/" + cfg.getString(
+											"rightAnswerImage", null, false)), true) : getImage(new File("rightAnswerImage.png"), false), cfg.hasValue(
+													"perfectAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "") + "/"
+															+ cfg.getString("perfectAnswerImage", null, false)), true)
+															: getImage(new File("perfectAnswerImage.png"), false), tableQuestionSelector);
 		}
 		catch (Exception exception)
 		{
@@ -671,35 +678,40 @@ public class Test
 		{
 			if (b)
 				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("imageNotLoaded"), JOptionPane.ERROR_MESSAGE,
-						null, Main.isFxWindowFrame(), true);
+						null, true);
 			return null;
 		}
 	}
 
-	public int getMaxTestTime()
+	public int getTimeLimit()
 	{
-		if (unlimitedTime)
-			throw new NullPointerException("Time is unlimited!");
-		return maxTestTime;
+		return timeLimit;
 	}
 
-	private static Question loadQuestion(Config question, String path, String anrsStr, String syntaxLanguage, int daFont, String imagesStr, String imageStr,
-			String videosStr, String videoStr, String audiosStr, String audioStr, String ansStr, String htmlStr, String txtStr, String awdStr, String fsStr,
-			QuestionType type, String minResStr, int stMinRes, String handleOnlyMaximalStr, int dqFont, String igrdChrsStr, String igreCaseStr,
-			String awardsForAnswersStr, String awardForAnswerStr, String answersIndexesStr, String answerIndexStr, String numberStr, String indexStr,
-			String indexesStr, String indexesForNamesStr, String nameStr, String onlyThisIndexesStr, boolean tabledView)
+	private static String getHtml(Config cfg, String path, HashMap<String, String> args)
 	{
-		boolean multiline = true;
-		int dqaFont = question.getInteger(anrsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), daFont, true);
+		return replaceContentEditable(replaceArgs(cfg.getString(path, null, false), args));
+	}
 
-		ArrayList<Answer> answers = new ArrayList<Answer>();
-		Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
-		for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null || true
-				: false; j++)
-		{
-			answers.add(new Answer(ans.getString(htmlStr, null, true), ans.getString(txtStr, null, false).replace("\\n", multiline ? "\n" : "\\n"), new Font(
-					"Ms Comic Sans", ans.getInteger(fsStr, dqaFont, true)), ans.getInteger(awdStr, 0, true), j));
-		}
+	public static String replaceContentEditable(String replaceArgs)
+	{
+		return replaceArgs.replaceAll("[cC][oO][nN][tT][eE][nN][tT][eE][dD][iI][tT][aA][bB][lL][eE][=][\"][Tt][Rr][Uu][Ee][\"]", "contenteditable=\"false\"");
+	}
+
+	private static String getTxt(Config cfg, String path, HashMap<String, String> args)
+	{
+		return replaceArgs(cfg.getString(path, null, false), args);
+	}
+
+	private static Question<?> loadQuestion(HashMap<String, HashMap<String, String>> scripts, Config question, String path, String anrsStr, String syntaxLanguage,
+			int daFont, String imagesStr, String imageStr, String videosStr, String videoStr, String audiosStr, String audioStr, String ansStr, String htmlStr,
+			String awdStr, String type, String minResStr, int stMinRes, String handleOnlyMaximalStr, int dqFont, String igrdChrsStr, String igreCaseStr,
+			String awardsForAnswersStr, String awardForAnswerStr, String answersIndexesStr, String answerIndexStr, String numberStr, String indexStr,
+			String aIndexStr, String indexesStr, String indexesForNamesStr, String nameStr, String onlyThisIndexesStr, boolean tabledView, String txtStr,
+			String usedScriptStr)
+	{
+		String name = question.getString(usedScriptStr, null, true);
+		HashMap<String, String> args = scripts.containsKey(name) ? scripts.get(name) : new HashMap<String, String>();
 		ArrayList<String> isfmsList = new ArrayList<String>();
 		// String ifmO = question.getString(indexesForNamesStr + ":" + nameStr + (1), null, true);
 		for (int j = 0; question.hasValue(indexesForNamesStr + ":" + nameStr + (j + 1)); isfmsList.add(question.getString(indexesForNamesStr + ":" + nameStr
@@ -717,102 +729,155 @@ public class Test
 		ArrayList<Media> audiosList = new ArrayList<Media>();
 		for (int j = 0; question.hasValue(audiosStr + ":" + audioStr + (j + 1)); audiosList.add(new Media(new File(path + question.getString(audiosStr + ":"
 				+ audioStr + (j + 1), null, true)).toURI().toString())), j++);
-		Question q;
-		switch (type)
+		Question<?> q;
+		if (type.equalsIgnoreCase("arrangement") || type.equalsIgnoreCase("matching"))
 		{
-			case Arrangement:
-			case Matching:
+			HashMap<HashMap<Integer, Integer>, Integer> answerss = new HashMap<HashMap<Integer, Integer>, Integer>();
+			Config answerssn = question.getConfig(awardsForAnswersStr + ":" + awardForAnswerStr + (1), true);
+			for (int j = 0; question.hasValue(awardsForAnswersStr + ":" + awardForAnswerStr + (j + 1)) ? (answerssn = question.getConfig(awardsForAnswersStr
+					+ ":" + awardForAnswerStr + (j + 1), true)) != null || true : false; j++)
 			{
-				HashMap<HashMap<Integer, Integer>, Integer> answerss = new HashMap<HashMap<Integer, Integer>, Integer>();
-				Config answerssn = question.getConfig(awardsForAnswersStr + ":" + awardForAnswerStr + (1), true);
-				for (int j = 0; question.hasValue(awardsForAnswersStr + ":" + awardForAnswerStr + (j + 1)) ? (answerssn = question.getConfig(awardsForAnswersStr
-						+ ":" + awardForAnswerStr + (j + 1), true)) != null || true : false; j++)
-				{
-					HashMap<Integer, Integer> answersss = new HashMap<Integer, Integer>();
-					Config answerssnn = answerssn.getConfig(answersIndexesStr + ":" + answerIndexStr + (1), true);
-					for (int k = 0; answerssn.hasValue(answersIndexesStr + ":" + answerIndexStr + (k + 1)) ? (answerssnn = answerssn.getConfig(answersIndexesStr
-							+ ":" + answerIndexStr + (k + 1), true)) != null || true : false; k++)
-						answersss.put(answerssnn.getInteger(numberStr, null, false) - 1, answerssnn.getInteger(indexStr, null, false) - 1);
-					answerss.put(answersss, answerssn.getInteger(awdStr, 0, true));
-				}
+				HashMap<Integer, Integer> answersss = new HashMap<Integer, Integer>();
+				Config answerssnn = answerssn.getConfig(answersIndexesStr + ":" + answerIndexStr + (1), true);
+				for (int k = 0; answerssn.hasValue(answersIndexesStr + ":" + answerIndexStr + (k + 1)) ? (answerssnn = answerssn.getConfig(answersIndexesStr
+						+ ":" + answerIndexStr + (k + 1), true)) != null || true : false; k++)
+					answersss.put(answerssnn.getInteger(numberStr, null, false) - 1, answerssnn.getInteger(aIndexStr, null, false) - 1);
+				answerss.put(answersss, answerssn.getInteger(awdStr, 0, true));
+			}
 
-				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
-						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
-								false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question.getInteger(awdStr, 0, true), question
-										.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers.size()]), question
-												.getBoolean(handleOnlyMaximalStr, null, false), answerss, isfms, isfms2, question.getString(igrdChrsStr, "",
-														true), question.getBoolean(igreCaseStr, true, true), false, tabledView ? question.getInteger(indexStr,
-																-1, true) : -1);
-				if (tabledView && q.getIndex() < 0)
-				{
-					System.out.println("error: with tabled view must be index");
-					Main.exit(ExitCodes.WrongSyntax);
-				}
-			}
-				break;
-			case Distribution:
+			if (type.equalsIgnoreCase("arrangement"))
 			{
-				HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerss2 = new HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer>();
-				Config answerssn = question.getConfig(awardsForAnswersStr + ":" + awardForAnswerStr + (1), true);
-				for (int j = 0; question.hasValue(awardsForAnswersStr + ":" + awardForAnswerStr + (j + 1)) ? (answerssn = question.getConfig(awardsForAnswersStr
-						+ ":" + awardForAnswerStr + (j + 1), true)) != null || true : false; j++)
-				{
-					HashMap<Entry<Integer, Boolean>, ArrayList<Integer>> answersss = new HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>();
-					Config answerssnn = answerssn.getConfig(answersIndexesStr + ":" + answerIndexStr + (1), true);
-					for (int k = 0; answerssn.hasValue(answersIndexesStr + ":" + answerIndexStr + (k + 1)) ? (answerssnn = answerssn.getConfig(answersIndexesStr
-							+ ":" + answerIndexStr + (k + 1), true)) != null || true : false; k++)
-					{
-						ArrayList<Integer> answersssi = new ArrayList<Integer>();
-						int index = answerssnn.getInteger(indexesStr + ":" + indexStr + (1), -1, true);
-						for (int ki = 0; answerssnn.hasValue(indexesStr + ":" + indexStr + (ki + 1)); ki++, index = answerssnn.getInteger(indexesStr + ":"
-								+ indexStr + (ki + 1), -1, true))
-							answersssi.add(index - 1);
-						answersss.put(new Entry<Integer, Boolean>(answerssnn.getInteger(numberStr, null, false) - 1, answerssnn.getBoolean(onlyThisIndexesStr,
-								true, true)), answersssi);
-					}
-					answerss2.put(answersss, answerssn.getInteger(awdStr, 0, true));
-				}
-
-				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
-						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
-								false), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question.getInteger(awdStr, 0, true), question
-										.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers, new Answer[answers.size()]), question
-												.getBoolean(handleOnlyMaximalStr, null, false), answerss2, isfms, isfms2, question.getString(igrdChrsStr, "",
-														true), question.getBoolean(igreCaseStr, true, true), tabledView ? question.getInteger(indexStr, -1,
-																true) : -1);
-				if (tabledView && q.getIndex() < 0)
-				{
-					System.out.println("error: with tabled view must be index");
-					Main.exit(ExitCodes.WrongSyntax);
-				}
+				ArrayList<ArrangementAnswerVariant> answers = new ArrayList<ArrangementAnswerVariant>();
+				Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+				for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+						|| true : false; j++)
+					answers.add(new ArrangementAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+				q = new ArrangementQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+						.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr,
+								0, true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new ArrangementAnswerVariant[answers
+										.size()]), tabledView ? question.getInteger(aIndexStr, -1, true) : -1, question.getBoolean(handleOnlyMaximalStr, null,
+												false), answerss);
 			}
-				break;
-			case EnterText:
-			case PickOne:
-			case SelectSome:
-			default:
+			else
 			{
-				String ignoredCharacters = question.getString(igrdChrsStr, "", true);
-				boolean ignoreCase = question.getBoolean(igreCaseStr, true, true);
-				if (question.hasValue(igrdChrsStr) && type != QuestionType.EnterText)
-					System.out.println("To use ignored characters type must be EnterText");
-				if (question.hasValue(igreCaseStr) && type != QuestionType.EnterText)
-					System.out.println("To use ignore case type must be EnterText");
-				q = new Question(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList.size()]),
-						nonrandomizeToArray(audiosList, new Media[audiosList.size()]), question.getString(htmlStr, null, true), question.getString(txtStr, null,
-								false).replace("\\n", multiline ? "\n" : "\\n"), new Font("Ms Comic Sans", question.getInteger(fsStr, dqFont, true)), question
-										.getInteger(awdStr, 0, true), question.getInteger(minResStr, stMinRes, true), type, randomizeToArray(answers,
-												new Answer[answers.size()]), ignoredCharacters, ignoreCase, tabledView ? question.getInteger(indexStr, -1, true)
-														: -1);
-				if (tabledView && q.getIndex() < 0)
-				{
-					System.out.println("error: with tabled view must be index");
-					Main.exit(ExitCodes.WrongSyntax);
-				}
+				ArrayList<MatchingAnswerVariant> answers = new ArrayList<MatchingAnswerVariant>();
+				Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+				for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+						|| true : false; j++)
+					answers.add(new MatchingAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+				q = new MatchingQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+						.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr,
+								0, true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new MatchingAnswerVariant[answers.size()]),
+						tabledView ? question.getInteger(aIndexStr, -1, true) : -1, question.getBoolean(handleOnlyMaximalStr, null, false), isfms, isfms2,
+						answerss);
 			}
-				break;
+			if (tabledView && q.getIndex() < 0)
+			{
+				System.out.println("error: with tabled view must be index");
+				Main.exit(ExitCodes.WrongSyntax);
+			}
 		}
+		else if (type.equalsIgnoreCase("distribution"))
+
+		{
+			HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer> answerss2 = new HashMap<HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>, Integer>();
+			Config answerssn = question.getConfig(awardsForAnswersStr + ":" + awardForAnswerStr + (1), true);
+			for (int j = 0; question.hasValue(awardsForAnswersStr + ":" + awardForAnswerStr + (j + 1)) ? (answerssn = question.getConfig(awardsForAnswersStr
+					+ ":" + awardForAnswerStr + (j + 1), true)) != null || true : false; j++)
+			{
+				HashMap<Entry<Integer, Boolean>, ArrayList<Integer>> answersss = new HashMap<Entry<Integer, Boolean>, ArrayList<Integer>>();
+				Config answerssnn = answerssn.getConfig(answersIndexesStr + ":" + answerIndexStr + (1), true);
+				for (int k = 0; answerssn.hasValue(answersIndexesStr + ":" + answerIndexStr + (k + 1)) ? (answerssnn = answerssn.getConfig(answersIndexesStr
+						+ ":" + answerIndexStr + (k + 1), true)) != null || true : false; k++)
+				{
+					ArrayList<Integer> answersssi = new ArrayList<Integer>();
+					int index = answerssnn.getInteger(indexesStr + ":" + indexStr + (1), -1, true);
+					for (int ki = 0; answerssnn.hasValue(indexesStr + ":" + indexStr + (ki + 1)); ki++, index = answerssnn.getInteger(indexesStr + ":"
+							+ indexStr + (ki + 1), -1, true))
+						answersssi.add(index - 1);
+					answersss.put(new Entry<Integer, Boolean>(answerssnn.getInteger(numberStr, null, false) - 1, answerssnn.getBoolean(onlyThisIndexesStr, true,
+							true)), answersssi);
+				}
+				answerss2.put(answersss, answerssn.getInteger(awdStr, 0, true));
+			}
+			ArrayList<DistributionAnswerVariant> answers = new ArrayList<DistributionAnswerVariant>();
+			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+					|| true : false; j++)
+				answers.add(new DistributionAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+			q = new DistributionQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new DistributionAnswerVariant[answers.size()]),
+					tabledView ? question.getInteger(indexStr, -1, true) : -1, question.getBoolean(handleOnlyMaximalStr, null, false), isfms, isfms2,
+					answerss2);
+			if (tabledView && q.getIndex() < 0)
+			{
+				System.out.println("error: with tabled view must be index");
+				Main.exit(ExitCodes.WrongSyntax);
+			}
+		}
+		else if (type.equalsIgnoreCase("entertext"))
+		{
+			ArrayList<EnterTextAnswerVariant> answers = new ArrayList<EnterTextAnswerVariant>();
+			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+					|| true : false; j++)
+				answers.add(new EnterTextAnswerVariant(getTxt(ans, txtStr, args), ans.getInteger(awdStr, 0, false), j));
+			String ignoredCharacters = question.getString(igrdChrsStr, "", false);
+			boolean ignoreCase = question.getBoolean(igreCaseStr, true, false);
+			q = new EnterTextQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new EnterTextAnswerVariant[answers.size()]),
+					tabledView ? question.getInteger(indexStr, -1, true) : -1, ignoredCharacters, ignoreCase);
+			if (tabledView && q.getIndex() < 0)
+			{
+				System.out.println("error: with tabled view must be index");
+				Main.exit(ExitCodes.WrongSyntax);
+			}
+		}
+		else if (type.equalsIgnoreCase("selectsome"))
+		{
+			ArrayList<SelectSomeAnswerVariant> answers = new ArrayList<SelectSomeAnswerVariant>();
+			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+					|| true : false; j++)
+				answers.add(new SelectSomeAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+			q = new SelectSomeQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new SelectSomeAnswerVariant[answers.size()]),
+					tabledView ? question.getInteger(indexStr, -1, true) : -1);
+			if (tabledView && q.getIndex() < 0)
+			{
+				System.out.println("error: with tabled view must be index");
+				Main.exit(ExitCodes.WrongSyntax);
+			}
+		}
+		else
+		{
+			ArrayList<PickOneAnswerVariant> answers = new ArrayList<PickOneAnswerVariant>();
+			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
+			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
+					|| true : false; j++)
+				answers.add(new PickOneAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+			q = new PickOneQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new PickOneAnswerVariant[answers.size()]),
+					tabledView ? question.getInteger(indexStr, -1, true) : -1);
+			if (tabledView && q.getIndex() < 0)
+			{
+				System.out.println("error: with tabled view must be index");
+				Main.exit(ExitCodes.WrongSyntax);
+			}
+		}
+
 		return q;
+	}
+
+	private static String replaceArgs(String text, HashMap<String, String> args)
+	{
+		for (String s : args.keySet())
+			text = text.replace("$(" + s + ")", args.get(s));
+		return text.replace("$\\", "$");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -833,23 +898,26 @@ public class Test
 		return array;
 	}
 
-	public boolean timeIsUnlimited()
-	{
-		return unlimitedTime;
-	}
-
 	public int getQuestionNumberAtQuestionsByQuestionIndex(int questionNumber)
 	{
 		if (questionsByIndexes == null)
 			throw new NullPointerException("Table question selector must be not null!");
-		ArrayList<Question> qs = new ArrayList<Question>();
-		for (Question q : questions)
+		ArrayList<Question<?>> qs = new ArrayList<Question<?>>();
+		for (Question<?> q : questions)
 			qs.add(q);
 		return qs.indexOf(questionsByIndexes.get(questionNumber));
 	}
 
-	public Image getIcon()
+	public int getTimeEndWarning()
 	{
-		return icon;
+		return timeEndWarning;
+	}
+
+	/**
+	 * @return the smartMode
+	 */
+	public boolean isSmartMode()
+	{
+		return smartMode;
 	}
 }

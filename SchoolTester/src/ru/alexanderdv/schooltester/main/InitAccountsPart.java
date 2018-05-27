@@ -12,27 +12,28 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
+import ru.alexanderdv.schooltester.utilities.enums.Subject;
+import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.types.Account;
 import ru.alexanderdv.schooltester.utilities.types.Account.AccountType;
 import ru.alexanderdv.schooltester.utilities.types.Person.Rodstvennik;
-import ru.alexanderdv.schooltester.utilities.Subject;
-import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
-import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class InitAccountsPart
+public final class InitAccountsPart
 {
 	public static InitAccountsPart instance;
 
@@ -136,7 +137,10 @@ public class InitAccountsPart
 	public Button saveButton;
 
 	@FXML
-	public GridPane familyFields, contactsFields, lifeFields, ideasFields;
+	public GridPane profileMainFields, familyFields, contactsFields, lifeFields, lifeFields2, ideasFields, aboutYouFields;
+
+	@FXML
+	public ScrollPane ideasScrollpane;
 	//
 	// @FXML
 	// public MenuBar menubar;
@@ -166,27 +170,27 @@ public class InitAccountsPart
 		{
 			if (passwordField.getText().equals(InitAccountsPart.instance.passwordRepeatField.getText()))
 			{
-				Main.instance.addRequest(new AccountPacket("signUp", Main.macAddress, null, AccountsPart.account.get(), new Account(
-						InitAccountsPart.instance.accountTypeCombobox.getSelectionModel().getSelectedItem(), InitAccountsPart.instance.loginField.getText(),
-						InitAccountsPart.instance.passwordField.getText())));
+				Main.sendToServer(new AccountPacket("signUp", AccountsPart.account.get(), new Account(InitAccountsPart.instance.accountTypeCombobox
+						.getSelectionModel().getSelectedItem(), InitAccountsPart.instance.loginField.getText(), InitAccountsPart.instance.passwordField
+								.getText())));
 			}
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
 		});
 		InitAccountsPart.instance.signInButton.setOnAction(e ->
 		{
-			Main.instance.addRequest(new AccountPacket("signIn", Main.macAddress, null, AccountsPart.account.get(), new Account(accountTypeCombobox
-					.getSelectionModel().getSelectedItem(), loginField.getText(), passwordField.getText())));
+			Main.sendToServer(new AccountPacket("signIn", AccountsPart.account.get(), new Account(accountTypeCombobox.getSelectionModel()
+					.getSelectedItem(), loginField.getText(), passwordField.getText())));
 		});
 		InitAccountsPart.instance.deleteAccountButton.setOnAction(e ->
 		{
 			if (passwordField.getText().equals(passwordRepeatField.getText()))
-				Main.instance.addRequest(new AccountPacket("deleteAccount", Main.macAddress, null, AccountsPart.account.get(), new Account(accountTypeCombobox
-						.getSelectionModel().getSelectedItem(), loginField.getText(), passwordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
+				Main.sendToServer(new AccountPacket("deleteAccount", AccountsPart.account.get(), new Account(accountTypeCombobox.getSelectionModel()
+						.getSelectedItem(), loginField.getText(), passwordField.getText())));
+			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
 		});
 		signOutButton.setOnAction(e ->
 		{
-			Main.instance.addRequest(new AccountPacket("signOut", Main.macAddress, null, AccountsPart.account.get(), null));
+			Main.sendToServer(new AccountPacket("signOut", AccountsPart.account.get(), null));
 		});
 		saveButton.setOnAction(e ->
 		{
@@ -252,17 +256,25 @@ public class InitAccountsPart
 				account.setHomeCountry(homeCountryField.getText());
 				account.setHomeRegion(homeRegionField.getText());
 				account.setHomeCity(homeCityField.getText());
-				Main.instance.addRequest(new AccountPacket("changeProfileInfo", Main.macAddress, null, account, account));
+				Main.sendToServer(new AccountPacket("changeProfileInfo", account, account));
 			}
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
+			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
 		});
 		changePasswordButton.setOnAction(e ->
 		{
 			if (newPasswordField.getText().equals(newPasswordRepeatField.getText()) && passwordField.getText().equals(passwordRepeatField.getText()))
-				Main.instance.addRequest(new AccountPacket("changeSecurityInfo", Main.macAddress, null, AccountsPart.account.get(), new Account(
-						accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(), newPasswordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage)null, (Stage)null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, Main.isFxWindowFrame(), true);
+				Main.sendToServer(new AccountPacket("changeSecurityInfo", AccountsPart.account.get(), new Account(accountTypeCombobox
+						.getSelectionModel().getSelectedItem(), loginField.getText(), newPasswordField.getText())));
+			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
 		});
+
+		securityTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		mainTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		contactsTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		familyTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		ideasTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		aboutYouTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
+		lifeTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
 
 		signInTab.setOnSelectionChanged(e -> handleTabSelect());
 		signUpTab.setOnSelectionChanged(e -> handleTabSelect());
@@ -270,6 +282,59 @@ public class InitAccountsPart
 		signOutTab.setOnSelectionChanged(e -> handleTabSelect());
 		deleteAccountTab.setOnSelectionChanged(e -> handleTabSelect());
 		changeVisibleTabs(AccountsPart.account.get());
+	}
+
+	public void resize(int w, int h)
+	{
+		loginField.setLayoutX(w / 2 - loginField.getWidth() / 2);
+		passwordField.setLayoutX(w / 2 - passwordField.getWidth() / 2);
+		passwordRepeatField.setLayoutX(w / 2 - passwordRepeatField.getWidth() / 2);
+		accountTypeCombobox.setLayoutX(w / 2 + loginField.getWidth() / 2 + Main.spaceBetweenComponents);
+
+		tabPane.setPrefWidth(w);
+		profileTabs.setPrefWidth(w);
+
+		signInButton.setLayoutX(w / 2 - signInButton.getWidth() / 2);
+		signOutButton.setLayoutX(w / 2 - signOutButton.getWidth() / 2);
+		signUpButton.setLayoutX(w / 2 - signUpButton.getWidth() / 2);
+		deleteAccountButton.setLayoutX(w / 2 - deleteAccountButton.getWidth() / 2);
+
+		{
+			newPasswordField.setLayoutX(w / 2 - newPasswordField.getWidth() / 2);
+			newPasswordRepeatField.setLayoutX(w / 2 - newPasswordRepeatField.getWidth() / 2);
+			changePasswordButton.setLayoutX(w / 2 - changePasswordButton.getWidth() / 2);
+		}
+
+		profileMainFields.setLayoutX(w / 2 - profileMainFields.getWidth() / 2);
+		familyFields.setLayoutX(w / 2 - familyFields.getWidth() / 2);
+		lifeFields.setLayoutX(w / 2 - lifeFields.getWidth() / 2);
+		lifeFields2.setLayoutX(w / 2 - lifeFields2.getWidth() / 2);
+		ideasFields.setLayoutX(w / 2 - ideasFields.getWidth() / 2);
+		{
+			ideasScrollpane.setPrefWidth(w);
+		}
+		aboutYouFields.setLayoutX(w / 2 - aboutYouFields.getWidth() / 2);
+		contactsFields.setLayoutX(w / 2 - contactsFields.getWidth() / 2);
+
+		// TODO расширение скрол пейна у идеас фиелдс в высоту пока может и в ширину полностью
+
+		saveButton.setLayoutX(w / 2 - saveButton.getWidth() / 2);
+
+		loginField.setLayoutY(Main.spaceBetweenComponents);
+		accountTypeCombobox.setLayoutY(Main.spaceBetweenComponents);
+		passwordField.setLayoutY(Main.spaceBetweenComponents + loginField.getLayoutY() + loginField.getHeight());
+		passwordRepeatField.setLayoutY(Main.spaceBetweenComponents + passwordField.getLayoutY() + passwordField.getHeight());
+		tabPane.setLayoutY(Main.spaceBetweenComponents + passwordRepeatField.getLayoutY() + passwordRepeatField.getHeight());
+
+		tabPane.setPrefHeight(h - tabPane.getLayoutY());
+		saveButton.setLayoutY(tabPane.sceneToLocal(0, h).getY() - saveButton.getHeight() - Main.spaceBetweenComponents);
+		tabPane.setPrefHeight(h - tabPane.getLayoutY());
+		profileTabs.setPrefHeight(saveButton.getLayoutY() - Main.spaceBetweenComponents);
+		ideasFields.setLayoutY(0);
+		if (ideasFields.getParent() instanceof Region)
+			((Region) ideasFields.getParent()).setPrefHeight(ideasFields.getHeight());
+		ideasScrollpane.setLayoutY(0);
+		ideasScrollpane.setPrefHeight(Math.min(profileTabs.getPrefHeight() - Main.titleHeight, ideasFields.getHeight() + 2));
 	}
 
 	CheckMenuItem showAllTabsItem;
@@ -406,6 +471,7 @@ public class InitAccountsPart
 			accountTypeCombobox.setVisible(true);
 			passwordRepeatField.setVisible(true);
 		}
+		AccountsPart.instance.resize();
 		passwordRepeatField.setText("");
 	}
 

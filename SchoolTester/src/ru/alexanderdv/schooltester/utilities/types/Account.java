@@ -2,7 +2,7 @@ package ru.alexanderdv.schooltester.utilities.types;
 
 import java.util.ArrayList;
 
-import ru.alexanderdv.schooltester.utilities.Subject;
+import ru.alexanderdv.schooltester.utilities.enums.Subject;
 
 /**
  * 

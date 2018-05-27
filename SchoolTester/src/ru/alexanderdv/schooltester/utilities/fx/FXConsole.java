@@ -13,20 +13,25 @@ import javafx.scene.paint.Color;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class FXConsole extends FXWindow
+public final class FXConsole extends FXWindow
 {
 	private String baked;
 	@FXML
 	private TextArea text;
 
-	public FXConsole(String secondaryTitle, URL url,boolean inDevelope)
+	public FXConsole(String secondaryTitle, URL url, boolean inDevelope)
 	{
-		super(secondaryTitle, url, 1,inDevelope);
+		super(secondaryTitle, url, 1, inDevelope, true);
 		baked = "";
+	}
+
+	@Override
+	protected void _resize(int w, int h)
+	{
+
 	}
 
 	@FXML

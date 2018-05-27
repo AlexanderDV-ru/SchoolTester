@@ -25,11 +25,10 @@ import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class CrossWordGeneratorPart extends ProtectedFXWindow
+public final class CrossWordGeneratorPart extends ProtectedFXWindow
 {
 	public static CrossWordGeneratorPart instance;
 	private InitCrossWordGeneratorPart elements = InitCrossWordGeneratorPart.instance;
@@ -37,18 +36,25 @@ public class CrossWordGeneratorPart extends ProtectedFXWindow
 	private Border bd = new Border(new BorderStroke(new javafx.scene.paint.Color(0, 0, 0, 1), new BorderStrokeStyle(StrokeType.CENTERED, StrokeLineJoin.ROUND,
 			StrokeLineCap.SQUARE, 0, 0, null), new CornerRadii(0), new BorderWidths(1)));
 
+	@Override
+	protected void _resize(int w, int h)
+	{
+		
+	}
 	private ArrayList<C> s = new ArrayList<C>();
 
 	public CrossWordGeneratorPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1,inDevelope);
+		super(null, url, 1, 1,inDevelope, true);
 		instance = this;
 		elements.crossword.setBackground(new Background(new BackgroundFill(new javafx.scene.paint.Color(0.9, 0.9, 0.9, 1), new CornerRadii(0), new Insets(0))));
 		createActionHandlers();
 	}
 
-	private void createActionHandlers()
+
+	protected void createActionHandlers()
 	{
+		super.createActionHandlers();
 		elements.words.setOnKeyPressed(e ->
 		{
 			if (e.getCode() == KeyCode.ENTER)

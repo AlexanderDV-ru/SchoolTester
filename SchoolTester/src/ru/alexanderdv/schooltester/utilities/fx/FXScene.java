@@ -2,16 +2,21 @@ package ru.alexanderdv.schooltester.utilities.fx;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.IOException;
 
+import javax.swing.Timer;
+
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -20,6 +25,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -28,18 +34,17 @@ import ru.alexanderdv.schooltester.utilities.Logger;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.0a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class FXScene extends AnchorPane
+public final class FXScene extends AnchorPane
 {
 	private Stage stage;
 	private Pane titlePane;
 	private Label title;
 	private Button hide, max, exit;
-	private Pane content;
-	private Point lastPoint;
+	private ScrollPane content;
+	private Point lastPoint, lastSizePoint;
 	private int borderSize;
 	private int type;
 	private boolean canResize;
@@ -49,6 +54,12 @@ public class FXScene extends AnchorPane
 	public static final double minX, minY, maxX, maxY;
 	private EventHandler<WindowEvent> ev, ev3;
 	public static final Rectangle[] bounds;
+
+	private boolean xb1, xb2, yb1, yb2;
+	private int minWidth;
+	private int minHeight;
+	private int minContentWidth;
+	private int minContentHeight;
 	static
 	{
 		GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
@@ -133,7 +144,7 @@ public class FXScene extends AnchorPane
 		exit = new Button("×");
 		exit.setFont(new Font("Verdana", 12));
 		titlePane.getChildren().add(exit);
-		content = new Pane();
+		content = new ScrollPane();
 		content.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
 		this.getChildren().add(content);
 		addingWidth = borderSize * 2;
@@ -144,6 +155,10 @@ public class FXScene extends AnchorPane
 	public void resize()
 	{
 		double width = getPrefWidth(), height = getPrefHeight();
+
+		stage.setWidth(width);
+		stage.setHeight(height);
+
 		double[] buttonsSizes = new double[]
 		{
 				type > 1 ? 40 : 0,
@@ -215,6 +230,11 @@ public class FXScene extends AnchorPane
 		content.setPrefHeight(height - borderSize * 3 - titlePane.getPrefHeight());
 		content.setMaxHeight(height - borderSize * 3 - titlePane.getPrefHeight());
 
+		if (content.getContent() != null)
+			if (content.getContent() instanceof Region)
+				((Region) content.getContent()).setPrefSize(Math.max(minContentWidth, content.getPrefWidth() - 2), Math.max(minContentHeight, content
+						.getPrefHeight() - 2));
+
 		hide.setOnAction(e ->
 		{
 			stage.setIconified(!stage.isIconified());
@@ -234,12 +254,105 @@ public class FXScene extends AnchorPane
 				stage.getOnCloseRequest().handle(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			stage.close();
 		});
-		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) (e.getScreenX()), (int) (e.getScreenY())),true);
-		EventHandler<MouseEvent> ev2 = (e) -> lastPoint = new Point((int) (e.getScreenX()), (int) (e.getScreenY()));
+		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) e.getScreenX(), (int) e.getScreenY()), true);
+		EventHandler<MouseEvent> ev2 = (e) -> lastPoint = new Point((int) e.getScreenX(), (int) e.getScreenY());
 		icon.setOnMouseDragged(ev);
 		icon.setOnMousePressed(ev2);
 		title.setOnMouseDragged(ev);
 		title.setOnMousePressed(ev2);
+
+		this.setOnMouseDragged(e ->
+		{
+			clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown();
+			if (stage.isResizable())
+				if (lastSizePoint != null)
+				{
+
+					if (xb2)
+						setPrefWidth(Math.max(minWidth, e.getScreenX() - stage.getX()));
+					else if (xb1)
+						if (minWidth < stage.getX() - e.getScreenX() + getPrefWidth())
+						{
+							setPrefWidth(Math.max(minWidth, stage.getX() - e.getScreenX() + getPrefWidth()));
+							stage.setX(e.getScreenX());
+						}
+
+					if (yb2)
+						setPrefHeight(Math.max(minHeight, e.getScreenY() - stage.getY()));
+					else if (yb1)
+						if (minHeight < stage.getY() - e.getScreenY() + getPrefHeight())
+						{
+							setPrefHeight(Math.max(minHeight, stage.getY() - e.getScreenY() + getPrefHeight()));
+							stage.setY(e.getScreenY());
+						}
+
+					resize();
+				}
+		});
+		this.setOnMousePressed(e ->
+		{
+			clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown();
+			changeCursor();
+
+			lastSizePoint = new Point((int) (e.getScreenX()), (int) (e.getScreenY()));
+		});
+		// this.setOnMousePressed(e -> lastSizePoint = new Point((int) stage.getWidth(), (int) stage.getHeight()));
+
+		setOnMouseDragReleased(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
+		setOnMouseDragOver(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
+		setOnMouseReleased(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
+		setOnMouseMoved(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
+		new Timer(200, ae -> changeCursor()).start();
+	}
+
+	private boolean clicked;
+
+	private void changeCursor()
+	{
+		try
+		{
+			double x = screenToLocal(MouseInfo.getPointerInfo().getLocation().x, 0).getX();
+			double y = screenToLocal(0, MouseInfo.getPointerInfo().getLocation().y).getY();
+			if (stage.isResizable())
+				if (x <= borderSize)
+				{
+					if (y <= borderSize)
+						setCursor(Cursor.NW_RESIZE);
+					else if (y >= getScene().getHeight() - borderSize - 1)
+						setCursor(Cursor.SW_RESIZE);
+					else setCursor(Cursor.W_RESIZE);
+				}
+				else if (x >= getScene().getWidth() - borderSize - 1)
+				{
+					if (y <= borderSize)
+						setCursor(Cursor.NE_RESIZE);
+					else if (y >= getScene().getHeight() - borderSize - 1)
+						setCursor(Cursor.SE_RESIZE);
+					else setCursor(Cursor.E_RESIZE);
+				}
+				else
+				{
+					if (y <= borderSize)
+						setCursor(Cursor.N_RESIZE);
+					else if (y >= getScene().getHeight() - borderSize - 1)
+						setCursor(Cursor.S_RESIZE);
+					else if (!clicked)
+						setCursor(Cursor.DEFAULT);
+				}
+			else setCursor(Cursor.DEFAULT);
+
+			if (x <= borderSize || x >= getScene().getWidth() - borderSize - 1 || y <= borderSize || y >= getScene().getHeight() - borderSize - 1 || !clicked)
+			{
+				xb1 = x <= borderSize;
+				xb2 = x >= getScene().getWidth() - borderSize - 1;
+
+				yb1 = y <= borderSize;
+				yb2 = y >= getScene().getHeight() - borderSize - 1;
+			}
+		}
+		catch (NullPointerException e)
+		{
+		}
 	}
 
 	public void updatePosition(Point nowPoint, boolean byMouse)
@@ -255,24 +368,28 @@ public class FXScene extends AnchorPane
 			lastPoint = nowPoint;
 	}
 
-	public void setContent(Node node, double width, double height)
+	public void setContent(Node node, double width, double height, double minWidth, double minHeight)
 	{
-		content.getChildren().clear();
-		content.getChildren().add(node);
+		content.setContent(node);
 
-		content.setMinWidth(width);
-		content.setPrefWidth(width);
-		content.setMaxWidth(width);
-		content.setMinHeight(height);
-		content.setPrefHeight(height);
-		content.setMaxHeight(height);
+		content.setMinWidth(width + 2);
+		content.setPrefWidth(width + 2);
+		content.setMaxWidth(width + 2);
+		content.setMinHeight(height + 2);
+		content.setPrefHeight(height + 2);
+		content.setMaxHeight(height + 2);
 
-		setMinWidth(width + borderSize * 2);
-		setPrefWidth(width + borderSize * 2);
-		setMaxWidth(width + borderSize * 2);
-		setMinHeight(height + borderSize * 3 + titlePaneHeight);
-		setPrefHeight(height + borderSize * 3 + titlePaneHeight);
-		setMaxHeight(height + borderSize * 3 + titlePaneHeight);
+		setMinWidth(content.getPrefWidth() + borderSize * 2);
+		setPrefWidth(content.getPrefWidth() + borderSize * 2);
+		setMaxWidth(content.getPrefWidth() + borderSize * 2);
+		setMinHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
+		setPrefHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
+		setMaxHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
+
+		this.minWidth = (int) (minWidth + 2 + borderSize * 2);
+		this.minHeight = (int) (minHeight + 2 + borderSize * 3 + titlePaneHeight);
+		this.minContentWidth = (int) minWidth;
+		this.minContentHeight = (int) minHeight;
 		resize();
 	}
 

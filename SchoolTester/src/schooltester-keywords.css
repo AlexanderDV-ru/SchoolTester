@@ -9,7 +9,7 @@
     -fx-fill: red;
 }
 .error {
-    -fx-text-decoration: underline;
+    -fx-underline: true;
     -fx-fill: darkred;
 }
 .string {

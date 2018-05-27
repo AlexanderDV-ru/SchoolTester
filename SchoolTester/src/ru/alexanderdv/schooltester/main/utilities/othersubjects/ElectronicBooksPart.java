@@ -24,18 +24,22 @@ import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class ElectronicBooksPart extends ProtectedFXWindow
+public final class ElectronicBooksPart extends ProtectedFXWindow
 {
 	private TabPane tabPane = InitElectronicBooksPart.instance.tabPane;
 
 	public ElectronicBooksPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1,inDevelope);
+		super(null, url, 1, 1,inDevelope,true);
 		updateBooks();
+	}
+	@Override
+	protected void _resize(int w, int h)
+	{
+		
 	}
 
 	public void updateBooks()

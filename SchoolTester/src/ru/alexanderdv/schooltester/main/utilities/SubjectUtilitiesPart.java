@@ -13,25 +13,31 @@ import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.AccountsPart;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.main.StartPart;
-import ru.alexanderdv.schooltester.utilities.Subject;
+import ru.alexanderdv.schooltester.utilities.enums.Subject;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
 
 /**
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.8a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class SubjectUtilitiesPart extends FXWindow
+public final class SubjectUtilitiesPart extends FXWindow
 {
 	private final VBox content;
 	private final Subject subject;
 	private final ArrayList<ButtonWithWindow> buttonsAndWindows;
 
-	public SubjectUtilitiesPart(Subject subject,boolean inDevelope, ButtonWithWindow... buttonsAndWindows)
+	@Override
+	protected void _resize(int w, int h)
 	{
-		super(null, createAnchorPane(300, 400), 1,inDevelope);
+
+	}
+
+	public SubjectUtilitiesPart(Subject subject, boolean inDevelope, ButtonWithWindow... buttonsAndWindows)
+	{
+		super(null, createAnchorPane(300, 400), 1, inDevelope, false);
 		this.subject = subject;
 		TitledPane title = new TitledPane(msgSys.getMsg(subject.name()), content = new VBox());
 		title.setCollapsible(false);
@@ -52,18 +58,18 @@ public class SubjectUtilitiesPart extends FXWindow
 					try
 					{
 						((ProtectedFXWindow) buttonWithWindow.getWindow()).open(StartPart.instance.getStage(), AccountsPart.account.get(),
-								Main.instance.socket);
+								Main.client);
 					}
 					catch (Exception e1)
 					{
-						FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, Main.isFxWindowFrame(), true);
+						FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, true);
 					}
 				else buttonWithWindow.getWindow().open(StartPart.instance.getStage());
 			});
 			content.getChildren().add(buttonWithWindow.getButton());
 			buttonWithWindow.getButton().setPrefWidth(content.getPrefWidth() - o * 2);
 			buttonWithWindow.getButton().setLayoutX(o);
-			buttonWithWindow.getButton().setTextFill(buttonWithWindow.getWindow().inDevelope()?new Color(0.8,0,0,1):Color.BLACK);
+			buttonWithWindow.getButton().setTextFill(buttonWithWindow.getWindow().inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 		}
 	}
 
@@ -134,7 +140,6 @@ public class SubjectUtilitiesPart extends FXWindow
 		pane.setPrefSize(width, height);
 		return pane;
 	}
-
 
 	@Override
 	public String name()

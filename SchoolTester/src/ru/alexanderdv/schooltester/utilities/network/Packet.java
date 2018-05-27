@@ -1,12 +1,11 @@
 package ru.alexanderdv.schooltester.utilities.network;
 
 /**
- * Packet - the class for communicating with the server
  * 
- * @author AlexandrDV/AlexanderDV
- * @version 5.9.0a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class Packet extends NetworkPacket
+public final class Packet extends NetworkPacket
 {
 	private static final long serialVersionUID = -2411012860338304596L;
 	private String data;
@@ -27,31 +26,14 @@ public class Packet extends NetworkPacket
 	 * @param key
 	 *            - the key specified by user
 	 */
-	public Packet(String request, String data, String fileTree, String mac, String ip, String version, String url, String key)
+	public Packet(String request, String data, String fileTree, String version, String url, String key)
 	{
-		super(request, mac, ip);
+		super(request);
 		this.data = data;
 		this.fileTree = fileTree;
 		this.version = version;
 		this.url = url;
 		this.key = key;
-	}
-
-	/**
-	 * Constructor of the "Packet" class
-	 * 
-	 * @param request
-	 *            - the request to the server or to the client
-	 * @param version
-	 *            - the version of the server or of the client
-	 * @param url
-	 *            - the URL to downloading current version of program
-	 * @param key
-	 *            - the key specified by user
-	 */
-	public Packet(String request, String data, String fileTree, String version, String url, String key)
-	{
-		this(request, data, fileTree, null, null, version, url, key);
 	}
 
 	/**

@@ -6,15 +6,20 @@ import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 
 /**
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class UnitConverterPart extends FXWindow
+public final class UnitConverterPart extends FXWindow
 {
 
 	public UnitConverterPart(URL url, boolean inDevelope)
 	{
-		super(null, url, 1, inDevelope);
+		super(null, url, 1, inDevelope,false);
+	}
+	@Override
+	protected void _resize(int w, int h)
+	{
+		
 	}
 
 	@Override

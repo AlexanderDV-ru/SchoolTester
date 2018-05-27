@@ -1,20 +1,19 @@
 package ru.alexanderdv.schooltester.utilities.network;
 
 import ru.alexanderdv.schooltester.utilities.types.Test;
-
 /**
  * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class AddToMarketPacket extends NetworkPacket
+public final class AddToMarketPacket extends NetworkPacket
 {
 	private static final long serialVersionUID = -3949901956019257816L;
 	private final Test test;
 
-	public AddToMarketPacket(String request, String mac, String ip, Test test)
+	public AddToMarketPacket(String request, Test test)
 	{
-		super(request, mac, ip);
+		super(request);
 		this.test = test;
 	}
 

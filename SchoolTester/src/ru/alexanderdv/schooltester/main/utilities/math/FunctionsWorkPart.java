@@ -12,14 +12,18 @@ import ru.alexanderdv.simpleutilities.MathWithText;
 
 /**
  * 
- * 
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
-public class FunctionsWorkPart extends ProtectedFXWindow
+public final class FunctionsWorkPart extends ProtectedFXWindow
 {
 	private double[] defXP;
 
+	@Override
+	protected void _resize(int w, int h)
+	{
+		
+	}
 	private int pointsToBuildCount;
 	private double masshtab = 5, step;
 	private Line[] lines;
@@ -41,7 +45,7 @@ public class FunctionsWorkPart extends ProtectedFXWindow
 
 	public FunctionsWorkPart(URL url,boolean inDevelope)
 	{
-		super(null, url, 1, 1,inDevelope);
+		super(null, url, 1, 1,inDevelope,true);
 		createActionHandlers();
 	}
 
