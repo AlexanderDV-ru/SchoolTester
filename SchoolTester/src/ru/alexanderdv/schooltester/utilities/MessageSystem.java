@@ -1,7 +1,16 @@
 package ru.alexanderdv.schooltester.utilities;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementAnswer;
 
 /**
  * 
@@ -10,16 +19,19 @@ import java.util.HashMap;
  */
 public final class MessageSystem
 {
-	private static final String siteUrl="http://schooltester.ucoz.org/";
+	private static final String siteUrl = "http://schooltester.ucoz.org/";
 	private String language;
 	private static final HashMap<String, HashMap<String, String>> messages = new HashMap<String, HashMap<String, String>>();
+
 	static
 	{
+
+		System.out.println("Message system loading...");
 		messages.put("en_uk", new HashMap<String, String>());
 		{
 			String language = "en_uk";
 			messages.get(language).put("verifyRequestSended",
-					"Your computer not verified! To verify your computer communicate with us, you can do this in our site: " +siteUrl);
+					"Your computer not verified! To verify your computer communicate with us, you can do this in our site: " + siteUrl);
 			messages.get(language).put("notVerified", "Your computer not verified! To verify your computer communicate with us, you can do this in our site: "
 					+ siteUrl);
 		}
@@ -27,7 +39,7 @@ public final class MessageSystem
 	static
 	{
 		String language = "en_uk";
-		HashMap<String, String> map=messages.get(language);
+		HashMap<String, String> map = messages.get(language);
 		map.put("AU", "Australia");
 		map.put("AT", "Austria");
 		map.put("AZ", "Azerbaijan");
@@ -289,7 +301,7 @@ public final class MessageSystem
 	static
 	{
 		String language = "ru_ru";
-		HashMap<String, String> map=messages.get(language);
+		HashMap<String, String> map = messages.get(language);
 		map.put("AU", "Австралия");
 		map.put("AT", "Австрия");
 		map.put("AZ", "Азербайджан");
@@ -539,30 +551,75 @@ public final class MessageSystem
 	}
 	static
 	{
+		// for (File lang : new File(MessageSystem.class.getResource("/").getFile()).listFiles())
+		// System.out.println(lang.getAbsolutePath());
+		// for (File lang : new File(MessageSystem.class.getResource("/").getFile()).listFiles(file -> file.getName().endsWith(".lang") && file.isFile() && file
+		// .getName().length() == 10 && Character.isLetter(file.getName().charAt(0)) && Character.isLetter(file.getName().charAt(1)) && file.getName()
+		// .charAt(2) == '_' && Character.isLetter(file.getName().charAt(3)) && Character.isLetter(file.getName().charAt(4))))
+		// {
 
-		for (File lang : new File(MessageSystem.class.getResource("/").getFile()).listFiles(file -> file.getName().endsWith(".lang") && file.isFile() && file
-				.getName().length() == 10 && Character.isLetter(file.getName().charAt(0)) && Character.isLetter(file.getName().charAt(1)) && file.getName()
-						.charAt(2) == '_' && Character.isLetter(file.getName().charAt(3)) && Character.isLetter(file.getName().charAt(4))))
+		// char[] englishLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+		// for (char c1 : englishLetters)
+		// for (char c2 : englishLetters)
+		// for (char c3 : englishLetters)
+		// for (char c4 : englishLetters)
+		// {
+		// String language = c1 + "" + c2 + "_" + c3 + "" + c4;
+
+		System.out.println("Message system .lang files loading...");
+		
+		ArrayList<String> languagesL = new ArrayList<String>();
+		String[] languages;
+		if (!new File("langs.list").exists())
 		{
-			String text = SystemUtils.readFile(lang, "UTF-8");
-			String language = lang.getName().substring(0, 5);
-			if (!messages.containsKey(language))
-				messages.put(language, new HashMap<String, String>());
-			for (String s : text.replace("\r\n", "\n").replace("\r", "\n").split("\n"))
+			char[] englishLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+			for (char c1 : englishLetters)
+				for (char c2 : englishLetters)
+					for (char c3 : englishLetters)
+						for (char c4 : englishLetters)
+						{
+							String language = c1 + "" + c2 + "_" + c3 + "" + c4;
+							if (MessageSystem.class.getResourceAsStream("/" + language + ".lang") != null)
+								languagesL.add(language);
+						}
+			SystemUtils.writeFile(new File("langs.list"), String.join(System.lineSeparator(), languagesL), "UTF-8");
+			languages=languagesL.toArray(new String[0]);
+		}
+		else languages = SystemUtils.readFile(new File("langs.list"), "UTF-8").replace("\r\n", "\n").replace("\r", "\n").split("\n");
+		for (String language : languages)
+		{
+			InputStream stream = MessageSystem.class.getResourceAsStream("/" + language + ".lang");
+			if (stream == null)
+				continue;
+			try
 			{
-				String[] splited = s.split("': '");
-				if (splited.length == 2 && splited[0].startsWith("'") && splited[1].endsWith("'") && !splited[0].endsWith("\\") && !splited[1].endsWith("\\'"))
+				BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+				if (!messages.containsKey(language))
+					messages.put(language, new HashMap<String, String>());
+				for (String l; (l = br.readLine()) != null;)
 				{
-					String key = splited[0].substring(1), value = splited[1].substring(0, splited[1].length() - 1);
-					if (!messages.get(language).containsKey(key))
-						messages.get(language).put(key, value);
+					String[] splited = l.split("': '");
+					if (splited.length == 2 && splited[0].startsWith("'") && splited[1].endsWith("'") && !splited[0].endsWith("\\") && !splited[1].endsWith(
+							"\\'"))
+					{
+						String key = splited[0].substring(1), value = splited[1].substring(0, splited[1].length() - 1);
+						if (!messages.get(language).containsKey(key))
+							messages.get(language).put(key, value);
+					}
 				}
 			}
+			catch (UnsupportedEncodingException e)
+			{
+				e.printStackTrace();
+				continue;
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				continue;
+			}
 		}
-		
-		
-		
-		
+
 		for (String s : messages.keySet().toArray(new String[0]))
 		{
 			HashMap<String, String> l = new HashMap<String, String>();
@@ -729,6 +786,7 @@ public final class MessageSystem
 			messages.remove(s);
 			messages.put(s.toLowerCase(), l);
 		}
+		System.out.println("Message system loaded!");
 	}
 
 	public MessageSystem(String language)
@@ -746,9 +804,9 @@ public final class MessageSystem
 		key = key.toLowerCase();
 		language = language.toLowerCase();
 		if (!messages.containsKey(language))
-			throw new IllegalArgumentException("Language could not found!");
+			throw new IllegalArgumentException("Language '" + language + "' could not found!");
 		if (!messages.get(language).containsKey(key))
-			return key+"(null)";
+			return key + "(null)";
 		return messages.get(language).get(key);
 	}
 

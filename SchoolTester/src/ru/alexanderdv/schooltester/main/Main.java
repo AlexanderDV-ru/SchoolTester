@@ -68,7 +68,7 @@ public final class Main extends Application
 		if (!MessageSystem.getMessages().keySet().contains(msgSys.getLanguage()))
 		{
 			msgSys.setLanguage("en_uk");
-			SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "cp1251");
+			SystemUtils.writeFile(new File("language.cfg"), "en_uk", "cp1251");
 		}
 	}
 	private static final boolean debug = true;
@@ -110,18 +110,21 @@ public final class Main extends Application
 	 */
 	public static void main(String[] args)
 	{
+		debug("Loading...");
 		launch(args);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
+		debug("FX loading...");
 		fxThread = Thread.currentThread();
 		instance = this;
 		primaryStage.setOpacity(0);
 		primaryStage.show();
 		primaryStage.close();
 		initParts();
+		debug("Listeners initialization...");
 		setAccountChangeListener();
 		getStartPart().addOnHiding(e ->
 		{
@@ -131,10 +134,12 @@ public final class Main extends Application
 			functionsWorkPart.min();
 			getAccountsPart().min();
 		});
+		debug("Labels updating...");
 		updateAllLabels();
+		debug("Labels updated!");
 		openNeedfulParts();
+		debug("FX loaded!");
 		startNetworking(primaryStage);
-
 	}
 
 	private void setAccountChangeListener()
@@ -167,7 +172,10 @@ public final class Main extends Application
 
 	private void startNetworking(Stage primaryStage)
 	{
+		debug("Server connect trying...");
 		String request = connectToServer();
+		debug("Server connect tryied!");
+		debug("Dialog info showing...");
 		switch (request)
 		{
 			case "youAreInBlacklist":
@@ -492,7 +500,6 @@ public final class Main extends Application
 				{
 					String property = sc.next();
 					String serial = sc.next();
-					System.out.println(property + ": " + serial);
 				}
 				sc.close();
 			}
@@ -814,6 +821,7 @@ public final class Main extends Application
 
 	private void initParts()
 	{
+		debug("Parts initialization...");
 		teachersTestsControlPart = new TeachersTestsControlPart();
 		testDevPart = new TestDevPart(true);
 
@@ -857,6 +865,7 @@ public final class Main extends Application
 		crossWordGeneratorPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 		electronicBooksPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
 		functionsWorkPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		debug("Parts initializated!");
 	}
 
 	// public synchronized void addRequest(NetworkPacket packet)
@@ -873,12 +882,14 @@ public final class Main extends Application
 	public synchronized void startHandling()
 	{
 		int timeout = 1000;
+		debug("Connection quality checking started!");
 		new Timer(timeout, e ->
 		{
 			sendToServer(new ConnectionQualityChecker("checkConnectionQuality", Calendar.getInstance().getTimeInMillis()));
 		}).start();
 		try
 		{
+			debug("Server responses handling started!");
 			client.addRecieveListener(ev ->
 			{
 				if (!(ev.getSource() instanceof NetworkPacket))

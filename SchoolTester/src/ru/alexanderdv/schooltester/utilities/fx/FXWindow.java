@@ -55,6 +55,7 @@ public abstract class FXWindow extends StageContainer
 	public FXWindow(String secondaryTitle, Pane panel, int type, boolean inDevelope, boolean resizable)
 	{
 		super(new Stage());
+		System.out.println(name()+" loading...");
 		windows.put(name(), this);
 		Dimension dimension;
 		try
