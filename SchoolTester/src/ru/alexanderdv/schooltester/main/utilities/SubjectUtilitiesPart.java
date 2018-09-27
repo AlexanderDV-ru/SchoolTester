@@ -13,10 +13,12 @@ import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.AccountsPart;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.main.StartPart;
+import ru.alexanderdv.schooltester.main.utilities.math.ExpressionGeneratorPart;
 import ru.alexanderdv.schooltester.utilities.enums.Subject;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.SchoolTesterFXWindow;
 
 /**
  * 
@@ -57,19 +59,24 @@ public final class SubjectUtilitiesPart extends FXWindow
 				if (buttonWithWindow.getWindow() instanceof ProtectedFXWindow)
 					try
 					{
-						((ProtectedFXWindow) buttonWithWindow.getWindow()).open(StartPart.instance.getStage(), AccountsPart.account.get(),
-								Main.client);
+						((ProtectedFXWindow) buttonWithWindow.getWindow()).open(StartPart.instance.getStage(),
+								AccountsPart.account.get(), Main.client);
 					}
 					catch (Exception e1)
 					{
-						FXDialogsGenerator.showFXDialog(StartPart.instance, (Stage) null, msgSys.getMsg("signInToWork"), 0, null, true);
+						FXDialogsGenerator.showFXDialog(StartPart.instance.getStage(), msgSys.getMsg("signInToWork"),
+								null, true);
 					}
-				else buttonWithWindow.getWindow().open(StartPart.instance.getStage());
+				else if (buttonWithWindow.getWindow2() instanceof SchoolTesterFXWindow)
+					buttonWithWindow.getWindow2().open(StartPart.instance.getStage());
+				else if (buttonWithWindow.getWindow() !=null)
+					buttonWithWindow.getWindow().open(StartPart.instance.getStage());
 			});
 			content.getChildren().add(buttonWithWindow.getButton());
 			buttonWithWindow.getButton().setPrefWidth(content.getPrefWidth() - o * 2);
 			buttonWithWindow.getButton().setLayoutX(o);
-			buttonWithWindow.getButton().setTextFill(buttonWithWindow.getWindow().inDevelope() ? new Color(0.8, 0, 0, 1) : Color.BLACK);
+			buttonWithWindow.getButton()
+					.setTextFill((buttonWithWindow.getWindow2()!=null?buttonWithWindow.getWindow2().inDevelope():buttonWithWindow.getWindow()!=null?buttonWithWindow.getWindow().inDevelope():true) ? new Color(0.8, 0, 0, 1) : Color.BLACK);
 		}
 	}
 
@@ -85,12 +92,20 @@ public final class SubjectUtilitiesPart extends FXWindow
 	{
 		private Button button;
 		private FXWindow window;
+		private SchoolTesterFXWindow window2;
 
 		public ButtonWithWindow(Button button, FXWindow window)
 		{
 			super();
 			this.button = button;
 			this.window = window;
+		}
+
+		public ButtonWithWindow(Button button, SchoolTesterFXWindow window)
+		{
+			super();
+			this.button = button;
+			this.window2 = window;
 		}
 
 		/**
@@ -125,6 +140,23 @@ public final class SubjectUtilitiesPart extends FXWindow
 		public void setWindow(FXWindow window)
 		{
 			this.window = window;
+		}
+
+		/**
+		 * @return the window2
+		 */
+		public SchoolTesterFXWindow getWindow2()
+		{
+			return window2;
+		}
+
+		/**
+		 * @param window2
+		 *            the window2 to set
+		 */
+		public void setWindow2(SchoolTesterFXWindow window2)
+		{
+			this.window2 = window2;
 		}
 
 	}

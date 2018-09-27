@@ -4,41 +4,51 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Control;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import ru.alexanderdv.schooltester.main.Main;
-import ru.alexanderdv.schooltester.utilities.ByteUtils;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
-import ru.alexanderdv.schooltester.utilities.types.StageContainer;
+import ru.alexanderdv.simpleutilities.ByteUtils;
+import ru.alexanderdv.simpleutilities.MathUtils;
+import ru.alexanderdv.simpleutilities.SystemUtils;
 
 /**
  * 
  * @author AlexanderDV
- * @version 6.1.5a
+ * @version 6.1.6a
  */
-public abstract class FXWindow extends StageContainer
+public abstract class FXWindow
 {
 	protected static final MessageSystem msgSys = Main.msgSys;
 	protected Pane panel, mainPanel;
-	// protected ScrollPane scroller;
 	protected FXScene fxScene;
 
 	protected MenuBar menubar;
@@ -50,37 +60,36 @@ public abstract class FXWindow extends StageContainer
 	protected MenuItem privacyPolicy, usersManual, site;
 	protected boolean inDevelope;
 	protected Pane adPane;
+	public Stage stage;
 	public static final HashMap<String, FXWindow> windows = new HashMap<String, FXWindow>();
+	private final ArrayList<EventHandler<WindowEvent>> showListeners = new ArrayList<EventHandler<WindowEvent>>();
 
 	public FXWindow(String secondaryTitle, Pane panel, int type, boolean inDevelope, boolean resizable)
 	{
-		super(new Stage());
-		System.out.println(name()+" loading...");
+		stage = new Stage();
+		this.panel = panel;
+		this.inDevelope = inDevelope;
+		System.out.println(name() + " loading...");
 		windows.put(name(), this);
 		Dimension dimension;
 		try
 		{
 			byte[] bytes = SystemUtils.readFile(new File(name() + ".windowinf"));
-			if (bytes != null)
-				dimension = (Dimension) ByteUtils.byteArrayToObject(bytes);
-			else dimension = null;
+			dimension = bytes != null ? (Dimension) ByteUtils.byteArrayToObject(bytes) : null;
 		}
 		catch (Exception e)
 		{
 			dimension = null;
 		}
-		this.inDevelope = inDevelope;
 		try
 		{
-			stage.setTitle(Main.program + (secondaryTitle != null && !secondaryTitle.equals("") ? " - " + secondaryTitle : ""));
-			mainPanel = new AnchorPane();
+			stage.setTitle(Main.program
+					+ (secondaryTitle != null && !secondaryTitle.equals("") ? " - " + secondaryTitle : ""));
+			mainPanel = new AnchorPane(createMenu(), panel, createAdPane());
 			mainPanel.setPrefWidth(panel.getPrefWidth());
-			mainPanel.getChildren().add(createMenu());
-			mainPanel.getChildren().add(this.panel = panel);
-			mainPanel.getChildren().add(createAdPane());
 			panel.setLayoutY(Main.getMenuHeight());
-			mainPanel.setPrefHeight(panel.getLayoutY() + panel.getPrefHeight());
-			int mw=(int) mainPanel.getPrefWidth(),mh=(int) mainPanel.getPrefHeight();
+			mainPanel.setPrefHeight(panel.getLayoutY() + panel.getPrefHeight() + adPane.getPrefHeight());
+			int mw = (int) mainPanel.getPrefWidth(), mh = (int) mainPanel.getPrefHeight();
 			if (dimension != null)
 			{
 				mainPanel.setPrefWidth(dimension.getWidth());
@@ -88,12 +97,13 @@ public abstract class FXWindow extends StageContainer
 			}
 			stage.initStyle(StageStyle.UNDECORATED);
 			fxScene = new FXScene(stage, 1, stage.getTitle(), false, type);
-			fxScene.setContent(mainPanel, mainPanel.getPrefWidth(), mainPanel.getPrefHeight(),mw,mh);
+			fxScene.setContent(mainPanel, mainPanel.getPrefWidth(), mainPanel.getPrefHeight(), mw, mh);
 			stage.setScene(new Scene(fxScene));
 			stage.sizeToScene();
 			stage.setResizable(resizable);
 			stage.getIcons().clear();
-			stage.getIcons().add(new Image(getClass().getResource("/Icon32x.png").openStream()));
+			stage.getIcons().add(
+					new Image(getClass().getResource(Main.resourcesPath + "/images" + "/Icon32x.png").openStream()));
 		}
 		catch (Exception e)
 		{
@@ -102,20 +112,72 @@ public abstract class FXWindow extends StageContainer
 
 	}
 
+	public String getDataPath()
+	{
+		return Main.getAccountDataPath() + "/" + name();
+	}
+
+	protected void centrizeByText(Labeled n, int width, double height)
+	{
+		double w = MathUtils.size(n.getText(), java.awt.Font.decode(n.getFont().getName()+"-"+n.getFont().getStyle()+"-"+n.getFont().getSize())).getWidth() + 20;
+		n.setLayoutX(width / 2 - w / 2);
+		n.setPrefSize(w, height);
+	}
+
+	protected void setAligmentToCenter(Control... controls)
+	{
+		setAligmentToCenter(Arrays.asList(controls));
+	}
+
+	protected void setAligmentToCenter(Collection<? extends Control> controls)
+	{
+		for (Control control : controls)
+			if (control instanceof Labeled)
+			{
+				((Labeled) control).setTextAlignment(TextAlignment.CENTER);
+				((Labeled) control).setAlignment(Pos.CENTER);
+				((Labeled) control).setContentDisplay(ContentDisplay.CENTER);
+			}
+			else if (control instanceof TextField)
+				((TextField) control).setAlignment(Pos.CENTER);
+	}
+
 	protected void createActionHandlers()
 	{
-		getMainPanel().prefWidthProperty().addListener((a, b, c) -> resize(c.intValue(), getMainPanel().getPrefHeight()));
-		getMainPanel().prefHeightProperty().addListener((a, b, c) -> resize(getMainPanel().getPrefWidth(), c.intValue()));
+		getMainPanel().prefWidthProperty().addListener((a, b, c) -> resize());
+		getMainPanel().prefHeightProperty().addListener((a, b, c) -> resize());
+		EventHandler<WindowEvent> showListener = (event) ->
+		{
+			resize();
+			for (EventHandler<WindowEvent> h : showListeners)
+				h.handle(event);
+		};
+		stage.setOnShown(showListener);
+		stage.onShownProperty().addListener((a, b, c) ->
+		{
+			if (c != showListener)
+				stage.setOnShown(showListener);
+		});
+	}
+
+	public void addShowListener(EventHandler<WindowEvent> listener)
+	{
+		showListeners.add(listener);
 	}
 
 	public final void resize()
 	{
-		resize(getMainPanel().getPrefWidth(), getMainPanel().getPrefHeight());
+		//throw new NullPointerException();
+		Platform.runLater(() -> resize(getMainPanel().getPrefWidth(), getMainPanel().getPrefHeight()));
 	}
 
 	private final void resize(double panelWithMenuWidth, double panelWithMenuHeight)
 	{
-		_resize((int) panelWithMenuWidth, (int) panelWithMenuHeight - Main.getMenuHeight());
+		panel.setPrefWidth(panelWithMenuWidth);
+		panel.setPrefHeight(panelWithMenuHeight - panel.getLayoutY() - adPane.getPrefHeight());
+		adPane.setPrefWidth(panelWithMenuWidth);
+		adPane.setLayoutY(panelWithMenuHeight - adPane.getPrefHeight());
+		_resize((int) panel.getPrefWidth(), (int) panel.getPrefHeight());
 	}
 
 	protected abstract void _resize(int w, int h);
@@ -123,8 +185,7 @@ public abstract class FXWindow extends StageContainer
 	private Pane createAdPane()
 	{
 		this.adPane = new Pane();
-		panel.prefHeightProperty().addListener((e, oldV, newV) -> adPane.setLayoutY(Main.getMenuHeight() + newV.intValue()));
-		mainPanel.prefWidthProperty().addListener((e, oldV, newV) -> adPane.setPrefWidth(newV.intValue()));
+		adPane.setPrefHeight(50);
 		return adPane;
 	}
 
@@ -148,21 +209,23 @@ public abstract class FXWindow extends StageContainer
 
 	private final Stage _open(Rectangle parent)
 	{
-		stage.show();
-		stage.requestFocus();
 		if (parent != null)
 		{
-			stage.setX(Math.max(FXScene.minX + 1, Math.min(Math.min(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2, FXScene.maxX - stage
-					.getWidth()), FXScene.maxX - 1)));
-			stage.setY(Math.max(FXScene.minY + 1, Math.min(Math.min(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2, FXScene.maxY - stage
-					.getHeight()), FXScene.maxY - 1)));
+			stage.setX(parent.getX() + parent.getWidth() / 2 - stage.getWidth() / 2);
+			stage.setY(parent.getY() + parent.getHeight() / 2 - stage.getHeight() / 2);
 		}
+		stage.show();
+		stage.requestFocus();
 		return stage;
 	}
 
 	public Stage open(Stage parent)
 	{
-		return _open(parent != null ? new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(), (int) parent.getHeight()) : null);
+		return _open(
+				parent != null
+						? new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(),
+								(int) parent.getHeight())
+						: null);
 	}
 
 	public Stage open(Rectangle parent)
@@ -195,7 +258,7 @@ public abstract class FXWindow extends StageContainer
 	public MenuBar createMenu()
 	{
 		menubar = new MenuBar();
-		menubar.prefWidthProperty().bind(mainPanel.prefWidthProperty());
+		menubar.prefWidthProperty().bind(panel.prefWidthProperty());
 		menubar.setPrefHeight(Main.getMenuHeight());
 		menubar.getMenus().add(window = new Menu());
 		menubar.getMenus().add(settings = new Menu());
@@ -204,47 +267,11 @@ public abstract class FXWindow extends StageContainer
 		help.getItems().add(privacyPolicy = new MenuItem());
 		help.getItems().add(usersManual = new MenuItem());
 		help.getItems().add(site = new MenuItem());
-		EventHandler<ActionEvent> actionHandler = (event) ->
-		{
-			msgSys.setLanguage(((RadioMenuItem) event.getSource()).getText().replace("(", ":").split(":")[1].replace(")", ":").split(":")[0]);
-			Main.instance.updateAllLabels();
-		};
-		languageBtns = new HashMap<String, RadioMenuItem>();
-
-		EventHandler<Event> eh = e -> e.consume();
-		for (String language : MessageSystem.getMessages().keySet())
-		{
-			RadioMenuItem btn = new RadioMenuItem(MessageSystem.getMsg("currentLanguageName", language) + " (" + language + ")");
-			getLanguage().getItems().add(btn);
-			languageBtns.put(language, btn);
-			btn.setMnemonicParsing(false);
-			btn.setOnAction(actionHandler);
-			btn.setOnMenuValidation(eh);
-		}
-		privacyPolicy.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("privacyPolicyText"), 0, null, true));
-		usersManual.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("usersManualText"), 0, null, true));
-		site.setOnAction(event -> SystemUtils.openUrl(msgSys.getMsg("site")));
-		window.setMnemonicParsing(false);
-		settings.setMnemonicParsing(false);
-		language.setMnemonicParsing(false);
-		help.setMnemonicParsing(false);
-		// fxWindowFrameState.setMnemonicParsing(false);
-		privacyPolicy.setMnemonicParsing(false);
-		usersManual.setMnemonicParsing(false);
-		site.setMnemonicParsing(false);
-
-		window.setOnMenuValidation(eh);
-		settings.setOnMenuValidation(eh);
-		language.setOnMenuValidation(eh);
-		help.setOnMenuValidation(eh);
-		// fxWindowFrameState.setOnMenuValidation(eh);
-		privacyPolicy.setOnMenuValidation(eh);
-		usersManual.setOnMenuValidation(eh);
-		site.setOnMenuValidation(eh);
+		onMenuCreated();
 		return menubar;
 	}
 
-	public void updateLabelsInPart()
+	public void updateLabels()
 	{
 		window.setText(msgSys.getMsg("window"));
 		settings.setText(msgSys.getMsg("settings"));
@@ -523,7 +550,55 @@ public abstract class FXWindow extends StageContainer
 
 	public void saveWindowInfo()
 	{
-		SystemUtils.writeFile(new File(name() + ".windowinf"), ByteUtils.objectToByteArray(new Dimension((int) mainPanel.getPrefWidth(), (int) mainPanel
-				.getPrefHeight())));
+		SystemUtils.writeFile(new File(name() + ".windowinf"), ByteUtils
+				.objectToByteArray(new Dimension((int) mainPanel.getPrefWidth(), (int) mainPanel.getPrefHeight())));
+	}
+	public void onMenuCreated()
+	{
+		EventHandler<ActionEvent> actionHandler = (event) ->
+		{
+			Main.msgSys.setLanguage(((RadioMenuItem) event.getSource()).getText().replace("(", ":").split(":")[1]
+					.replace(")", ":").split(":")[0]);
+			Main.instance.updateAllLabels();
+		};
+		languageBtns = new HashMap<String, RadioMenuItem>();
+
+		ToggleGroup group = new ToggleGroup();
+
+		EventHandler<Event> eh = e -> e.consume();
+		for (String language : Main.msgSys.getMessages().keySet())
+		{
+			RadioMenuItem btn = new RadioMenuItem(
+					Main.msgSys.getMsg("currentLanguageName", language) + " (" + language + ")");
+			btn.setSelected(Main.msgSys.getLanguage().equals(language));
+			getLanguage().getItems().add(btn);
+			languageBtns.put(language, btn);
+			btn.setMnemonicParsing(false);
+			btn.setOnAction(actionHandler);
+			btn.setOnMenuValidation(eh);
+			btn.setToggleGroup(group);
+		}
+		privacyPolicy.setOnAction(e ->
+		{
+		});
+		usersManual.setOnAction(e ->
+		{
+		});
+		site.setOnAction(event -> SystemUtils.openUrl(Main.msgSys.getMsg("site")));
+		window.setMnemonicParsing(false);
+		settings.setMnemonicParsing(false);
+		language.setMnemonicParsing(false);
+		help.setMnemonicParsing(false);
+		privacyPolicy.setMnemonicParsing(false);
+		usersManual.setMnemonicParsing(false);
+		site.setMnemonicParsing(false);
+
+		window.setOnMenuValidation(eh);
+		settings.setOnMenuValidation(eh);
+		language.setOnMenuValidation(eh);
+		help.setOnMenuValidation(eh);
+		privacyPolicy.setOnMenuValidation(eh);
+		usersManual.setOnMenuValidation(eh);
+		site.setOnMenuValidation(eh);
 	}
 }

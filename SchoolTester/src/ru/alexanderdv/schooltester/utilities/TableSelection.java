@@ -10,20 +10,25 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
 
 /**
- * A <code>Transferable</code> which implements the capability required to transfer a <code>String</code>.
+ * A <code>Transferable</code> which implements the capability required to
+ * transfer a <code>String</code>.
  *
- * This <code>Transferable</code> properly supports <code>DataFlavor.stringFlavor</code> and all equivalent flavors. This <code>Transferable</code> properly
- * supports <code>DataFlavor.imageFlavor</code> and all equivalent flavors. This <code>Transferable</code> properly supports
- * <code>DataFlavor.fragmentHtmlFlavor</code> and all equivalent flavors. No other <code>DataFlavor</code>s are supported.
+ * This <code>Transferable</code> properly supports
+ * <code>DataFlavor.stringFlavor</code> and all equivalent flavors. This
+ * <code>Transferable</code> properly supports
+ * <code>DataFlavor.imageFlavor</code> and all equivalent flavors. This
+ * <code>Transferable</code> properly supports
+ * <code>DataFlavor.fragmentHtmlFlavor</code> and all equivalent flavors. No
+ * other <code>DataFlavor</code>s are supported.
  *
  * @see java.awt.datatransfer.DataFlavor#stringFlavor
  * @see java.awt.datatransfer.DataFlavor#imageFlavor
  * @see java.awt.datatransfer.DataFlavor#fragmentHtmlFlavor
- * @author AlexanderDV/AlexandrDV
- * @version 5.9.5a
+ * @author AlexanderDV
+ * @version 6.1.5a
  */
 public class TableSelection implements Transferable, ClipboardOwner
 {
@@ -36,15 +41,12 @@ public class TableSelection implements Transferable, ClipboardOwner
 	private BufferedImage image;
 	private int cellW = 40, cellH = 40;
 
-	private static final DataFlavor[] flavors =
-	{
-			DataFlavor.stringFlavor,
-			DataFlavor.imageFlavor,
-			DataFlavor.fragmentHtmlFlavor
-	};
+	private static final DataFlavor[] flavors = { DataFlavor.stringFlavor, DataFlavor.imageFlavor,
+			DataFlavor.fragmentHtmlFlavor };
 
 	/**
-	 * Creates a <code>Transferable</code> capable of transferring the specified <code>String</code>.
+	 * Creates a <code>Transferable</code> capable of transferring the specified
+	 * <code>String</code>.
 	 */
 	public TableSelection(String data, String ebg, String cbg, String efg, String cfg)
 	{
@@ -203,8 +205,8 @@ public class TableSelection implements Transferable, ClipboardOwner
 						if (s.equals(""))
 							g.setColor(Color.decode(efg));
 						else g.setColor(Color.decode(cfg));
-						g.drawString(s, b * cellW + cellW / 2 - (int) MathWithText.size(s, g.getFont()).getWidth() / 2, a * cellH + cellH / 2
-								+ (int) MathWithText.size(s, g.getFont()).getHeight() / 2);
+						g.drawString(s, b * cellW + cellW / 2 - (int) MathUtils.size(s, g.getFont()).getWidth() / 2,
+								a * cellH + cellH / 2 + (int) MathUtils.size(s, g.getFont()).getHeight() / 2);
 					}
 				}
 			image = bi;
@@ -213,7 +215,8 @@ public class TableSelection implements Transferable, ClipboardOwner
 	}
 
 	/**
-	 * Returns an array of flavors in which this <code>Transferable</code> can provide the data. <code>DataFlavor.stringFlavor</code> is properly supported.
+	 * Returns an array of flavors in which this <code>Transferable</code> can
+	 * provide the data. <code>DataFlavor.stringFlavor</code> is properly supported.
 	 * Support for <code>DataFlavor.plainTextFlavor</code> is <b>deprecated</b>.
 	 *
 	 * @return an array of length two, whose elements are <code>DataFlavor.
@@ -227,12 +230,15 @@ public class TableSelection implements Transferable, ClipboardOwner
 	}
 
 	/**
-	 * Returns whether the requested flavor is supported by this <code>Transferable</code>.
+	 * Returns whether the requested flavor is supported by this
+	 * <code>Transferable</code>.
 	 *
 	 * @param flavor
 	 *            the requested flavor for the data
-	 * @return true if <code>flavor</code> is equal to <code>DataFlavor.stringFlavor</code> or <code>DataFlavor.plainTextFlavor</code>; false if
-	 *         <code>flavor</code> is not one of the above flavors
+	 * @return true if <code>flavor</code> is equal to
+	 *         <code>DataFlavor.stringFlavor</code> or
+	 *         <code>DataFlavor.plainTextFlavor</code>; false if <code>flavor</code>
+	 *         is not one of the above flavors
 	 * @throws NullPointerException
 	 *             if flavor is <code>null</code>
 	 */
@@ -250,19 +256,26 @@ public class TableSelection implements Transferable, ClipboardOwner
 	}
 
 	/**
-	 * Returns the <code>Transferable</code>'s data in the requested <code>DataFlavor</code> if possible. If the desired flavor is
-	 * <code>DataFlavor.stringFlavor</code>, or an equivalent flavor, the <code>String</code> representing the selection is returned. If the desired flavor is
-	 * <code>DataFlavor.plainTextFlavor</code>, or an equivalent flavor, a <code>Reader</code> is returned. <b>Note:</b> The behavior of this method for
-	 * <code>DataFlavor.plainTextFlavor</code> and equivalent <code>DataFlavor</code>s is inconsistent with the definition of
+	 * Returns the <code>Transferable</code>'s data in the requested
+	 * <code>DataFlavor</code> if possible. If the desired flavor is
+	 * <code>DataFlavor.stringFlavor</code>, or an equivalent flavor, the
+	 * <code>String</code> representing the selection is returned. If the desired
+	 * flavor is <code>DataFlavor.plainTextFlavor</code>, or an equivalent flavor, a
+	 * <code>Reader</code> is returned. <b>Note:</b> The behavior of this method for
+	 * <code>DataFlavor.plainTextFlavor</code> and equivalent
+	 * <code>DataFlavor</code>s is inconsistent with the definition of
 	 * <code>DataFlavor.plainTextFlavor</code>.
 	 *
 	 * @param flavor
 	 *            the requested flavor for the data
 	 * @return the data in the requested flavor, as outlined above
 	 * @throws UnsupportedFlavorException
-	 *             if the requested data flavor is not equivalent to either <code>DataFlavor.stringFlavor</code> or <code>DataFlavor.plainTextFlavor</code>
+	 *             if the requested data flavor is not equivalent to either
+	 *             <code>DataFlavor.stringFlavor</code> or
+	 *             <code>DataFlavor.plainTextFlavor</code>
 	 * @throws IOException
-	 *             if an IOException occurs while retrieving the data. By default, StringSelection never throws this exception, but a subclass may.
+	 *             if an IOException occurs while retrieving the data. By default,
+	 *             StringSelection never throws this exception, but a subclass may.
 	 * @throws NullPointerException
 	 *             if flavor is <code>null</code>
 	 * @see java.io.Reader

@@ -3,6 +3,8 @@ package ru.alexanderdv.schooltester.utilities;
 import java.io.File;
 import java.util.ArrayList;
 
+import ru.alexanderdv.schooltester.main.Main;
+
 /**
  * 
  * @author AlexanderDV
@@ -10,8 +12,10 @@ import java.util.ArrayList;
  */
 public final class Statistics
 {
-	public static ArrayList<Config> getStatistics(String testFileName, String test, String classNumber, String classLetter, String surname, String name,
-			String secondName)
+	private static final MessageSystem msgSys = Main.msgSys;
+
+	public static ArrayList<Config> getStatistics(String testFileName, String test, String classNumber,
+			String classLetter, String surname, String name, String secondName)
 	{
 		File results = new File("Results");
 		if (!results.isDirectory() && results.exists())
@@ -28,22 +32,23 @@ public final class Statistics
 						Config cfg = new Config(file);
 						String language = cfg.getString("syntaxLanguage", null, false);
 						if (test != null)
-							if (!cfg.getString(MessageSystem.getMsg("testName", language), null, false).equals(test))
+							if (!cfg.getString(msgSys.getMsg("testName", language), null, false).equals(test))
 								continue;
 						if (surname != null)
-							if (!cfg.getString(MessageSystem.getMsg("studentSurname", language), null, false).equals(surname))
+							if (!cfg.getString(msgSys.getMsg("studentSurname", language), null, false).equals(surname))
 								continue;
 						if (name != null)
-							if (!cfg.getString(MessageSystem.getMsg("studentName", language), null, false).equals(name))
+							if (!cfg.getString(msgSys.getMsg("studentName", language), null, false).equals(name))
 								continue;
 						if (secondName != null)
-							if (!cfg.getString(MessageSystem.getMsg("studentSecondName", language), null, false).equals(secondName))
+							if (!cfg.getString(msgSys.getMsg("studentSecondName", language), null, false)
+									.equals(secondName))
 								continue;
 						if (classNumber != null)
-							if (!cfg.getString(MessageSystem.getMsg("classNumber", language), null, false).equals(classNumber))
+							if (!cfg.getString(msgSys.getMsg("classNumber", language), null, false).equals(classNumber))
 								continue;
 						if (classLetter != null)
-							if (!cfg.getString(MessageSystem.getMsg("classLetter", language), null, false).equals(classLetter))
+							if (!cfg.getString(msgSys.getMsg("classLetter", language), null, false).equals(classLetter))
 								continue;
 						configs.add(cfg);
 					}

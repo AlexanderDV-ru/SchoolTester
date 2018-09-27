@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
  * @author AlexanderDV/AlexandrDV
  * @version 5.9.5a
  */
+@Deprecated
 public class InitCalculatorPart
 {
 	public static InitCalculatorPart instance;

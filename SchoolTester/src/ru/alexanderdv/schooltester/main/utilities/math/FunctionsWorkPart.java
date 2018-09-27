@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
 
 /**
  * 
@@ -54,15 +54,15 @@ public final class FunctionsWorkPart extends ProtectedFXWindow
 		changepointsToBuildCount(50, 1);
 		changeDetalisationTextfield.setOnAction(e ->
 		{
-			pointsToBuildCountTextfield.setText(MathWithText.parseI(changeDetalisationTextfield.getText()) + "");
-			stepTextfield.setText(50d / MathWithText.parseI(changeDetalisationTextfield.getText()) * MathWithText.parseD(stepTextfield.getText()) + "");
-			updateGraphic(masshtab, changepointsToBuildCount(pointsToBuildCount = MathWithText.parseI(pointsToBuildCountTextfield.getText()),
-					step = MathWithText.parseD(stepTextfield.getText())), drawOnlyPoints);
+			pointsToBuildCountTextfield.setText(MathUtils.parseI(changeDetalisationTextfield.getText()) + "");
+			stepTextfield.setText(50d / MathUtils.parseI(changeDetalisationTextfield.getText()) * MathUtils.parseD(stepTextfield.getText()) + "");
+			updateGraphic(masshtab, changepointsToBuildCount(pointsToBuildCount = MathUtils.parseI(pointsToBuildCountTextfield.getText()),
+					step = MathUtils.parseD(stepTextfield.getText())), drawOnlyPoints);
 		});
-		stepTextfield.setOnAction(e -> updateGraphic(masshtab, changepointsToBuildCount(pointsToBuildCount, step = MathWithText.parseD(stepTextfield
+		stepTextfield.setOnAction(e -> updateGraphic(masshtab, changepointsToBuildCount(pointsToBuildCount, step = MathUtils.parseD(stepTextfield
 				.getText())), drawOnlyPoints));
-		masshtabTextfield.setOnAction(e -> updateGraphic(masshtab = MathWithText.parseD(masshtabTextfield.getText()), pointsToBuildCount, drawOnlyPoints));
-		pointsToBuildCountTextfield.setOnAction(e -> updateGraphic(masshtab, changepointsToBuildCount(MathWithText.parseI(pointsToBuildCountTextfield
+		masshtabTextfield.setOnAction(e -> updateGraphic(masshtab = MathUtils.parseD(masshtabTextfield.getText()), pointsToBuildCount, drawOnlyPoints));
+		pointsToBuildCountTextfield.setOnAction(e -> updateGraphic(masshtab, changepointsToBuildCount(MathUtils.parseI(pointsToBuildCountTextfield
 				.getText()), step), drawOnlyPoints));
 		onlyPoints.setOnAction(e -> updateGraphic(masshtab, pointsToBuildCount, drawOnlyPoints = onlyPoints.isSelected()));
 		formula.setOnAction(e -> updateGraphic(masshtab, pointsToBuildCount, drawOnlyPoints));
@@ -97,7 +97,7 @@ public final class FunctionsWorkPart extends ProtectedFXWindow
 		xPositions = defXP;
 		for (int i = 0; i < pointsToBuildCount; i++)
 		{
-			yPositions[i] = MathWithText.calculate(formula.getText().replace("x", "" + xPositions[i]));
+			yPositions[i] = MathUtils.calculate(formula.getText().replace("x", "" + xPositions[i]));
 			lines[i].setVisible(false);
 			points[i].setVisible(false);
 			if (!drawOnlyPoints)

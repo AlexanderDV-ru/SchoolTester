@@ -9,6 +9,7 @@ import javafx.scene.control.TabPane;
  * @author AlexanderDV/AlexandrDV
  * @version 5.9.5a
  */
+@Deprecated
 public class InitElectronicBooksPart
 {
 	public static InitElectronicBooksPart instance;

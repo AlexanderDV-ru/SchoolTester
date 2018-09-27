@@ -20,8 +20,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
+import ru.alexanderdv.fxutilities.components.ComboboxWithAdd;
 import ru.alexanderdv.schooltester.utilities.enums.Subject;
-import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.types.Account;
@@ -33,6 +33,7 @@ import ru.alexanderdv.schooltester.utilities.types.Person.Rodstvennik;
  * @author AlexanderDV
  * @version 6.1.5a
  */
+@Deprecated
 public final class InitAccountsPart
 {
 	public static InitAccountsPart instance;
@@ -86,20 +87,21 @@ public final class InitAccountsPart
 	@FXML
 	public Tab familyTab;
 	@FXML
-	public Label maritalStatusLabel, grandParentsLabel, parentsLabel, childrenLabel, grandChildrenLabel, siblingsLabel, exSpousesLabel, spouseLabel,
-			otherRelativesLabel;
+	public Label maritalStatusLabel, grandParentsLabel, parentsLabel, childrenLabel, grandChildrenLabel, siblingsLabel,
+			exSpousesLabel, spouseLabel, otherRelativesLabel;
 	@FXML
 	public TextField maritalStatusField, spouseField;
 	@FXML
-	public ComboboxWithAdd grandParentsCombobox, parentsCombobox, childrenCombobox, grandChildrenCombobox, siblingsCombobox, exSpousesCombobox,
-			otherRelativesCombobox;
+	public ComboboxWithAdd grandParentsCombobox, parentsCombobox, childrenCombobox, grandChildrenCombobox,
+			siblingsCombobox, exSpousesCombobox, otherRelativesCombobox;
 
 	@FXML
 	public Tab contactsTab;
 	@FXML
 	public Label phoneNumbersLabel, emailsLabel, personalSitesLabel, otherSitesLabel, otherContactsLabel;
 	@FXML
-	public ComboboxWithAdd phoneNumbersCombobox, emailsCombobox, personalSitesCombobox, otherSitesCombobox, otherContactsCombobox;
+	public ComboboxWithAdd phoneNumbersCombobox, emailsCombobox, personalSitesCombobox, otherSitesCombobox,
+			otherContactsCombobox;
 
 	@FXML
 	public Tab lifeTab;
@@ -117,13 +119,17 @@ public final class InitAccountsPart
 	@FXML
 	public Tab ideasTab;
 	@FXML
-	public Label aboutAlhogolLabel, aboutNarcoticsLabel, aboutSmokingLabel, ideasLabel, interestsLabel, favouriteBlogsLabel, favouriteBooksLabel,
-			favouriteComputerGamesLabel, favouriteFilmsLabel, favouriteGamesLabel, favouriteMusicLabel, favouritePeopleLabel, favouriteShowsLabel,
-			favouriteQuotesLabel, mainInLifeLabel, mainInPeopleLabel, worldOutlookLabel, otherViewsLabel, politicalViewsLabel, inspirationLabel;
+	public Label aboutAlhogolLabel, aboutNarcoticsLabel, aboutSmokingLabel, ideasLabel, interestsLabel,
+			favouriteBlogsLabel, favouriteBooksLabel, favouriteComputerGamesLabel, favouriteFilmsLabel,
+			favouriteGamesLabel, favouriteMusicLabel, favouritePeopleLabel, favouriteShowsLabel, favouriteQuotesLabel,
+			mainInLifeLabel, mainInPeopleLabel, worldOutlookLabel, otherViewsLabel, politicalViewsLabel,
+			inspirationLabel;
 	@FXML
-	public TextField aboutAlhogolField, aboutNarcoticsField, aboutSmokingField, ideasField, interestsField, favouriteBlogsField, favouriteBooksField,
-			favouriteComputerGamesField, favouriteFilmsField, favouriteGamesField, favouriteMusicField, favouritePeopleField, favouriteShowsField,
-			favouriteQuotesField, mainInLifeField, mainInPeopleField, worldOutlookField, otherViewsField, politicalViewsField, inspirationField;
+	public TextField aboutAlhogolField, aboutNarcoticsField, aboutSmokingField, ideasField, interestsField,
+			favouriteBlogsField, favouriteBooksField, favouriteComputerGamesField, favouriteFilmsField,
+			favouriteGamesField, favouriteMusicField, favouritePeopleField, favouriteShowsField, favouriteQuotesField,
+			mainInLifeField, mainInPeopleField, worldOutlookField, otherViewsField, politicalViewsField,
+			inspirationField;
 
 	@FXML
 	public Tab aboutYouTab;
@@ -137,56 +143,55 @@ public final class InitAccountsPart
 	public Button saveButton;
 
 	@FXML
-	public GridPane profileMainFields, familyFields, contactsFields, lifeFields, lifeFields2, ideasFields, aboutYouFields;
+	public GridPane profileMainFields, familyFields, contactsFields, lifeFields, lifeFields2, ideasFields,
+			aboutYouFields;
 
 	@FXML
 	public ScrollPane ideasScrollpane;
-	//
-	// @FXML
-	// public MenuBar menubar;
-	// @FXML
-	// public RadioMenuItem languageRU, languageEN;
-	// @FXML
-	// public Menu window, settings, language, help;
-	// @FXML
-	// public MenuItem privacyPolicy, usersManual, site;
+
 	@FXML
 	public TabPane profileTabs;
 
 	public void createActionHandlers()
 	{
-		AccountsPart.account.addActionListener(e -> accountTypeCombobox.getSelectionModel().select(AccountsPart.account.get() == null ? AccountType.Student
-				: AccountsPart.account.get().getAccountType()));
+		AccountsPart.account.addChangeListener(e ->
+		{
+			accountTypeCombobox.getSelectionModel().select(AccountsPart.account.get() == null ? AccountType.Student
+					: AccountsPart.account.get().getAccountType());
+			AccountsPart.instance.resize();
+		});
 		for (MenuItem item : subjectsCombobox.getItems())
 			item.setOnAction(e ->
 			{
 				if (selectedsubjectsCombobox.contains(Subject.valueOf(item.getText().substring(offset))))
 					selectedsubjectsCombobox.remove(Subject.valueOf(item.getText().substring(offset)));
 				else selectedsubjectsCombobox.add(Subject.valueOf(item.getText().substring(offset)));
-				InitAccountsPart.instance.updateSelectedsubjectsCombobox();
+				updateSelectedsubjectsCombobox();
 			});
-		InitAccountsPart.instance.updateSelectedsubjectsCombobox();
-		InitAccountsPart.instance.signUpButton.setOnAction(e ->
-		{
-			if (passwordField.getText().equals(InitAccountsPart.instance.passwordRepeatField.getText()))
-			{
-				Main.sendToServer(new AccountPacket("signUp", AccountsPart.account.get(), new Account(InitAccountsPart.instance.accountTypeCombobox
-						.getSelectionModel().getSelectedItem(), InitAccountsPart.instance.loginField.getText(), InitAccountsPart.instance.passwordField
-								.getText())));
-			}
-			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
-		});
-		InitAccountsPart.instance.signInButton.setOnAction(e ->
-		{
-			Main.sendToServer(new AccountPacket("signIn", AccountsPart.account.get(), new Account(accountTypeCombobox.getSelectionModel()
-					.getSelectedItem(), loginField.getText(), passwordField.getText())));
-		});
-		InitAccountsPart.instance.deleteAccountButton.setOnAction(e ->
+		updateSelectedsubjectsCombobox();
+		signUpButton.setOnAction(e ->
 		{
 			if (passwordField.getText().equals(passwordRepeatField.getText()))
-				Main.sendToServer(new AccountPacket("deleteAccount", AccountsPart.account.get(), new Account(accountTypeCombobox.getSelectionModel()
-						.getSelectedItem(), loginField.getText(), passwordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
+			{
+				Main.sendToServer(new AccountPacket("signUp", AccountsPart.account.get(),
+						new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(),
+								passwordField.getText())));
+			}
+			else FXDialogsGenerator.showFXDialog((Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), null, true);
+		});
+		signInButton.setOnAction(e ->
+		{
+			Main.sendToServer(new AccountPacket("signIn", AccountsPart.account.get(),
+					new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(),
+							passwordField.getText())));
+		});
+		deleteAccountButton.setOnAction(e ->
+		{
+			if (passwordField.getText().equals(passwordRepeatField.getText()))
+				Main.sendToServer(new AccountPacket("deleteAccount", AccountsPart.account.get(),
+						new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(),
+								passwordField.getText())));
+			else FXDialogsGenerator.showFXDialog((Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), null, true);
 		});
 		signOutButton.setOnAction(e ->
 		{
@@ -196,7 +201,8 @@ public final class InitAccountsPart
 		{
 			if (passwordField.getText().equals(passwordRepeatField.getText()))
 			{
-				Account account = new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(), passwordField.getText());
+				Account account = new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(),
+						loginField.getText(), passwordField.getText());
 				account.setSurname(surnameField.getText());
 				account.setName(nameField.getText());
 				account.setSecondName(secondNameField.getText());
@@ -209,25 +215,25 @@ public final class InitAccountsPart
 					account.getSubjects().add(subject);
 
 				account.setMaritalStatus(maritalStatusField.getText());
-				account.getGrandParents().addAll(sToR(grandParentsCombobox.getItems()));
-				account.getParents().addAll(sToR(parentsCombobox.getItems()));
-				account.getChildren().addAll(sToR(childrenCombobox.getItems()));
-				account.getGrandChildren().addAll(sToR(grandChildrenCombobox.getItems()));
-				account.getSiblings().addAll(sToR(siblingsCombobox.getItems()));
-				account.getExSpouses().addAll(sToR(exSpousesCombobox.getItems()));
+				setAll(account.getGrandParents(),sToR(grandParentsCombobox.getItems()));
+				setAll(account.getParents(),sToR(parentsCombobox.getItems()));
+				setAll(account.getChildren(),sToR(childrenCombobox.getItems()));
+				setAll(account.getGrandChildren(),sToR(grandChildrenCombobox.getItems()));
+				setAll(account.getSiblings(),sToR(siblingsCombobox.getItems()));
+				setAll(account.getExSpouses(),sToR(exSpousesCombobox.getItems()));
 				account.setSpouse(sToR(spouseField.getText()));
-				account.getOtherRelatives().addAll(sToR(otherRelativesCombobox.getItems()));
+				setAll(account.getOtherRelatives(),sToR(otherRelativesCombobox.getItems()));
 
-				account.getPhoneNumbers().addAll(phoneNumbersCombobox.getItems());
-				account.getEmails().addAll(emailsCombobox.getItems());
-				account.getPersonalSites().addAll(personalSitesCombobox.getItems());
-				account.getOtherSites().addAll(otherSitesCombobox.getItems());
-				account.getOtherContacts().addAll(otherContactsCombobox.getItems());
+				setAll(account.getPhoneNumbers(),phoneNumbersCombobox.getItems());
+				setAll(account.getEmails(),emailsCombobox.getItems());
+				setAll(account.getPersonalSites(),personalSitesCombobox.getItems());
+				setAll(account.getOtherSites(),otherSitesCombobox.getItems());
+				setAll(account.getOtherContacts(),otherContactsCombobox.getItems());
 
 				account.setAge(ageField.getText());
 				account.setGender(genderCombobox.getSelectionModel().getSelectedItem());
-				account.getMainLanguages().addAll(mainLanguagesCombobox.getItems());
-				account.getOtherLanguages().addAll(otherLanguagesCombobox.getItems());
+				setAll(account.getMainLanguages(),mainLanguagesCombobox.getItems());
+				setAll(account.getOtherLanguages(),otherLanguagesCombobox.getItems());
 				account.setEducation(educationArea.getText());
 				account.setCarriere(careerArea.getText());
 
@@ -258,14 +264,16 @@ public final class InitAccountsPart
 				account.setHomeCity(homeCityField.getText());
 				Main.sendToServer(new AccountPacket("changeProfileInfo", account, account));
 			}
-			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
+			else FXDialogsGenerator.showFXDialog((Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), null, true);
 		});
 		changePasswordButton.setOnAction(e ->
 		{
-			if (newPasswordField.getText().equals(newPasswordRepeatField.getText()) && passwordField.getText().equals(passwordRepeatField.getText()))
-				Main.sendToServer(new AccountPacket("changeSecurityInfo", AccountsPart.account.get(), new Account(accountTypeCombobox
-						.getSelectionModel().getSelectedItem(), loginField.getText(), newPasswordField.getText())));
-			else FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), 1, null, true);
+			if (newPasswordField.getText().equals(newPasswordRepeatField.getText())
+					&& passwordField.getText().equals(passwordRepeatField.getText()))
+				Main.sendToServer(new AccountPacket("changeSecurityInfo", AccountsPart.account.get(),
+						new Account(accountTypeCombobox.getSelectionModel().getSelectedItem(), loginField.getText(),
+								newPasswordField.getText())));
+			else FXDialogsGenerator.showFXDialog((Stage) null, Main.msgSys.getMsg("passwordsNotMatch"), null, true);
 		});
 
 		securityTab.setOnSelectionChanged(e -> AccountsPart.instance.resize());
@@ -282,6 +290,12 @@ public final class InitAccountsPart
 		signOutTab.setOnSelectionChanged(e -> handleTabSelect());
 		deleteAccountTab.setOnSelectionChanged(e -> handleTabSelect());
 		changeVisibleTabs(AccountsPart.account.get());
+	}
+
+	private <E> void setAll(Collection<E> es, Collection<E> es2)
+	{
+		es.clear();
+		es.addAll(es2);
 	}
 
 	public void resize(int w, int h)
@@ -316,15 +330,18 @@ public final class InitAccountsPart
 		aboutYouFields.setLayoutX(w / 2 - aboutYouFields.getWidth() / 2);
 		contactsFields.setLayoutX(w / 2 - contactsFields.getWidth() / 2);
 
-		// TODO расширение скрол пейна у идеас фиелдс в высоту пока может и в ширину полностью
+		// TODO расширение скрол пейна у идеас фиелдс в высоту пока может и в ширину
+		// полностью
 
 		saveButton.setLayoutX(w / 2 - saveButton.getWidth() / 2);
 
 		loginField.setLayoutY(Main.spaceBetweenComponents);
 		accountTypeCombobox.setLayoutY(Main.spaceBetweenComponents);
 		passwordField.setLayoutY(Main.spaceBetweenComponents + loginField.getLayoutY() + loginField.getHeight());
-		passwordRepeatField.setLayoutY(Main.spaceBetweenComponents + passwordField.getLayoutY() + passwordField.getHeight());
-		tabPane.setLayoutY(Main.spaceBetweenComponents + passwordRepeatField.getLayoutY() + passwordRepeatField.getHeight());
+		passwordRepeatField
+				.setLayoutY(Main.spaceBetweenComponents + passwordField.getLayoutY() + passwordField.getHeight());
+		tabPane.setLayoutY(
+				Main.spaceBetweenComponents + passwordRepeatField.getLayoutY() + passwordRepeatField.getHeight());
 
 		tabPane.setPrefHeight(h - tabPane.getLayoutY());
 		saveButton.setLayoutY(tabPane.sceneToLocal(0, h).getY() - saveButton.getHeight() - Main.spaceBetweenComponents);
@@ -334,7 +351,8 @@ public final class InitAccountsPart
 		if (ideasFields.getParent() instanceof Region)
 			((Region) ideasFields.getParent()).setPrefHeight(ideasFields.getHeight());
 		ideasScrollpane.setLayoutY(0);
-		ideasScrollpane.setPrefHeight(Math.min(profileTabs.getPrefHeight() - Main.titleHeight, ideasFields.getHeight() + 2));
+		ideasScrollpane.setPrefHeight(
+				Math.min(profileTabs.getPrefHeight() - Main.tabsSwitchHeight, ideasFields.getHeight() + 2));
 	}
 
 	CheckMenuItem showAllTabsItem;
@@ -511,25 +529,25 @@ public final class InitAccountsPart
 		updateSelectedsubjectsCombobox();
 
 		maritalStatusField.setText(account.getMaritalStatus());
-		grandParentsCombobox.getItems().addAll(rToS(account.getGrandParents()));
-		parentsCombobox.getItems().addAll(rToS(account.getParents()));
-		childrenCombobox.getItems().addAll(rToS(account.getChildren()));
-		grandChildrenCombobox.getItems().addAll(rToS(account.getGrandChildren()));
-		siblingsCombobox.getItems().addAll(rToS(account.getSiblings()));
-		exSpousesCombobox.getItems().addAll(rToS(account.getExSpouses()));
+		setAll(grandParentsCombobox.getItems(),rToS(account.getGrandParents()));
+		setAll(parentsCombobox.getItems(),rToS(account.getParents()));
+		setAll(childrenCombobox.getItems(),rToS(account.getChildren()));
+		setAll(grandChildrenCombobox.getItems(),rToS(account.getGrandChildren()));
+		setAll(siblingsCombobox.getItems(),rToS(account.getSiblings()));
+		setAll(exSpousesCombobox.getItems(),rToS(account.getExSpouses()));
 		spouseField.setText(rToS(account.getSpouse()));
-		otherRelativesCombobox.getItems().addAll(rToS(account.getOtherRelatives()));
+		setAll(otherRelativesCombobox.getItems(),rToS(account.getOtherRelatives()));
 
-		phoneNumbersCombobox.getItems().addAll(account.getPhoneNumbers());
-		emailsCombobox.getItems().addAll(account.getEmails());
-		personalSitesCombobox.getItems().addAll(account.getPersonalSites());
-		otherSitesCombobox.getItems().addAll(account.getOtherSites());
-		otherContactsCombobox.getItems().addAll(account.getOtherContacts());
+		setAll(phoneNumbersCombobox.getItems(),account.getPhoneNumbers());
+		setAll(emailsCombobox.getItems(),account.getEmails());
+		setAll(personalSitesCombobox.getItems(),account.getPersonalSites());
+		setAll(otherSitesCombobox.getItems(),account.getOtherSites());
+		setAll(otherContactsCombobox.getItems(),account.getOtherContacts());
 
 		ageField.setText(account.getAge());
 		genderCombobox.getSelectionModel().select(account.getGender());
-		mainLanguagesCombobox.getItems().addAll(account.getMainLanguages());
-		otherLanguagesCombobox.getItems().addAll(account.getOtherLanguages());
+		setAll(mainLanguagesCombobox.getItems(),account.getMainLanguages());
+		setAll(otherLanguagesCombobox.getItems(),account.getOtherLanguages());
 		educationArea.setText(account.getEducation());
 		careerArea.setText(account.getCarriere());
 
@@ -583,23 +601,26 @@ public final class InitAccountsPart
 
 	private Rodstvennik sToR(String s)
 	{
-		return new Rodstvennik((s + ", , , ").split(",")[0], (s + ", , , ").split(",")[1], (s + ", , , ").split(",")[2], (s + ", , , ").split(",")[3]);
+		return new Rodstvennik((s + ", , , ").split(",")[0], (s + ", , , ").split(",")[1], (s + ", , , ").split(",")[2],
+				(s + ", , , ").split(",")[3]);
 	}
 
 	int offset = 4;
 
 	void updateSelectedsubjectsCombobox()
 	{
-		MenuButton subjectsCombobox = InitAccountsPart.instance.subjectsCombobox;
-		ArrayList<Subject> selectedsubjectsCombobox = InitAccountsPart.instance.selectedsubjectsCombobox;
+		MenuButton subjectsCombobox = this.subjectsCombobox;
+		ArrayList<Subject> selectedsubjectsCombobox = this.selectedsubjectsCombobox;
 		String s = "";
 		for (int i = 0; i < subjectsCombobox.getItems().size(); i++)
 			for (int j = 0; j < selectedsubjectsCombobox.size(); j++)
-				if (subjectsCombobox.getItems().get(i).getText().substring(offset).equals(selectedsubjectsCombobox.get(j).name()))
+				if (subjectsCombobox.getItems().get(i).getText().substring(offset)
+						.equals(selectedsubjectsCombobox.get(j).name()))
 					s += (s != "" ? "; " : "") + selectedsubjectsCombobox.get(j);
 		for (MenuItem item2 : subjectsCombobox.getItems())
-			item2.setText((selectedsubjectsCombobox.contains(Subject.valueOf(item2.getText().substring(offset))) ? "  ✔\t" : "   \t") + item2.getText()
-					.substring(offset));
+			item2.setText(
+					(selectedsubjectsCombobox.contains(Subject.valueOf(item2.getText().substring(offset))) ? "  ✔\t"
+							: "   \t") + item2.getText().substring(offset));
 		subjectsCombobox.setText(s);
 	}
 }

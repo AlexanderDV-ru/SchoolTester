@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane;
  * @author AlexanderDV/AlexandrDV
  * @version 5.9.5a
  */
+@Deprecated
 public class InitFunctionsWorkPart
 {
 	public static InitFunctionsWorkPart instance;

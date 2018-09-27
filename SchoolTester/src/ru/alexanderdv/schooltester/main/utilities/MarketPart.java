@@ -9,14 +9,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import ru.alexanderdv.schooltester.main.AccountsPart;
 import ru.alexanderdv.schooltester.main.Main;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.enums.SearchType;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
@@ -25,6 +23,7 @@ import ru.alexanderdv.schooltester.utilities.network.SearchInMarketPacket;
 import ru.alexanderdv.schooltester.utilities.types.SearchResult;
 import ru.alexanderdv.schooltester.utilities.types.TestSearchResult;
 import ru.alexanderdv.schooltester.utilities.types.TestToMarket;
+import ru.alexanderdv.simpleutilities.SystemUtils;
 
 /**
  * 
@@ -162,9 +161,9 @@ public final class MarketPart extends ProtectedFXWindow
 								Main.sendToServer(new MarketUserDoPacket("load", result.getType(), result.getAuthor(), result.getTest(), result
 										.getVersion(), AccountsPart.account.get().getLogin()));
 							});
-							FXDialogsGenerator.showFXDialog(stage, (Stage) null, new File("Tests/" + testToMarket.getDirName()).exists()
+							FXDialogsGenerator.showFXDialog(stage, new File("Tests/" + testToMarket.getDirName()).exists()
 									? "Test already exists! Overrided test can be lost! Override the test file?"
-									: "Load test?", 0, load2, true);
+									: "Load test?", load2, true);
 						});
 						Button like = new Button("Like");
 						like.setOnAction(e ->

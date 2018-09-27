@@ -10,15 +10,15 @@ public final class TestingTask implements Serializable
 {
 	private static final long serialVersionUID = 2066912458987023167L;
 	private final TaskType type;
-	private final String teacher;
+	private final TesterInfo testerInfo;
 	private final TestToMarket test;
 	private final TestSettings settings;
 	private final TestingPartSettings testingPartSettings;
 
-	public TestingTask(TaskType type, String teacher, TestToMarket test, TestSettings settings, TestingPartSettings testingPartSettings)
+	public TestingTask(TaskType type, TesterInfo testerInfo, TestToMarket test, TestSettings settings, TestingPartSettings testingPartSettings)
 	{
 		this.type = type;
-		this.teacher = teacher;
+		this.testerInfo = testerInfo;
 		this.test = test;
 		this.settings = settings;
 		this.testingPartSettings = testingPartSettings;
@@ -33,11 +33,11 @@ public final class TestingTask implements Serializable
 	}
 
 	/**
-	 * @return the teacher
+	 * @return the tester info
 	 */
-	public String getTeacher()
+	public TesterInfo getTesterInfo()
 	{
-		return teacher;
+		return testerInfo;
 	}
 
 	/**
@@ -69,10 +69,5 @@ public final class TestingTask implements Serializable
 		Homework,
 		Control,
 
-	}
-
-	public boolean get()
-	{
-		return false;
 	}
 }

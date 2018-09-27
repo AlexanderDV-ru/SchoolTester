@@ -6,8 +6,8 @@ import java.net.URL;
 
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import ru.alexanderdv.schooltester.main.TCPClient;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
+import ru.alexanderdv.schooltester.utilities.network.TCPClient;
 import ru.alexanderdv.schooltester.utilities.types.Account;
 
 /**
@@ -20,7 +20,8 @@ public abstract class ProtectedFXWindow extends FXWindow
 
 	private final int level;
 
-	public ProtectedFXWindow(String secondaryTitle, Pane panel, int type, int level, boolean inDevelope, boolean resizable)
+	public ProtectedFXWindow(String secondaryTitle, Pane panel, int type, int level, boolean inDevelope,
+			boolean resizable)
 	{
 		super(secondaryTitle, panel, type, inDevelope, resizable);
 		this.level = level;
@@ -46,24 +47,17 @@ public abstract class ProtectedFXWindow extends FXWindow
 
 	public Stage open(Rectangle parent, Account account, TCPClient client) throws Exception
 	{
-		System.out.println("mark4");
 		if (account == null && level > 0)
 			throw new Exception(msgSys.getMsg("protectionIsWeak"));
-		System.out.println("mark5");
 		if (level > 1)
 		{
 			try
 			{
-				System.out.println("mark6");
 				client.send(new AccountPacket("checkAccount", null, account));
-				System.out.println("mark7");
 				AccountPacket packet = client.waitToRecieve(AccountPacket.class);
-				System.out.println("mark8");
-				if (packet.getRequest().equals("accountConfirmed") && packet.getNewAccount().getLogin().equals(account.getLogin()))
-				{
-				}
-				else throw new Exception(msgSys.getMsg("protectionIsWeak"));
-				System.out.println("mark9");
+				if (!packet.getRequest().equals("accountConfirmed")
+						|| !packet.getNewAccount().getLogin().equals(account.getLogin()))
+					throw new Exception(msgSys.getMsg("protectionIsWeak"));
 			}
 			catch (SocketTimeoutException e)
 			{
@@ -75,7 +69,8 @@ public abstract class ProtectedFXWindow extends FXWindow
 
 	public Stage open(Stage parent, Account account, TCPClient client) throws Exception
 	{
-		return this.open(new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(), (int) parent.getHeight()), account, client);
+		return this.open(parent!=null?new Rectangle((int) parent.getX(), (int) parent.getY(), (int) parent.getWidth(),
+				(int) parent.getHeight()):null, account, client);
 	}
 
 }

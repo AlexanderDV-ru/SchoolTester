@@ -2,10 +2,6 @@ package ru.alexanderdv.schooltester.main;
 
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.Timer;
+
+import org.jsoup.parser.Parser;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -23,7 +20,6 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.geometry.VPos;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -31,7 +27,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -51,42 +46,53 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Stage;
+import javafx.scene.web.WebView;
 import ru.alexanderdv.fxutilities.components.ButtonFX;
 import ru.alexanderdv.fxutilities.components.ButtonFX.ButtonFXHtmlContent;
 import ru.alexanderdv.fxutilities.components.ButtonFX.ButtonFXTextContent;
+import ru.alexanderdv.schooltester.utilities.ImageSelection;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.SecureContainer;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.network.OnlineLoginsPacket;
 import ru.alexanderdv.schooltester.utilities.network.ResultSendPacket;
-import ru.alexanderdv.schooltester.utilities.types.StudentInfo;
+import ru.alexanderdv.schooltester.utilities.questionvars.Answer;
+import ru.alexanderdv.schooltester.utilities.questionvars.AnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.ArrangementAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.ArrangementQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneResult;
+import ru.alexanderdv.schooltester.utilities.questionvars.DistributionAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.DistributionQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextResult;
+import ru.alexanderdv.schooltester.utilities.questionvars.HtmlAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.MatchingAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.MatchingQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.Question;
+import ru.alexanderdv.schooltester.utilities.questionvars.Result;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleAnswer;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleResult;
 import ru.alexanderdv.schooltester.utilities.types.Test;
+import ru.alexanderdv.schooltester.utilities.types.TestResult;
 import ru.alexanderdv.schooltester.utilities.types.TestSettings;
+import ru.alexanderdv.schooltester.utilities.types.TesteeInfo;
+import ru.alexanderdv.schooltester.utilities.types.TesterInfo;
 import ru.alexanderdv.schooltester.utilities.types.TestingPartSettings;
 import ru.alexanderdv.schooltester.utilities.types.Theme;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.Answer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.HtmlAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.Question;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeAnswer;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeQuestion;
+import ru.alexanderdv.simpleutilities.ByteUtils;
+import ru.alexanderdv.simpleutilities.Container;
 import ru.alexanderdv.simpleutilities.Entry;
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
+import ru.alexanderdv.simpleutilities.SecureContainer;
+import ru.alexanderdv.simpleutilities.SystemUtils;
 
 /**
  * 
@@ -95,9 +101,12 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  */
 public final class TestingPart extends ProtectedFXWindow
 {
-	private final ScrollPane questionSelectScrollPane;
-	private final ScrollPane answersScrollPane;
-	private final Pane questionSelectPanel, answersPanel, optionButtonsPanel;
+	public static TestingPart instance;
+	private final WebView htmlToText;
+
+	// private final ScrollPane questionSelectScrollPane;
+	// private final Pane questionSelectPanel;
+	private final Pane optionButtonsPanel;
 	private final ButtonFX questionSign;
 	private final Pane qualityIndicator;
 	private final Label questionInfoTextfield;
@@ -107,15 +116,15 @@ public final class TestingPart extends ProtectedFXWindow
 
 	private ButtonFX timer, skip, next, finish, back;
 
-	private static final MessageSystem msgSys = StartPart.msgSys;
+	private static final MessageSystem msgSys = Main.msgSys;
 	private Test test;
 	private Theme theme;
 	private Answer<?>[] answers;
 	private int[] buttonsArrangement;
 	private ArrayList<Integer>[] buttonsArrangementForDistribution;
-	private ArrayList<Integer> skippedQuestions;
-	private int currentQuestionNumber;
-	private int lastNotSkippedQuestion;
+	private ArrayList<SecureContainer<Integer>> skippedQuestions;
+	private SecureContainer<Integer> currentQuestionNumber;
+	private SecureContainer<Integer> lastNotSkippedQuestion;
 	// User answer
 	private boolean[] selectedAnswers;
 	private int selectedAnswerNumber;
@@ -124,53 +133,69 @@ public final class TestingPart extends ProtectedFXWindow
 	private ArrayList<Integer>[] answerArrangementForDistribution;
 	// User answer End
 
-	private final SecureContainer<Boolean> indicateQualityOfLastAnswer;
-	private final SecureContainer<Boolean> indicateQualityOfAllAnswers;
-	private final SecureContainer<Boolean> showRightAnswer;
-	private final SecureContainer<Boolean> canGoToAllQuestions;
-	private final SecureContainer<Boolean> skipButtonOption;
-	private final SecureContainer<Boolean> pauseOption;
-	private final SecureContainer<Boolean> pauseOnUnfocus;
+	private SecureContainer<Boolean> indicateQualityOfLastAnswer;
+	private SecureContainer<Boolean> indicateQualityOfAllAnswers;
+	private SecureContainer<Boolean> showRightAnswer;
+	private SecureContainer<Boolean> canGoToAllQuestions;
+	private SecureContainer<Boolean> skipButtonOption;
+	private SecureContainer<Boolean> pauseOption;
+	private SecureContainer<Boolean> pauseOnUnfocus;
 
-	private final boolean fixedQSelectBtnHeight;
-
-	private final SecureContainer<Boolean> paused;
-	private final SecureContainer<Integer> timeLimit;
-	private final SecureContainer<Float> timeOfTest, fullTime;
-	private final SecureContainer<Integer> rightAnswers, perfectAnswers;
-	private final SecureContainer<Integer> timeToPause;
-	private final SecureContainer<Long> lastTime;
-	private final SecureContainer<Boolean> finished;
+	private SecureContainer<Boolean> paused;
+	private SecureContainer<Integer> timeLimit;
+	private SecureContainer<Float> timeOfTest, fullTime;
+	private SecureContainer<Integer> timeToPause;
+	private SecureContainer<Long> lastTime;
+	private SecureContainer<Boolean> finished;
 
 	private boolean wasGoToEnd;
-	// private Pane questionSelectPanel, answersPanel;
-	private ButtonFX[] questionSelectAnswerButtons;
-	// private ButtonFX questionSign;
-	private ButtonFX[] answerButtons;
-	private ButtonFX enterButton;
-	// private ButtonFX timer, skip, next, finish, back;
-	// private Pane qualityIndicator;
+	// private ButtonFX[] questionSelectAnswerButtons;
+	private ButtonFX enterTextButton;
 	private Pane[] qualityIndicators;
 	private ButtonFX curBtn;
 	private String timerText = "";
 	private boolean showLogs;
-	private boolean fillAllHeight, maximazeHeight;
 	private static BackgroundImage clip, image, video, audio;
 	private static final double questionSignRounding = 40;
+	SecureContainer<Boolean> canSendResult;
+	SecureContainer<String> teacher;
+
+	private final ScrollPane answersScrollPane;
+	private final Pane answersPanel;
+	private ButtonFX[] answerButtons;
+	private static final int minAnswerButtonHeight = 48;
+
+	private final ScrollPane questionsScrollPane;
+	private final Pane questionsPanel;
+	private ButtonFX[] questionButtons;
+	private static final int minQuestionButtonHeight = 48;
+
+	private SecureContainer<TesteeInfo> testeeInfo;
+	private SecureContainer<TesterInfo> testerInfo;
+	String testFileName;
+
+	private static final Background warningBackground = new Background(
+			new BackgroundFill(new Color(1, 0.4, 0.4, 1), new CornerRadii(0), new Insets(0))),
+			standardBackground = new Background(new BackgroundFill(Color.WHITE, new CornerRadii(0), new Insets(0)));
+
 	static
 	{
 		try
 		{
 			double offset = questionSignRounding - Math.sqrt(Math.pow(questionSignRounding, 2) / 2);
 			BackgroundPosition position = new BackgroundPosition(Side.RIGHT, offset, false, Side.BOTTOM, offset, false);
-			clip = new BackgroundImage(new Image(TestingPart.class.getResource("/clip.png").openStream()), BackgroundRepeat.NO_REPEAT,
-					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
-			image = new BackgroundImage(new Image(TestingPart.class.getResource("/image.png").openStream()), BackgroundRepeat.NO_REPEAT,
-					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
-			video = new BackgroundImage(new Image(TestingPart.class.getResource("/video.png").openStream()), BackgroundRepeat.NO_REPEAT,
-					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
-			audio = new BackgroundImage(new Image(TestingPart.class.getResource("/audio.png").openStream()), BackgroundRepeat.NO_REPEAT,
-					BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			clip = new BackgroundImage(
+					new Image(TestingPart.class.getResource(Main.resourcesPath + "/images/clip.png").openStream()),
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			image = new BackgroundImage(
+					new Image(TestingPart.class.getResource(Main.resourcesPath + "/images/image.png").openStream()),
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			video = new BackgroundImage(
+					new Image(TestingPart.class.getResource(Main.resourcesPath + "/images/video.png").openStream()),
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
+			audio = new BackgroundImage(
+					new Image(TestingPart.class.getResource(Main.resourcesPath + "/images/audio.png").openStream()),
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, BackgroundSize.DEFAULT);
 		}
 		catch (IOException e)
 		{
@@ -178,8 +203,141 @@ public final class TestingPart extends ProtectedFXWindow
 			Main.exit(ExitCodes.UnknownError);
 		}
 	}
-	boolean canSendResult;
-	String teacher;
+
+	public void createNewTest(Theme theme, Test test, String testFileName, TesteeInfo testeeInfo, TesterInfo testerInfo,
+			TestSettings testSettings, TestingPartSettings testingPartSettings, Rectangle parentPos,
+			boolean canSendResult)
+	{
+		// Logging
+		testLog.clear();
+		// Logging End
+		doLog("Info", "Start");
+
+		// Init
+		this.theme = theme;
+		this.test = test;
+		this.testFileName = testFileName;
+		this.testeeInfo = new SecureContainer<TesteeInfo>(testeeInfo);
+		this.testerInfo = new SecureContainer<TesterInfo>(testerInfo);
+		this.testSettings = testSettings;
+		this.testingPartSettings = testingPartSettings;
+
+		skippedQuestions = new ArrayList<SecureContainer<Integer>>();
+		answers = new Answer<?>[test.getQuestions().length];
+		currentQuestionNumber = new SecureContainer<Integer>(0);
+		lastNotSkippedQuestion = new SecureContainer<Integer>(0);
+
+		this.indicateQualityOfLastAnswer = new SecureContainer<Boolean>(testSettings.isIndicateQualityOfLastAnswer());
+		this.indicateQualityOfAllAnswers = new SecureContainer<Boolean>(testSettings.isIndicateQualityOfAllAnswers());
+		this.showRightAnswer = new SecureContainer<Boolean>(testSettings.isShowRightAnswer());
+		this.canGoToAllQuestions = new SecureContainer<Boolean>(testSettings.isCanGoToAllQuestions());
+		this.skipButtonOption = new SecureContainer<Boolean>(testSettings.isSkipButtonOption());
+		this.pauseOption = new SecureContainer<Boolean>(
+				test.getTimeLimit() == -1 ? false : testSettings.isPauseOption());
+		this.pauseOnUnfocus = new SecureContainer<Boolean>(
+				test.getTimeLimit() == -1 ? false : testSettings.isPauseOnUnfocus());
+
+		paused = new SecureContainer<Boolean>(false);
+		fullTime = new SecureContainer<Float>(0f);
+		timeLimit = new SecureContainer<Integer>(test.getTimeLimit());
+		timeOfTest = new SecureContainer<Float>(test.getTimeLimit() == -1 ? -1f : 0f);
+		timeToPause = new SecureContainer<Integer>(test.getTimeLimit() == -1 ? -1 : 0);
+		lastTime = new SecureContainer<Long>(Calendar.getInstance().getTimeInMillis());
+		finished = new SecureContainer<Boolean>(false);
+
+		this.canSendResult = new SecureContainer<Boolean>(canSendResult);
+
+		ButtonFX.anticntrlc = testSettings.isAnticopy();
+		ButtonFX.antiscreenshot = testSettings.isAntiscreenshot();
+		ButtonFX.antish1 = e ->
+		{
+			if (testSettings.isAntiscreenshot())
+				if (e.getCode() == KeyCode.PRINTSCREEN)
+				{
+					doLog("Suspicious", "Screenshot");
+					Timer timer = new Timer(100, ae -> Toolkit.getDefaultToolkit().getSystemClipboard()
+							.setContents(new ImageSelection(new ImageIcon().getImage()), null));
+					timer.setRepeats(false);
+					timer.start();
+					FXDialogsGenerator.showFXDialog(stage, msgSys.getMsg("printscreenWasClicked"), null, true);
+				}
+		};
+		for (Question<?> q : test.getQuestions())
+		{
+			ArrayList<MediaPlayer> pl = new ArrayList<MediaPlayer>();
+			for (Media au : q.getAudios())
+			{
+				pl.add(new MediaPlayer(au));
+				pl.get(pl.size() - 1).play();
+			}
+			for (Media v : q.getVideos())
+			{
+				pl.add(new MediaPlayer(v));
+				pl.get(pl.size() - 1).play();
+			}
+			for (MediaPlayer m : pl)
+				m.stop();
+		}
+		createGUI();
+		for (int jj = 0; jj < answerButtons.length; jj++)
+		{
+			int j = jj;
+			answerButtons[j].addActionListener((e) ->
+			{
+				answerButtons[j]
+						.setClicked((test.getQuestions()[currentQuestionNumber.get()] instanceof ChooseOneQuestion
+								|| test.getQuestions()[currentQuestionNumber.get()] instanceof SelectMultipleQuestion)
+										? selectedAnswers[j] = !selectedAnswers[j]
+										: false);
+				updateButtonMenu(currentQuestionNumber.get(), j);
+				if (test.getQuestions()[currentQuestionNumber.get()] instanceof ChooseOneQuestion)
+					for (int k = 0; k < answerButtons.length; k++)
+						answerButtons[k].setClicked(j == k);
+			});
+		}
+		for (int jj = 0; jj < questionButtons.length; jj++)
+		{
+			int j = jj;
+			questionButtons[j].addActionListener(event ->
+			{
+				questionButtons[j].setClicked(false);
+				int prev = currentQuestionNumber.get();
+				currentQuestionNumber.set(j);
+				saveAnswer(prev);
+				openQuestion(prev, currentQuestionNumber.get());
+				for (ButtonFX btnx : questionButtons)
+				{
+					btnx.setClicked(false);
+					btnx.setPressedV(false);
+					btnx.setSelected(false);
+				}
+			});
+		}
+		// createQuestionSelectPanel();
+		updateQuestionsPane();
+		openQuestion(-1, 0);
+
+		lastTime.set(Calendar.getInstance().getTimeInMillis());
+		timer1.start();
+		createActionHandlers();
+		resize();
+		updateLabels();
+		try
+		{
+			open(parentPos, AccountsPart.account.get(), Main.client);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private void doLog(String mark, String rec)
+	{
+		testLog.put(Calendar.getInstance().getTimeInMillis(), new Entry<String, String>(mark, rec));
+	}
+
+	Timer timer1;
 
 	/**
 	 * 
@@ -204,197 +362,75 @@ public final class TestingPart extends ProtectedFXWindow
 	 * @param antiscreenshot
 	 */
 
-	public TestingPart(Rectangle parentPos, Test test, String testFileName, Theme theme, StudentInfo studentInfo, TestSettings settings,
-			TestingPartSettings testingPartSettings, boolean canSendResult, String teacher)
-	// {
-	// TODO Auto-generated constructor stub
-	// }
-	// public TestingPart(Rectangle parentPosition, final Test test, String testFileName, final Theme theme, String classNumber, String classLetter,
-	// String surname, String name, String secondName, boolean indicateQualityOfLastAnswer, boolean indicateQualityOfAllAnswers, boolean showRightAnswer,
-	// boolean canGoToAllQuestions, boolean skipButtonOption, boolean pauseOption, boolean pauseOnUnfocus, boolean anticopy, boolean antiscreenshot,
-	// boolean fixedQSelectBtnHeight, boolean hide, int spaceText, boolean fillAllHeight, boolean maximazeHeight)
+	public TestingPart()
 	{
 		super(null, Main.createPane(600, 800), 0, 1, true, true);
-		for (Question<?> q : test.getQuestions())
-		{
-			ArrayList<MediaPlayer> pl = new ArrayList<MediaPlayer>();
-			for (Media au : q.getAudios())
-			{
-				pl.add(new MediaPlayer(au));
-				pl.get(pl.size() - 1).play();
-			}
-			for (Media v : q.getVideos())
-			{
-				pl.add(new MediaPlayer(v));
-				pl.get(pl.size() - 1).play();
-			}
-			for (MediaPlayer m : pl)
-				m.stop();
-		}
+		instance = this;
 
 		panel.getChildren().add(this.testingPane = new Pane());
-		testingPane.getChildren().add(this.questionSelectScrollPane = new ScrollPane(this.questionSelectPanel = new Pane()));
-		testingPane.getChildren().add(this.questionSign = new ButtonFX(null, new CornerRadii(0, 0, questionSignRounding, questionSignRounding, false),
-				new CornerRadii(0, 0, questionSignRounding * 0.8, questionSignRounding * 0.8, false)));
+		panel.getChildren().add(this.htmlToText = new WebView());
+		htmlToText.setLayoutX(-10000);
+		// testingPane.getChildren()
+		// .add(this.questionSelectScrollPane = new ScrollPane(this.questionSelectPanel
+		// = new Pane()));
+		testingPane.getChildren().add(this.questionSign = new ButtonFX(null, new CornerRadii(0, 0, 8, 8, false),
+				new CornerRadii(0, 0, 6, 6, false)));
+
 		testingPane.getChildren().add(this.answersScrollPane = new ScrollPane(this.answersPanel = new Pane()));
+		testingPane.getChildren().add(this.questionsScrollPane = new ScrollPane(this.questionsPanel = new Pane()));
+
 		testingPane.getChildren().add(this.optionButtonsPanel = new Pane());
 		testingPane.getChildren().add(this.qualityIndicator = new Pane());
 		testingPane.getChildren().add(this.questionInfoTextfield = new Label());
 
-		questionSelectScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-		questionSelectScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+		questionsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		questionsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 
 		answersScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		answersScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 
 		panel.getChildren().add(this.questionsTablePane = new Pane());
 		questionsTablePane.getChildren().add(this.questionsTable = new GridPane());
-
-		skippedQuestions = new ArrayList<Integer>();
-		answers = new Answer<?>[test.getQuestions().length];
-
-		this.test = test;
-		this.theme = theme;
-
-		this.indicateQualityOfLastAnswer = new SecureContainer<Boolean>(settings.isIndicateQualityOfLastAnswer());
-		this.indicateQualityOfAllAnswers = new SecureContainer<Boolean>(settings.isIndicateQualityOfAllAnswers());
-		this.showRightAnswer = new SecureContainer<Boolean>(settings.isShowRightAnswer());
-		this.canGoToAllQuestions = new SecureContainer<Boolean>(settings.isCanGoToAllQuestions());
-		this.skipButtonOption = new SecureContainer<Boolean>(settings.isSkipButtonOption());
-		this.pauseOption = new SecureContainer<Boolean>(test.getTimeLimit() == -1 ? false : settings.isPauseOption());
-		this.pauseOnUnfocus = new SecureContainer<Boolean>(test.getTimeLimit() == -1 ? false : settings.isPauseOnUnfocus());
-
-		this.fixedQSelectBtnHeight = testingPartSettings.isFixedHeightOfQuestionSelectButton();
-		this.fillAllHeight = testingPartSettings.isFillAllHeightOfAnswersPanel();
-		this.maximazeHeight = testingPartSettings.isMaximazeAnswerButtonHeight();
-
-		paused = new SecureContainer<Boolean>(false);
-		fullTime = new SecureContainer<Float>(0f);
-		timeLimit = new SecureContainer<Integer>(test.getTimeLimit());
-		timeOfTest = new SecureContainer<Float>(0f);
-		rightAnswers = new SecureContainer<Integer>(0);
-		perfectAnswers = new SecureContainer<Integer>(0);
-		timeToPause = new SecureContainer<Integer>(0);
-		lastTime = new SecureContainer<Long>(Calendar.getInstance().getTimeInMillis());
-		finished = new SecureContainer<Boolean>(false);
-
-		this.canSendResult = canSendResult;
-		this.teacher = teacher;
-
-		ButtonFX.anticntrlc = settings.isAnticopy();
-		ButtonFX.antiscreenshot = settings.isAntiscreenshot();
-		if (settings.isAntiscreenshot())
+		timer1 = new Timer(1, e ->
 		{
-			class ImageSelection implements Transferable
-			{
-				private java.awt.Image image;
-
-				private ImageSelection(java.awt.Image image)
-				{
-					this.image = image;
-				}
-
-				public DataFlavor[] getTransferDataFlavors()
-				{
-					return new DataFlavor[]
-					{
-							DataFlavor.imageFlavor
-					};
-				}
-
-				public boolean isDataFlavorSupported(DataFlavor flavor)
-				{
-					return DataFlavor.imageFlavor.equals(flavor);
-				}
-
-				public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
-				{
-					if (!DataFlavor.imageFlavor.equals(flavor))
-						throw new UnsupportedFlavorException(flavor);
-					return image;
-				}
-			}
-			ButtonFX.antish1 = e ->
-			{
-				if (e.getCode() == KeyCode.PRINTSCREEN)
-				{
-					FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("printscreenWasClicked"), 0, null, true);
-					Timer timer = new Timer(100, ae ->
-					{
-						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents(new ImageSelection(new ImageIcon().getImage()), null);
-					});
-					timer.setRepeats(false);
-					timer.start();
-				}
-			};
-		}
-		createGUI(parentPos, test.getName(), testFileName, studentInfo);
-		for (int jj = 0; jj < answerButtons.length; jj++)
-		{
-			int j = jj;
-			ButtonFX btn = answerButtons[j];
-			btn.addActionListener((e) ->
-			{
-				btn.setClicked((test.getQuestions()[currentQuestionNumber] instanceof PickOneQuestion || test
-						.getQuestions()[currentQuestionNumber] instanceof SelectSomeQuestion) ? selectedAnswers[j] = !selectedAnswers[j] : false);
-				updateButtonMenu(currentQuestionNumber, j);
-				if (test.getQuestions()[currentQuestionNumber] instanceof PickOneQuestion)
-					for (int k = 0; k < answerButtons.length; k++)
-						answerButtons[k].setClicked(j == k);
-			});
-		}
-		createQuestionSelectPanel();
-		updateQuestionSelectPanel();
-		openQuestion(-1, 0);
-
-		lastTime.setValue(Calendar.getInstance().getTimeInMillis());
-		new Timer(1, e ->
-		{
-			if (!finished.getValue())
+			if (!finished.get())
 			{
 				long time = Calendar.getInstance().getTimeInMillis();
-				if (test.getTableQuestionSelector() == null && timeLimit.getValue() != -1)
+				if (test.getTableQuestionSelector() == null && timeLimit.get() != -1)
 				{
-					if (!paused.getValue())
-						timeOfTest.setValue(timeOfTest.getValue() + ((float) (time - lastTime.getValue())) / 1000f);
-					fullTime.setValue(fullTime.getValue() + ((float) (time - lastTime.getValue())) / 1000f);
-					timeToPause.setValue(timeToPause.getValue() - 1);
-					String newTimerText = toSize((timeLimit.getValue() - timeOfTest.getValue().intValue()) / 60, 2).substring(0, 2) + ":" + toSize((timeLimit
-							.getValue() - timeOfTest.getValue().intValue()) % 60, 2).substring(0, 2);
+					if (!paused.get())
+						timeOfTest.set(timeOfTest.get() + ((float) (time - lastTime.get())) / 1000f);
+					timeToPause.set(timeToPause.get() - 1);
+					String newTimerText = toSize((timeLimit.get() - timeOfTest.get().intValue()) / 60, 2).substring(0,
+							2) + ":" + toSize((timeLimit.get() - timeOfTest.get().intValue()) % 60, 2).substring(0, 2);
 					if (!timerText.equals(newTimerText))
-						Platform.runLater(() -> ((ButtonFXTextContent) timer.getContent()).setText(timerText = newTimerText));
-					if (timeOfTest.getValue() >= timeLimit.getValue())
-					{
-						System.out.println("m1");
-						Platform.runLater(() ->
-						{
-							System.out.println("m2");
-							doFinish(test.getName(), testFileName, studentInfo);
-						});
-					}
+						Platform.runLater(
+								() -> ((ButtonFXTextContent) timer.getContent()).setText(timerText = newTimerText));
+					if (timeOfTest.get() >= timeLimit.get())
+						Platform.runLater(() -> doFinish());
 
-					if (test.getTimeEndWarning() >= timeLimit.getValue() - timeOfTest.getValue())
-						Platform.runLater(() -> getPanel().setBackground((timeLimit.getValue() - timeOfTest.getValue().intValue()) % 2 == 0 ? warningBackground
-								: standardBackground));
+					if (test.getTimeEndWarning() >= timeLimit.get() - timeOfTest.get())
+						Platform.runLater(() -> getPanel().setBackground(
+								(timeLimit.get() - timeOfTest.get().intValue()) % 2 == 0 ? warningBackground
+										: standardBackground));
 				}
-				lastTime.setValue(time);
+				fullTime.set(fullTime.get() + ((float) (time - lastTime.get())) / 1000f);
+				lastTime.set(time);
 			}
-		}).start();
-		createActionHandlers();
-		resize();
-		updateLabelsInPart();
+		});
 	}
+
+	int qsp = 100;
 
 	@Override
 	protected void _resize(int w, int h)
 	{
-		int qsp = 100;
 
 		testingPane.setPrefSize(w, h);
-		questionSelectScrollPane.setPrefSize(qsp, h);
-		questionSelectPanel.setPrefSize(questionSelectScrollPane.getPrefWidth() - 16, questionSelectScrollPane.getPrefHeight() - 2);
-		updateQuestionSelectPane();
+		// questionSelectScrollPane.setPrefSize(qsp, h);
+		// questionSelectPanel.setPrefSize(questionSelectScrollPane.getPrefWidth() - 16,
+		// questionSelectScrollPane.getPrefHeight() - 2);
+		resizeQuestionsPane(w, h);
 
 		int x1 = (int) (qsp + Main.spaceBetweenComponents);
 		int width1 = (int) (w - x1 - Main.spaceBetweenComponents);
@@ -409,63 +445,92 @@ public final class TestingPart extends ProtectedFXWindow
 
 		questionInfoTextfield.setLayoutX(x1);
 		questionInfoTextfield.setPrefSize(width1, 80);
-		questionInfoTextfield.setLayoutY(qualityIndicator.getLayoutY() - qualityIndicator.getPrefHeight() - Main.spaceBetweenComponents);
+		questionInfoTextfield.setLayoutY(
+				qualityIndicator.getLayoutY() - qualityIndicator.getPrefHeight() - Main.spaceBetweenComponents);
 
 		optionButtonsPanel.setLayoutX(x1);
 		optionButtonsPanel.setPrefSize(width1, 32);
-		optionButtonsPanel.setLayoutY(questionInfoTextfield.getLayoutY() - qualityIndicator.getPrefHeight() - Main.spaceBetweenComponents);
+		optionButtonsPanel.setLayoutY(
+				questionInfoTextfield.getLayoutY() - qualityIndicator.getPrefHeight() - Main.spaceBetweenComponents);
 		updateOptionButtonsPane();
 
-		int count = test.getQuestions()[currentQuestionNumber].getAnswers().length;
-		answersScrollPane.setLayoutX(x1);
-		answersScrollPane.setLayoutY(questionSign.getLayoutY() + questionSign.getPrefHeight() + Main.spaceBetweenComponents);
-		answersScrollPane.setPrefSize(width1, optionButtonsPanel.getLayoutY() - answersScrollPane.getLayoutY() - Main.spaceBetweenComponents);
-		updateAnswersPane(count);
+		int count = test.getQuestions()[currentQuestionNumber.get()].getAnswers().length;
+		resizeAnswersPane(test.getQuestions()[currentQuestionNumber.get()] instanceof EnterTextQuestion, count, w, h);
 
 		questionsTablePane.setPrefSize(w, h);
 		questionsTable.setPrefSize(w, h - 32);
 	}
 
-	private void updateAnswersPane(int count)
+	private void resizeAnswersPane(boolean enterTextQuestion, int count, double w, double h)
 	{
-		if (fillAllHeight)
+		answersScrollPane.setVisible(!enterTextQuestion);
+		enterTextButton.setVisible(enterTextQuestion);
+		int x1 = (int) (qsp + Main.spaceBetweenComponents);
+		int width1 = (int) (w - x1 - Main.spaceBetweenComponents);
+
+		int hWithoutSpace;
+		int space;
+
+		if (enterTextQuestion)
 		{
-			if (maximazeHeight)
-			{
-				answersPanel.setPrefWidth(answersScrollPane.getPrefWidth() - 14);
-				int fullH = (int) answersScrollPane.getPrefHeight() - 2;
-				int hWithoutSpace = Math.max(((int) fullH + Main.spaceBetweenComponents) / count - Main.spaceBetweenComponents, minAnswerButtonHeight);
-				int space = Main.spaceBetweenComponents;
-				for (int i = 0; i < count; i++)
-				{
-					answerButtons[i].setLayoutX(0);
-					answerButtons[i].setLayoutY((hWithoutSpace + space) * i);
-					answerButtons[i].setPrefSize(answersPanel.getPrefWidth(), hWithoutSpace);
-				}
-				answersPanel.setPrefHeight((hWithoutSpace + space) * count - space);
-				answersScrollPane.setPrefHeight(Math.min(answersPanel.getPrefHeight() + 2, answersScrollPane.getPrefHeight()));
-			}
-			else
-			{
-				answersPanel.setPrefWidth(answersScrollPane.getPrefWidth() - 14);
-				int fullH = (int) answersScrollPane.getPrefHeight() - 2;
-				int hWithoutSpace = minAnswerButtonHeight;
-				int space = Math.max(((int) fullH - minAnswerButtonHeight * count) / (count - 1), Main.spaceBetweenComponents);
-				for (int i = 0; i < count; i++)
-				{
-					answerButtons[i].setLayoutX(0);
-					answerButtons[i].setLayoutY((hWithoutSpace + space) * i);
-					answerButtons[i].setPrefSize(answersPanel.getPrefWidth(), hWithoutSpace);
-				}
-				answersPanel.setPrefHeight((hWithoutSpace + space) * count - space);
-				answersScrollPane.setPrefHeight(Math.min(answersPanel.getPrefHeight() + 2, answersScrollPane.getPrefHeight()));
-			}
+			enterTextButton.setLayoutX(x1);
+			enterTextButton
+					.setLayoutY(questionSign.getLayoutY() + questionSign.getPrefHeight() + Main.spaceBetweenComponents);
+			enterTextButton.setPrefSize(width1, minAnswerButtonHeight);
 		}
 		else
 		{
+			answersScrollPane.setLayoutX(x1);
+			answersScrollPane
+					.setLayoutY(questionSign.getLayoutY() + questionSign.getPrefHeight() + Main.spaceBetweenComponents);
+			answersScrollPane.setPrefSize(width1,
+					optionButtonsPanel.getLayoutY() - answersScrollPane.getLayoutY() - Main.spaceBetweenComponents);
+			if (testingPartSettings.isFillAllHeightOfAnswersPanel())
+			{
+				if (testingPartSettings.isMaximazeHeightOfAnswersPanelElements())
+				{
+					// answersPanel.setPrefWidth(answersScrollPane.getPrefWidth() - 14);
+					int fullH = (int) answersScrollPane.getPrefHeight() - 2;
+					hWithoutSpace = Math.max(
+							((int) fullH + Main.spaceBetweenComponents) / count - Main.spaceBetweenComponents,
+							minAnswerButtonHeight);
+					space = Main.spaceBetweenComponents;
+					// for (int i = 0; i < count; i++)
+					// {
+					// answerButtons[i].setLayoutX(0);
+					// answerButtons[i].setLayoutY((hWithoutSpace + space) * i);
+					// answerButtons[i].setPrefSize(answersPanel.getPrefWidth(), hWithoutSpace);
+					// }
+					// answersPanel.setPrefHeight((hWithoutSpace + space) * count - space);
+					// answersScrollPane.setPrefHeight(
+					// Math.min(answersPanel.getPrefHeight() + 2,
+					// answersScrollPane.getPrefHeight()));
+				}
+				else
+				{
+					// answersPanel.setPrefWidth(answersScrollPane.getPrefWidth() - 14);
+					int fullH = (int) answersScrollPane.getPrefHeight() - 2;
+					hWithoutSpace = minAnswerButtonHeight;
+					space = Math.max(((int) fullH - minAnswerButtonHeight * count) / (count - 1),
+							Main.spaceBetweenComponents);
+					// for (int i = 0; i < count; i++)
+					// {
+					// answerButtons[i].setLayoutX(0);
+					// answerButtons[i].setLayoutY((hWithoutSpace + space) * i);
+					// answerButtons[i].setPrefSize(answersPanel.getPrefWidth(), hWithoutSpace);
+					// }
+					// answersPanel.setPrefHeight((hWithoutSpace + space) * count - space);
+					// answersScrollPane.setPrefHeight(
+					// Math.min(answersPanel.getPrefHeight() + 2,
+					// answersScrollPane.getPrefHeight()));
+				}
+			}
+			else
+			{
+				hWithoutSpace = minAnswerButtonHeight;
+				space = Main.spaceBetweenComponents;
+			}
 			answersPanel.setPrefWidth(answersScrollPane.getPrefWidth() - 14);
-			int hWithoutSpace = minAnswerButtonHeight;
-			int space = Main.spaceBetweenComponents;
 			for (int i = 0; i < count; i++)
 			{
 				answerButtons[i].setLayoutX(0);
@@ -473,13 +538,15 @@ public final class TestingPart extends ProtectedFXWindow
 				answerButtons[i].setPrefSize(answersPanel.getPrefWidth(), hWithoutSpace);
 			}
 			answersPanel.setPrefHeight((hWithoutSpace + space) * count - space);
-			answersScrollPane.setPrefHeight(Math.min(answersPanel.getPrefHeight() + 2, answersScrollPane.getPrefHeight()));
+			answersScrollPane
+					.setPrefHeight(Math.min(answersPanel.getPrefHeight() + 2, answersScrollPane.getPrefHeight()));
 		}
 	}
 
 	private void updateOptionButtonsPane()
 	{
-		int w = (int) ((optionButtonsPanel.getPrefWidth() + Main.spaceBetweenComponents) / optionButtonsPanel.getChildren().size());
+		int w = (int) ((optionButtonsPanel.getPrefWidth() + Main.spaceBetweenComponents)
+				/ optionButtonsPanel.getChildren().size());
 		int i = 0;
 		if (back != null)
 		{
@@ -513,43 +580,117 @@ public final class TestingPart extends ProtectedFXWindow
 		}
 	}
 
-	private void updateQuestionSelectPane()
+	private void resizeQuestionsPane(double w, double h)
 	{
-		int h = (int) (questionSelectPanel.getPrefHeight() / questionSelectAnswerButtons.length);
-		for (ButtonFX btn : questionSelectAnswerButtons)
-			btn.setPrefSize(questionSelectPanel.getPrefWidth(), h);
-	}
+		// int h = (int) (questionSelectPanel.getPrefHeight() /
+		// questionSelectAnswerButtons.length);
+		// for (int i = 0; i < questionSelectAnswerButtons.length; i++)
+		// {
+		// questionSelectAnswerButtons[i].setLayoutX(0);
+		// questionSelectAnswerButtons[i].setLayoutY(i * h);
+		// questionSelectAnswerButtons[i].setPrefSize(questionSelectPanel.getPrefWidth(),
+		// h);
+		// }
+		int width1 = qsp;
 
-	private static final Background warningBackground = new Background(new BackgroundFill(new Color(1, 0.4, 0.4, 1), new CornerRadii(0), new Insets(0))),
-			standardBackground = new Background(new BackgroundFill(Color.WHITE, new CornerRadii(0), new Insets(0)));
-	private static final int minAnswerButtonHeight = 48;
+		questionsScrollPane.setLayoutX(0);
+		questionsScrollPane.setLayoutY(0);
+		questionsScrollPane.setPrefSize(width1, h);
+
+		int hWithoutSpace;
+		int space;
+
+		if (testingPartSettings.isFillAllHeightOfQuestionsPanel())
+		{
+			if (testingPartSettings.isMaximazeHeightOfQuestionsPanelElements())
+			{
+				int fullH = (int) questionsScrollPane.getPrefHeight() - 2;
+				hWithoutSpace = Math.max(((int) fullH + Main.spaceBetweenComponents) / questionButtons.length
+						- Main.spaceBetweenComponents, minQuestionButtonHeight);
+				space = Main.spaceBetweenComponents;
+				// for (int i = 0; i < questionButtons.length; i++)
+				// {
+				// questionButtons[i].setLayoutX(0);
+				// questionButtons[i].setLayoutY((hWithoutSpace + space) * i);
+				// questionButtons[i].setPrefSize(questionsPanel.getPrefWidth(), hWithoutSpace);
+				// }
+				// questionsPanel.setPrefHeight((hWithoutSpace + space) * questionButtons.length
+				// - space);
+				// questionsScrollPane.setPrefHeight(
+				// Math.min(questionsPanel.getPrefHeight() + 2,
+				// questionsScrollPane.getPrefHeight()));
+			}
+			else
+			{
+				// questionsPanel.setPrefWidth(questionsScrollPane.getPrefWidth() - 14);
+				int fullH = (int) questionsScrollPane.getPrefHeight() - 2;
+				hWithoutSpace = minQuestionButtonHeight;
+				space = questionButtons.length == 1 ? 0
+						: Math.max(((int) fullH - minQuestionButtonHeight * questionButtons.length)
+								/ (questionButtons.length - 1), Main.spaceBetweenComponents);
+			}
+		}
+		else
+		{
+			// questionsPanel.setPrefWidth(questionsScrollPane.getPrefWidth() - 14);
+			hWithoutSpace = minQuestionButtonHeight;
+			space = Main.spaceBetweenComponents;
+			// for (int i = 0; i < count; i++)
+			// {
+			// questionButtons[i].setLayoutX(0);
+			// questionButtons[i].setLayoutY((hWithoutSpace + space) * i);
+			// questionButtons[i].setPrefSize(questionsPanel.getPrefWidth(), hWithoutSpace);
+			// }
+			// questionsPanel.setPrefHeight((hWithoutSpace + space) * count - space);
+			// questionsScrollPane
+			// .setPrefHeight(Math.min(questionsPanel.getPrefHeight() + 2,
+			// questionsScrollPane.getPrefHeight()));
+		}
+		questionsPanel.setPrefWidth(questionsScrollPane.getPrefWidth() - 14);
+		for (int i = 0; i < questionButtons.length; i++)
+		{
+			questionButtons[i].setLayoutX(0);
+			questionButtons[i].setLayoutY((hWithoutSpace + space) * i);
+			questionButtons[i].setPrefSize(questionsPanel.getPrefWidth(), hWithoutSpace);
+		}
+		questionsPanel.setPrefHeight((hWithoutSpace + space) * questionButtons.length - space);
+		questionsScrollPane
+				.setPrefHeight(Math.min(questionsPanel.getPrefHeight() + 2, questionsScrollPane.getPrefHeight()));
+	}
 
 	/**
 	 * 
-	 * @param parentPosition
-	 * @param testName
 	 * @param classNumber
 	 * @param classLetter
 	 * @param surname
 	 * @param name
 	 * @param secondName
 	 */
-	private void createGUI(Rectangle parentPosition, String testName, String testFileName, StudentInfo studentInfo)
+	private void createGUI()
 	{
+		optionButtonsPanel.getChildren().clear();
+		questionsPanel.getChildren().clear();
+		answersPanel.getChildren().clear();
+
+		this.questionButtons = new ButtonFX[test.getQuestions().length];
 		int maxCountOfAnswers = 0;
 		for (Question<?> q : test.getQuestions())
 			if (!(q instanceof EnterTextQuestion))
 				maxCountOfAnswers = Math.max(maxCountOfAnswers, q.getAnswers().length);
 		this.answerButtons = new ButtonFX[maxCountOfAnswers];
 		if (test.getTableQuestionSelector() == null)
-			if (pauseOnUnfocus.getValue())
-				stage.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean focused) -> pause(!focused
-						&& !showLogs));
+			if (pauseOnUnfocus.get())
+				stage.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue,
+						Boolean focused) -> pause(!focused && !showLogs));
 
 		questionSign.setFramesize(6);
-		// signPanel.getChildren().add(questionSign);
-		// questionSign.setBounds(0, 0, signPanel.getPrefWidth(), signPanel.getPrefHeight());
 		questionSign.setEnabled(false);
+		questionInfoTextfield
+				.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(3), Insets.EMPTY),
+						new BackgroundFill(Color.BEIGE, new CornerRadii(3), new Insets(1))));
+		questionInfoTextfield.setPadding(new Insets(3));
+		questionInfoTextfield.setWrapText(true);
+		setAligmentToCenter(questionInfoTextfield);
 		if (test.getTableQuestionSelector() != null)
 		{
 			Font font = new Label().getFont();
@@ -558,25 +699,29 @@ public final class TestingPart extends ProtectedFXWindow
 			int aw = 0;
 			questionsTable.getColumnConstraints().clear();
 			{
-				w[0] = MathWithText.size(test.getName(), font).width + 20;
+				w[0] = MathUtils.size(test.getName(), java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).width + 20;
 				for (String s : test.getTableQuestionSelector().getRows())
-					w[0] = Math.max(w[0], MathWithText.size(s, font).width + 20);
+					w[0] = Math.max(w[0], MathUtils.size(s, java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).width + 20);
 				for (int x = 0; x < test.getTableQuestionSelector().getCols().length; x++)
 				{
-					w[x + 1] = MathWithText.size(test.getTableQuestionSelector().getCols()[x], font).width + 20;
+					w[x + 1] = MathUtils.size(test.getTableQuestionSelector().getCols()[x], java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).width + 20;
 					for (int y = 0; y < test.getTableQuestionSelector().getRows().length; y++)
-						w[x + 1] = Math.max(w[x + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).width + 20);
+						w[x + 1] = Math.max(w[x + 1],
+								MathUtils.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(),
+										java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).width + 20);
 				}
 			}
 			{
-				h[0] = MathWithText.size(test.getName(), font).height + 20;
+				h[0] = MathUtils.size(test.getName(), java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).height + 20;
 				for (String s : test.getTableQuestionSelector().getCols())
-					h[0] = Math.max(h[0], MathWithText.size(s, font).height + 20);
+					h[0] = Math.max(h[0], MathUtils.size(s, java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).height + 20);
 				for (int y = 0; y < test.getTableQuestionSelector().getRows().length; y++)
 				{
-					h[y + 1] = MathWithText.size(test.getTableQuestionSelector().getRows()[y], font).height + 20;
+					h[y + 1] = MathUtils.size(test.getTableQuestionSelector().getRows()[y], java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).height + 20;
 					for (int x = 0; x < test.getTableQuestionSelector().getCols().length; x++)
-						h[y + 1] = Math.max(h[y + 1], MathWithText.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(), font).height + 20);
+						h[y + 1] = Math.max(h[y + 1],
+								MathUtils.size(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText(),
+										java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).height + 20);
 				}
 			}
 			{
@@ -588,10 +733,12 @@ public final class TestingPart extends ProtectedFXWindow
 					w[x] = (int) ((double) w[x] * (double) questionsTable.getPrefWidth() / (double) aw);
 			}
 			for (int x = 0; x < test.getTableQuestionSelector().getCols().length + 1; x++)
-				questionsTable.getColumnConstraints().add(new ColumnConstraints(w[x], w[x], w[x], Priority.NEVER, HPos.CENTER, true));
+				questionsTable.getColumnConstraints()
+						.add(new ColumnConstraints(w[x], w[x], w[x], Priority.NEVER, HPos.CENTER, true));
 			questionsTable.getRowConstraints().clear();
 			for (int y = 0; y < test.getTableQuestionSelector().getRows().length + 1; y++)
-				questionsTable.getRowConstraints().add(new RowConstraints(h[y], h[y], h[y], Priority.NEVER, VPos.CENTER, true));
+				questionsTable.getRowConstraints()
+						.add(new RowConstraints(h[y], h[y], h[y], Priority.NEVER, VPos.CENTER, true));
 
 			questionsTable.add(new Label(test.getName()), 0, 0);
 			for (int x = 0; x < test.getTableQuestionSelector().getCols().length; x++)
@@ -607,16 +754,20 @@ public final class TestingPart extends ProtectedFXWindow
 			for (int x = 0; x < test.getTableQuestionSelector().getQuestionsTable().length; x++)
 				for (int y = 0; y < test.getTableQuestionSelector().getQuestionsTable()[x].length; y++)
 				{
-					ButtonFX btn = new ButtonFX(new ButtonFXTextContent(test.getTableQuestionSelector().getQuestionsTable()[x][y].getText()), new CornerRadii(
-							0), new CornerRadii(0));
+					ButtonFX btn = new ButtonFX(
+							new ButtonFXTextContent(
+									test.getTableQuestionSelector().getQuestionsTable()[x][y].getText()),
+							new CornerRadii(0), new CornerRadii(0));
 					btn.setFramesize(2);
 					int xx = x, yy = y;
 					btn.addActionListener(e ->
 					{
 						questionsTablePane.setVisible(false);
 						testingPane.setVisible(true);
-						openQuestion(currentQuestionNumber, currentQuestionNumber = test.getQuestionNumberAtQuestionsByQuestionIndex(test
-								.getTableQuestionSelector().getQuestionsTable()[xx][yy].getQuestionNumber()));
+						openQuestion(currentQuestionNumber.get(),
+								currentQuestionNumber.setAndReturn(test.getQuestionNumberAtQuestionsByQuestionIndex(
+										test.getTableQuestionSelector().getQuestionsTable()[xx][yy]
+												.getQuestionNumber())));
 						btn.setDisable(true);
 						((ButtonFXTextContent) btn.getContent()).setText("");
 						curBtn = btn;
@@ -629,170 +780,186 @@ public final class TestingPart extends ProtectedFXWindow
 		{
 			int pos = 0, count = 0;
 
-			if (timeLimit.getValue() != -1)
+			if (timeLimit.get() != -1)
 			{
-				timer = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
-				timer.addActionListener(e -> pause(!paused.getValue()));
+				timer = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+						new CornerRadii(6, 6, 6, 6, false));
+				timer.addActionListener(e -> pause(!paused.get()));
 				count++;
 			}
 
 			if (test.getTableQuestionSelector() == null)
 			{
-				skip = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				skip = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+						new CornerRadii(6, 6, 6, 6, false));
 				skip.addActionListener(e -> skip());
-				skip.setEnabled(skipButtonOption.getValue());
+				skip.setEnabled(skipButtonOption.get());
 				count++;
 
-				next = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				next = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+						new CornerRadii(6, 6, 6, 6, false));
 				next.addActionListener(e -> next());
 				count++;
 			}
 
 			if (test.getTableQuestionSelector() != null)
 			{
-				back = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+				back = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+						new CornerRadii(6, 6, 6, 6, false));
 				back.addActionListener(e -> back());
 				count++;
 			}
 
-			finish = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
-			finish.addActionListener(e -> doFinish(testName, testFileName, studentInfo));
+			finish = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+					new CornerRadii(6, 6, 6, 6, false));
+			finish.addActionListener(e -> doFinish());
 			count++;
 			// Set bounds
-			int optionsSpace = 5, optionButtonAndSpaceWidth = ((int) optionButtonsPanel.getPrefWidth() + optionsSpace) / count,
+			int optionsSpace = 5,
+					optionButtonAndSpaceWidth = ((int) optionButtonsPanel.getPrefWidth() + optionsSpace) / count,
 					optionButtonWidth = optionButtonAndSpaceWidth - optionsSpace;
 			if (timer != null)
 			{
 				optionButtonsPanel.getChildren().add(timer);
-				timer.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth, optionButtonsPanel.getPrefHeight());
+				timer.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth,
+						optionButtonsPanel.getPrefHeight());
 			}
 			if (skip != null)
 			{
 				optionButtonsPanel.getChildren().add(skip);
-				skip.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth, optionButtonsPanel.getPrefHeight());
+				skip.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth,
+						optionButtonsPanel.getPrefHeight());
 			}
 			if (next != null)
 			{
 				optionButtonsPanel.getChildren().add(next);
-				next.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth, optionButtonsPanel.getPrefHeight());
+				next.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth,
+						optionButtonsPanel.getPrefHeight());
 			}
 			if (back != null)
 			{
 				optionButtonsPanel.getChildren().add(back);
-				back.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth, optionButtonsPanel.getPrefHeight());
+				back.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth,
+						optionButtonsPanel.getPrefHeight());
 			}
 			if (test.getTableQuestionSelector() == null)
 			{
 				optionButtonsPanel.getChildren().add(finish);
-				finish.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth, optionButtonsPanel.getPrefHeight());
+				finish.setBounds(optionButtonAndSpaceWidth * pos++, 0, optionButtonWidth,
+						optionButtonsPanel.getPrefHeight());
 			}
 			else
 			{
 				questionsTablePane.getChildren().add(finish);
-				finish.setBounds(questionsTablePane.getPrefWidth() - 100, questionsTable.getPrefHeight(), 100, questionsTablePane.getPrefHeight()
-						- questionsTable.getPrefHeight());
+				finish.setBounds(questionsTablePane.getPrefWidth() - 100, questionsTable.getPrefHeight(), 100,
+						questionsTablePane.getPrefHeight() - questionsTable.getPrefHeight());
 			}
 		}
 
-		qualityIndicator.setVisible(indicateQualityOfLastAnswer.getValue());
-		if (indicateQualityOfAllAnswers.getValue())
+		qualityIndicator.setVisible(indicateQualityOfLastAnswer.get());
+		if (indicateQualityOfAllAnswers.get())
 		{
 			qualityIndicators = new Pane[test.getQuestions().length];
 			for (int i = 0; i < qualityIndicators.length; i++)
 			{
 				qualityIndicator.getChildren().add(qualityIndicators[i] = new Pane());
 				qualityIndicators[i].setLayoutX(qualityIndicator.getPrefWidth() / test.getQuestions().length * i);
-				qualityIndicators[i].setPrefSize(qualityIndicator.getPrefWidth() / test.getQuestions().length - 5, qualityIndicator.getPrefHeight());
+				qualityIndicators[i].setPrefSize(qualityIndicator.getPrefWidth() / test.getQuestions().length - 5,
+						qualityIndicator.getPrefHeight());
 			}
 		}
-		// answerButtonSpace = 5;
-		// answerButtonHeightWithSpace = Math.max(((int) answersPanel.getPrefHeight() + answerButtonSpace) / answerButtons.length, minAnswerButtonHeight
-		// + answerButtonSpace);
-		// defaultAswerButtonHeight = Math.max(answerButtonHeight = answerButtonHeightWithSpace - answerButtonSpace, minAnswerButtonHeight);
 
-		enterButton = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
-		((ButtonFXTextContent) enterButton.getContent()).setEditable(true);
-		answersPanel.getChildren().add(enterButton);
-		enterButton.setBounds(0, 0, answersPanel.getPrefWidth(), minAnswerButtonHeight);
+		enterTextButton = new ButtonFX(new ButtonFXTextContent(""), new CornerRadii(8, 8, 8, 8, false),
+				new CornerRadii(6, 6, 6, 6, false));
+		enterTextButton.addActionListener(e -> enterTextButton.setClicked(false));
+		((ButtonFXTextContent) enterTextButton.getContent()).setEditable(true);
+		testingPane.getChildren().add(enterTextButton);
+
+		for (int i = 0; i < questionButtons.length; i++)
+		{
+			questionButtons[i] = new ButtonFX(new ButtonFXTextContent(i + 1 + "/" + test.getQuestions().length),
+					new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+			questionsPanel.getChildren().add(questionButtons[i]);
+		}
+
 		for (int i = 0; i < answerButtons.length; i++)
 		{
-			answerButtons[i] = new ButtonFX(new ButtonFXHtmlContent(""), new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+			answerButtons[i] = new ButtonFX(new ButtonFXHtmlContent(""), new CornerRadii(8, 8, 8, 8, false),
+					new CornerRadii(6, 6, 6, 6, false));
 			answersPanel.getChildren().add(answerButtons[i]);
-			// answerButtons[i].setBounds(0, answerButtonHeightWithSpace * i, answersPanel.getPrefWidth(), answerButtonHeight);
 		}
+
 		testingPane.setVisible(test.getTableQuestionSelector() == null);
 		questionsTablePane.setVisible(test.getTableQuestionSelector() != null);
 		window.setVisible(true);
 	}
 
-	private void doFinish(String testName, String testFileName, StudentInfo studentInfo)
+	HashMap<Long, Entry<String, String>> testLog = new HashMap<Long, Entry<String, String>>();
+
+	private void doFinish()
 	{
-		System.out.println("m3");
 		if (skippedQuestions.size() == 1)
 			if (skippedQuestions.get(0) == currentQuestionNumber)
 				goNext();
-		if (timeLimit.getValue() != -1 && timeOfTest.getValue() >= timeLimit.getValue() || skippedQuestions.size() == 0)
-			finish(testName, testFileName, studentInfo);
-		else FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("youHaveSkipped"), 0, null, true);
+		if (timeLimit.get() != -1 && timeOfTest.get() >= timeLimit.get() || skippedQuestions.size() == 0)
+			finish(test.getName(), testFileName);
+		else FXDialogsGenerator.showFXDialog(stage, msgSys.getMsg("youHaveSkipped"), null, true);
 	}
 
 	private void back()
 	{
-		saveAnswer(currentQuestionNumber);
+		saveAnswer(currentQuestionNumber.get());
 		handleQuestion();
 		testingPane.setVisible(false);
 		questionsTablePane.setVisible(true);
 	}
 
-	/**
-	 * 
-	 */
-	private void createQuestionSelectPanel()
-	{
-		questionSelectAnswerButtons = new ButtonFX[test.getQuestions().length];
-		int space = 4, height = fixedQSelectBtnHeight ? 32
-				: (int) Math.max(32, (questionSelectPanel.getPrefHeight() + space) / test.getQuestions().length - space);
-		questionSelectPanel.setPrefHeight((height + space) * test.getQuestions().length - space);
-		for (int i = 0; i < test.getQuestions().length; i++)
-		{
-			questionSelectAnswerButtons[i] = new ButtonFX(new ButtonFXTextContent(i + 1 + "/" + test.getQuestions().length), new CornerRadii(8, 8, 8, 8, false),
-					new CornerRadii(6, 6, 6, 6, false));
-			int q = i;
-			questionSelectAnswerButtons[i].addActionListener(event ->
-			{
-				questionSelectAnswerButtons[q].setClicked(false);
-				int prev = currentQuestionNumber;
-				currentQuestionNumber = q;
-				saveAnswer(prev);
-				openQuestion(prev, currentQuestionNumber);
-				for (ButtonFX btnx : questionSelectAnswerButtons)
-				{
-					btnx.setClicked(false);
-					btnx.setPressedV(false);
-					btnx.setSelected(false);
-				}
-			});
-			questionSelectAnswerButtons[i].setBounds(0, i * (height + space), questionSelectScrollPane.getPrefWidth() - 16, height);
-			questionSelectPanel.getChildren().add(questionSelectAnswerButtons[i]);
-		}
-	}
+	// /**
+	// *
+	// */
+	// private void createQuestionSelectPanel()
+	// {
+	// questionButtons = new ButtonFX[test.getQuestions().length];
+	// for (int i = 0; i < test.getQuestions().length; i++)
+	// {
+	// questionSelectAnswerButtons[i] = new ButtonFX(
+	// new ButtonFXTextContent(i + 1 + "/" + test.getQuestions().length),
+	// new CornerRadii(8, 8, 8, 8, false), new CornerRadii(6, 6, 6, 6, false));
+	// int q = i;
+	// questionSelectAnswerButtons[i].addActionListener(event ->
+	// {
+	// questionSelectAnswerButtons[q].setClicked(false);
+	// int prev = currentQuestionNumber.get();
+	// currentQuestionNumber.set(q);
+	// saveAnswer(prev);
+	// openQuestion(prev, currentQuestionNumber.get());
+	// for (ButtonFX btnx : questionSelectAnswerButtons)
+	// {
+	// btnx.setClicked(false);
+	// btnx.setPressedV(false);
+	// btnx.setSelected(false);
+	// }
+	// });
+	// questionsPanel.getChildren().add(questionSelectAnswerButtons[i]);
+	// }
+	// }
 
 	/**
 	 * 
 	 */
 	private void pause(boolean paused)
 	{
-		if (pauseOption.getValue() && timeToPause.getValue() <= 0)
+		if (pauseOption.get() && timeToPause.get() <= 0)
 		{
-			this.paused.setValue(paused);
+			this.paused.set(paused);
 			questionSign.setVisible(!paused);
 			next.setVisible(!paused);
 			finish.setVisible(!paused);
 			qualityIndicator.setVisible(!paused);
 			skip.setVisible(!paused);
-			questionSelectScrollPane.setVisible(!paused);
+			questionsScrollPane.setVisible(!paused);
 			answersScrollPane.setVisible(!paused);
-			timeToPause.setValue(300);
+			timeToPause.set(300);
 			timer.setClicked(paused);
 		}
 	}
@@ -802,11 +969,11 @@ public final class TestingPart extends ProtectedFXWindow
 	 */
 	private void skip()
 	{
-		int qn = currentQuestionNumber;
+		int qn = currentQuestionNumber.get();
 		goNext();
 		if (!skippedQuestions.contains(qn))
-			skippedQuestions.add(qn);
-		openQuestion(currentQuestionNumber - 1, currentQuestionNumber);
+			skippedQuestions.add(new SecureContainer<Integer>(qn));
+		openQuestion(currentQuestionNumber.get() - 1, currentQuestionNumber.get());
 	}
 
 	/**
@@ -815,7 +982,7 @@ public final class TestingPart extends ProtectedFXWindow
 	private void next()
 	{
 		handleQuestion();
-		openQuestion(currentQuestionNumber, currentQuestionNumber);
+		openQuestion(currentQuestionNumber.get(), currentQuestionNumber.get());
 	}
 
 	/**
@@ -826,16 +993,17 @@ public final class TestingPart extends ProtectedFXWindow
 	 * @param name
 	 * @param secondName
 	 */
-	private void finish(String testName, String testFileName, StudentInfo studentInfo)
+	private void finish(String testName, String testFileName)
 	{
-		saveAnswer(currentQuestionNumber);
+		saveAnswer(currentQuestionNumber.get());
 		handleQuestion();
-		paused.setValue(true);
-		finished.setValue(true);
+		paused.set(true);
+		finished.set(true);
+		timer1.stop();
 		int maxResult = 0;
 		for (Question<?> question : test.getQuestions())
 			maxResult += question.getMaxAward();
-		showResult(testName, testFileName, studentInfo, countResult(), maxResult);
+		showResult(testName, testFileName);
 		if (true)
 		{
 			stage.hide();
@@ -850,16 +1018,9 @@ public final class TestingPart extends ProtectedFXWindow
 	 */
 	private int countResult()
 	{
-		rightAnswers.setValue(0);
-		perfectAnswers.setValue(0);
 		int result = 0;
 		for (int i = 0; i < test.getQuestions().length; i++)
-		{
-			int[] results = _handleQuestion(i);
-			result += results[1];
-			rightAnswers.setValue(rightAnswers.getValue() + (results[1] > results[0] || results[1] == results[2] ? 1 : 0));
-			perfectAnswers.setValue(perfectAnswers.getValue() + (results[1] == results[2] ? 1 : 0));
-		}
+			result += _handleQuestion(i)[1];
 		return result;
 	}
 
@@ -868,18 +1029,14 @@ public final class TestingPart extends ProtectedFXWindow
 	 */
 	private void handleQuestion()
 	{
-		saveAnswer(currentQuestionNumber);
-		int[] res = _handleQuestion(currentQuestionNumber);
+		saveAnswer(currentQuestionNumber.get());
+		int[] res = _handleQuestion(currentQuestionNumber.get());
 		int minResult = res[0], questionResult = res[1], maxResult = res[2];
 
-		if (questionResult > minResult || questionResult == maxResult)
-			rightAnswers.setValue(rightAnswers.getValue() + 1);
-		if (questionResult == maxResult)
-			perfectAnswers.setValue(perfectAnswers.getValue() + 1);
-
-		if (indicateQualityOfLastAnswer.getValue())
+		if (indicateQualityOfLastAnswer.get())
 		{
-			Pane panel = indicateQualityOfAllAnswers.getValue() ? (Pane) qualityIndicators[currentQuestionNumber] : qualityIndicator;
+			Pane panel = indicateQualityOfAllAnswers.get() ? (Pane) qualityIndicators[currentQuestionNumber.get()]
+					: qualityIndicator;
 			if (test.getTableQuestionSelector() == null)
 				if (questionResult == maxResult)
 					panel.setBackground(test.getPerfectAnswerBackground());
@@ -893,23 +1050,25 @@ public final class TestingPart extends ProtectedFXWindow
 					curBtn.setBackground(test.getRightAnswerBackground());
 				else curBtn.setBackground(test.getWrongAnswerBackground());
 			if (questionResult > maxResult)
-				FXDialogsGenerator.showFXDialog(stage, (Stage) null, msgSys.getMsg("questionResultMoreThanMaxResult"), 0, null, true);
+				FXDialogsGenerator.showFXDialog(stage, msgSys.getMsg("questionResultMoreThanMaxResult"), null, true);
 		}
-		if (showRightAnswer.getValue())
+		if (showRightAnswer.get())
 		{
 			String rightAnswer = "";
-			Question<?> question = test.getQuestions()[currentQuestionNumber];
+			Question<?> question = test.getQuestions()[currentQuestionNumber.get()];
 			if (question instanceof EnterTextQuestion)
 			{
 				for (EnterTextAnswerVariant a : ((EnterTextQuestion) question).getAnswers())
-					if (test.getQuestions()[currentQuestionNumber].getAward() + a.getAward() == test.getQuestions()[currentQuestionNumber].getMaxAward())
+					if (test.getQuestions()[currentQuestionNumber.get()].getAward()
+							+ a.getAward() == test.getQuestions()[currentQuestionNumber.get()].getMaxAward())
 						rightAnswer += a.getText() + "\n";
 			}
 			int i = 0;
-			if (question instanceof PickOneQuestion)
-				for (PickOneAnswerVariant a : ((PickOneQuestion) question).getAnswers())
+			if (question instanceof ChooseOneQuestion)
+				for (ChooseOneAnswerVariant a : ((ChooseOneQuestion) question).getAnswers())
 				{
-					if (test.getQuestions()[currentQuestionNumber].getAward() + a.getAward() == test.getQuestions()[currentQuestionNumber].getMaxAward())
+					if (test.getQuestions()[currentQuestionNumber.get()].getAward()
+							+ a.getAward() == test.getQuestions()[currentQuestionNumber.get()].getMaxAward())
 					{
 						rightAnswer += a.getHtml() + "\n";
 						answerButtons[i].setDisabledBackground(theme.getQuestionSelectSkippedBackground());
@@ -917,10 +1076,10 @@ public final class TestingPart extends ProtectedFXWindow
 					}
 					i++;
 				}
-			if (question instanceof SelectSomeQuestion)
-				for (SelectSomeAnswerVariant a : ((SelectSomeQuestion) question).getAnswers())
+			if (question instanceof SelectMultipleQuestion)
+				for (SelectMultipleAnswerVariant a : ((SelectMultipleQuestion) question).getAnswers())
 				{
-					if (test.getQuestions()[currentQuestionNumber].getAward() + a.getAward() > 0)
+					if (test.getQuestions()[currentQuestionNumber.get()].getAward() + a.getAward() > 0)
 					{
 						rightAnswer += a.getHtml() + "\n";
 						answerButtons[i].setDisabledBackground(theme.getQuestionSelectSkippedBackground());
@@ -928,7 +1087,7 @@ public final class TestingPart extends ProtectedFXWindow
 					}
 					i++;
 				}
-			FXDialogsGenerator.showFXDialog(stage, (Stage) null, rightAnswer, JOptionPane.INFORMATION_MESSAGE, null, true);
+			FXDialogsGenerator.showFXDialog(stage, rightAnswer, null, true);
 		}
 		goNext();
 	}
@@ -938,137 +1097,147 @@ public final class TestingPart extends ProtectedFXWindow
 	 */
 	private void goNext()
 	{
-		if (!canGoToAllQuestions.getValue())
+		if (!canGoToAllQuestions.get())
 			if (skippedQuestions.contains((Object) currentQuestionNumber))
 			{
 				skippedQuestions.remove((Object) currentQuestionNumber);
 				if (skippedQuestions.size() != 0)
 				{
 					for (int i = 0; i < skippedQuestions.size(); i++)
-						if (skippedQuestions.get(i) > currentQuestionNumber)
+						if (skippedQuestions.get(i).get() > currentQuestionNumber.get())
 						{
 							currentQuestionNumber = skippedQuestions.get(i);
 							break;
 						}
 						else if (i == skippedQuestions.size() - 1)
-							if (skippedQuestions.get(i) >= lastNotSkippedQuestion)
+							if (skippedQuestions.get(i).get() >= lastNotSkippedQuestion.get())
 								currentQuestionNumber = skippedQuestions.get(0);
 							else currentQuestionNumber = lastNotSkippedQuestion;
 				}
 				else currentQuestionNumber = lastNotSkippedQuestion;
 			}
-			else currentQuestionNumber++;
-		else currentQuestionNumber++;
+			else currentQuestionNumber.set(currentQuestionNumber.get() + 1);
+		else currentQuestionNumber.set(currentQuestionNumber.get() + 1);
+	}
+
+	TestSettings testSettings;
+	TestingPartSettings testingPartSettings;
+
+	private String htmlToText(String html)
+	{
+		return Parser.parse(html, "").text();
 	}
 
 	/**
 	 * 
-	 * @param window
-	 * @param _class
-	 * @param surname
-	 * @param name
-	 * @param secondName
+	 * @param testName
+	 * @param testFileName
 	 */
-	private void showResult(String testName, String testFileName, StudentInfo studentInfo, int result, int maxResult)
+	private TestResult createTestResult(String testName, String testFileName)
 	{
-		String text = "";
-		text += "syntaxLanguage" + ": \"" + msgSys.getLanguage() + "\"\n";
-		text += msgSys.getMsg("testName") + ": \"" + testName + "\"\n";
-		text += msgSys.getMsg("classNumber") + ": \"" + studentInfo.getClassNumber() + "\"\n";
-		text += msgSys.getMsg("classLetter") + ": \"" + studentInfo.getClassLetter() + "\"\n";
-		text += msgSys.getMsg("surname") + ": \"" + studentInfo.getSurname() + "\"\n";
-		text += msgSys.getMsg("name") + ": \"" + studentInfo.getName() + "\"\n";
-		text += msgSys.getMsg("secondName") + ": \"" + studentInfo.getSecondName() + "\"\n";
-		text += msgSys.getMsg("result") + ": " + result + "\n";
-		text += msgSys.getMsg("maxResult") + ": " + maxResult + "\n";
-		text += msgSys.getMsg("perfectAnswersAmount") + ": " + perfectAnswers.getValue() + "\n";
-		text += msgSys.getMsg("rightAnswersAmount") + ": " + (rightAnswers.getValue() - perfectAnswers.getValue()) + "\n";
-		text += msgSys.getMsg("questionsAmount") + ": " + test.getQuestions().length + "\n";
-		text += msgSys.getMsg("time") + ": " + toSize(timeOfTest.getValue().intValue() / 60, 2) + ":" + toSize(timeOfTest.getValue().intValue() % 60, 2) + "\n";
-		text += msgSys.getMsg("timeLimit") + ": " + (timeLimit.getValue() == -1 ? "--:--"
-				: toSize((int) timeLimit.getValue() / 60, 2) + ":" + toSize((int) timeLimit.getValue() % 60, 2)) + "\n";
-		text += msgSys.getMsg("fullTime") + ": " + toSize(fullTime.getValue().intValue() / 60, 2) + ":" + toSize(fullTime.getValue().intValue() % 60, 2);
-		String shortText = text;
-		// int i = 0;
-		// for (Answer ans : answers)
-		// if (ans != null)
-		// {
-		// String userAnswer = "";
-		// String rightAnswer = "";
-		// switch (test.getQuestions()[i].getType())
-		// {
-		// case Arrangement:
-		// break;
-		// case Distribution:
-		// break;
-		// case EnterText:
-		// userAnswer = ans.getAnswerText();
-		// for (AnswerVariant a : test.getQuestions()[i].getAnswers())
-		// if (a.getAward() == test.getQuestions()[i].getMaxAward())
-		// rightAnswer += a.getHtml() + " - " + a.getAward() + " | ";
-		// break;
-		// case Matching:
-		// break;
-		// case PickOne:
-		// if (ans.getSelectedAnswerNumber() != -1)
-		// userAnswer = test.getQuestions()[i].getAnswers()[ans.getSelectedAnswerNumber()].getHtml() + " - " + test.getQuestions()[i]
-		// .getAnswers()[ans.getSelectedAnswerNumber()].getAward();
-		// for (AnswerVariant a : test.getQuestions()[i].getAnswers())
-		// if (a.getAward() == test.getQuestions()[i].getMaxAward())
-		// rightAnswer += a.getHtml() + " - " + a.getAward() + " | ";
-		// break;
-		// case SelectSome:
-		// int n = 0;
-		// for (boolean b : ans.getSelectedAnswers())
-		// {
-		// if (b)
-		// userAnswer += test.getQuestions()[i].getAnswers()[n].getHtml() + " - " + test.getQuestions()[i].getAnswers()[n].getAward()
-		// + " & ";
-		// n++;
-		// }
-		// for (AnswerVariant a : test.getQuestions()[i].getAnswers())
-		// if (a.getAward() > 0)
-		// rightAnswer += a.getHtml() + " - " + a.getAward() + " & ";
-		// break;
-		// }
-		// userAnswer += " - " + _handleQuestion(i)[1];
-		// rightAnswer += " - " + test.getQuestions()[i].getMaxAward();
-		// text += "\nQuestion" + i + ": \"" + test.getQuestions()[i].getHtml() + "\"\n\tuser: \"" + userAnswer + "\"\n\tright: \"" + rightAnswer + "\"";
-		// i++;
-		// }
-
-		Calendar c = Calendar.getInstance();
-		SystemUtils.writeFile(new File("Results/" + testFileName + "/Result From " + c.get(Calendar.YEAR) + "_" + toSize(c.get(Calendar.DAY_OF_YEAR), 2) + "_"
-				+ toSize(c.get(Calendar.HOUR), 2) + "-" + toSize(c.get(Calendar.MINUTE), 2) + "-" + toSize(c.get(Calendar.SECOND), 2) + ".log"), text,
-				"cp1251");
-		showLogs = true;
-		String textt = text;
-		Button btn = new Button("Send results to teacher");
-		TextField login = new TextField();
-		int m = MathWithText.size(shortText, login.getFont()).width / 2 + 30;
-		btn.setPrefSize(m, 20);
-		login.setPrefSize(m, 20);
-		login.setLayoutX(m);
-		Button showFull = new Button("Show full");
-		showFull.setPrefSize(m, 20);
-		showFull.setLayoutX(m / 2);
-		showFull.setLayoutY(25);
-		Pane pane = canSendResult ? new Pane(btn, login, showFull) : new Pane(showFull);
-		if (teacher != null)
-			sendResultToTeacher(textt, teacher, studentInfo);
-		btn.setOnAction(e -> sendResultToTeacher(textt, login.getText(), studentInfo));
-		pane.setPrefSize(m * 2, 50);
-		String fullText = text;
-		showFull.setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Stage) null, fullText, JOptionPane.INFORMATION_MESSAGE, null, 
-				true));
-		FXDialogsGenerator.showFXDialog(stage, (Stage) null, shortText, JOptionPane.INFORMATION_MESSAGE, pane, true);
+		Result<?>[] results = new Result<?>[test.getQuestions().length];
+		for (int i = 0; i < results.length; i++)
+		{
+			Question question = test.getQuestions()[i];
+			Answer answer = answers[i];
+			int[] res = _handleQuestion(i);
+			if (answer != null)
+				if (question instanceof ChooseOneQuestion)
+				{
+					HashMap<String, Integer> correctAnswers = new HashMap<String, Integer>();
+					HashMap<String, Integer> passableAnswers = new HashMap<String, Integer>();
+					for (AnswerVariant answerVar : question.getAnswers())
+						if (question.getAward() + answerVar.getAward() == question.getMaxAward())
+							correctAnswers.put(htmlToText(((ChooseOneAnswerVariant) answerVar).getHtml()),
+									answerVar.getAward());
+						else if (answerVar.getAward() > 0)
+							passableAnswers.put(htmlToText(((ChooseOneAnswerVariant) answerVar).getHtml()),
+									answerVar.getAward());
+					results[i] = new ChooseOneResult(res[0], res[1], res[2],
+							((ChooseOneAnswer) answers[i]).getSelectedAnswerNumber() == -1 ? null
+									: htmlToText(((ChooseOneAnswerVariant) test.getQuestions()[i]
+											.getAnswers()[((ChooseOneAnswer) answers[i]).getSelectedAnswerNumber()])
+													.getHtml()),
+							correctAnswers, passableAnswers);
+				}
+				else if (question instanceof SelectMultipleQuestion)
+				{
+					HashMap<String, Integer> selectedAnswers = new HashMap<String, Integer>();
+					for (int j = 0; j < ((SelectMultipleAnswer) answer).getSelectedAnswers().length; j++)
+						if (((SelectMultipleAnswer) answer).getSelectedAnswers()[j])
+							selectedAnswers.put(
+									htmlToText(((SelectMultipleAnswerVariant) question.getAnswers()[j]).getHtml()),
+									question.getAnswers()[j].getAward());
+					HashMap<String, Integer> correctAnswers = new HashMap<String, Integer>();
+					for (AnswerVariant answerVar : question.getAnswers())
+						if (answerVar.getAward() > 0)
+							correctAnswers.put(htmlToText(((ChooseOneAnswerVariant) answerVar).getHtml()),
+									answerVar.getAward());
+					results[i] = new SelectMultipleResult(res[0], res[1], res[2], selectedAnswers, correctAnswers);
+				}
+				else if (question instanceof EnterTextQuestion)
+				{
+					HashMap<String, Integer> correctAnswers = new HashMap<String, Integer>();
+					HashMap<String, Integer> passableAnswers = new HashMap<String, Integer>();
+					for (AnswerVariant answerVar : question.getAnswers())
+						if (question.getAward() + answerVar.getAward() == question.getMaxAward())
+							correctAnswers.put(((EnterTextAnswerVariant) answerVar).getText(), answerVar.getAward());
+						else if (answerVar.getAward() > 0)
+							passableAnswers.put(((EnterTextAnswerVariant) answerVar).getText(), answerVar.getAward());
+					results[i] = new EnterTextResult(res[0], res[1], res[2], ((EnterTextAnswer) answer).getAnswerText(),
+							correctAnswers, passableAnswers);
+				}
+				else if (question instanceof ArrangementQuestion)
+				{
+					results[i] = null;// new ArrangementResult(res[0], res[1], res[2]);
+				}
+				else if (question instanceof MatchingQuestion)
+				{
+					results[i] = null;// new MatchingResult(res[0], res[1], res[2]);
+				}
+				else if (question instanceof DistributionQuestion)
+				{
+					results[i] = null;// new DistributionResult(res[0], res[1], res[2]);
+				}
+		}
+		return new TestResult(new Date(), testName, testeeInfo.get(), testerInfo.get(), testSettings,
+				testingPartSettings, timeLimit.get(), timeOfTest.get(), fullTime.get(), results);
 	}
 
-	private void sendResultToTeacher(String result, String teachersLogin, StudentInfo studentInfo)
+	/**
+	 * 
+	 * @param testName
+	 * @param testFileName
+	 */
+	private void showResult(String testName, String testFileName)
 	{
-		Main.sendToServer(new ResultSendPacket("sendResultToTeacher", result, AccountsPart.account.get().getLogin(), teachersLogin, new Date(), studentInfo
-				.getClassNumber(), studentInfo.getClassLetter(), AccountsPart.account.get().getSurname(), AccountsPart.account.get().getName(),
-				AccountsPart.account.get().getSecondName(), studentInfo.getSurname(), studentInfo.getName(), studentInfo.getSecondName()));
+		TestResult testResult = createTestResult(testName, testFileName);
+		SystemUtils
+				.writeFile(
+						new File(getDataPath() + "/results/local/" + testFileName + "/"
+								+ Calendar.getInstance().getTimeInMillis() + ".data"),
+						ByteUtils.objectToByteArray(testResult));
+		if (testeeInfo.get().getLogin() != null)
+			sendResultToTeacher(testeeInfo.get().getLogin(), testResult);
+		testResult.show(stage, testeeInfo.get().getLogin() == null ? teacher ->
+		{
+			sendResultToTeacher(teacher, testResult);
+			FXDialogsGenerator.showFXDialog(stage, msgSys.getMsg("resultSended"), null, true);
+		} : null);
+	}
+
+	private final Container<ArrayList<String>> onlineTeachers = new Container<ArrayList<String>>(null);
+	{
+		Main.client.addRecieveListener(e ->
+		{
+			if (e.getSource() instanceof OnlineLoginsPacket)
+				onlineTeachers.set(((OnlineLoginsPacket) e.getSource()).getOnline());
+		});
+	}
+
+	private void sendResultToTeacher(String teacher, TestResult result)
+	{
+		Main.sendToServer(new ResultSendPacket("sendResultToTeacher", teacher, result));
 	}
 
 	/**
@@ -1088,9 +1257,9 @@ public final class TestingPart extends ProtectedFXWindow
 	/**
 	 * 
 	 */
-	public void updateLabelsInPart()
+	public void updateLabels()
 	{
-		super.updateLabelsInPart();
+		super.updateLabels();
 		if (next != null)
 			((ButtonFXTextContent) next.getContent()).setText(msgSys.getMsg("next"));
 		if (skip != null)
@@ -1101,25 +1270,31 @@ public final class TestingPart extends ProtectedFXWindow
 			((ButtonFXTextContent) finish.getContent()).setText(msgSys.getMsg("finish"));
 	}
 
-	/**
-	 * 
-	 */
-	private void updateQuestionSelectPanel()
+	// /**
+	// *
+	// */
+	private void updateQuestionsPane()
 	{
-		for (int i = 0; i < test.getQuestions().length; i++)
+		for (int i = 0; i < questionButtons.length; i++)
 		{
-			questionSelectAnswerButtons[i].setNormalBackground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedBackground()
-					: theme.getQuestionSelectNormalBackground());
-			questionSelectAnswerButtons[i].setNormalFrame(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedFrame()
+			questionButtons[i]
+					.setNormalBackground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedBackground()
+							: theme.getQuestionSelectNormalBackground());
+			questionButtons[i].setNormalFrame(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedFrame()
 					: theme.getQuestionSelectNormalFrame());
-			questionSelectAnswerButtons[i].setNormalForeground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedForeground()
-					: theme.getQuestionSelectNormalForeground());
-			questionSelectAnswerButtons[i].setEnabled((skippedQuestions.contains(i) || canGoToAllQuestions.getValue()) && i != currentQuestionNumber);
-			questionSelectAnswerButtons[i].setDisabledBackground(i == currentQuestionNumber ? theme.getSpecialButtonsBackground()
-					: theme.getQuestionSelectNormalBackground());
-			questionSelectAnswerButtons[i].setDisabledFrame(i == currentQuestionNumber ? theme.getSpecialButtonsFrame() : theme.getQuestionSelectNormalFrame());
-			questionSelectAnswerButtons[i].setDisabledForeground(i == currentQuestionNumber ? theme.getSpecialButtonsForeground()
-					: theme.getQuestionSelectNormalForeground());
+			questionButtons[i]
+					.setNormalForeground(skippedQuestions.contains(i) ? theme.getQuestionSelectSkippedForeground()
+							: theme.getQuestionSelectNormalForeground());
+			questionButtons[i].setEnabled(
+					(skippedQuestions.contains(i) || canGoToAllQuestions.get()) && i != currentQuestionNumber.get());
+			questionButtons[i]
+					.setDisabledBackground(i == currentQuestionNumber.get() ? theme.getSpecialButtonsBackground()
+							: theme.getQuestionSelectNormalBackground());
+			questionButtons[i].setDisabledFrame(i == currentQuestionNumber.get() ? theme.getSpecialButtonsFrame()
+					: theme.getQuestionSelectNormalFrame());
+			questionButtons[i]
+					.setDisabledForeground(i == currentQuestionNumber.get() ? theme.getSpecialButtonsForeground()
+							: theme.getQuestionSelectNormalForeground());
 		}
 	}
 
@@ -1133,11 +1308,12 @@ public final class TestingPart extends ProtectedFXWindow
 		answerArrangementForMatching = buttonsArrangement;
 		answerArrangementForDistribution = buttonsArrangementForDistribution;
 		if (test.getQuestions()[questionNumber] instanceof EnterTextQuestion)
-			answers[questionNumber] = new EnterTextAnswer(((ButtonFXTextContent) enterButton.getContent()).getMainFieldText());
-		else if (test.getQuestions()[questionNumber] instanceof PickOneQuestion)
-			answers[questionNumber] = new PickOneAnswer(selectedAnswerNumber);
-		else if (test.getQuestions()[questionNumber] instanceof SelectSomeQuestion)
-			answers[questionNumber] = new SelectSomeAnswer(selectedAnswers);
+			answers[questionNumber] = new EnterTextAnswer(
+					((ButtonFXTextContent) enterTextButton.getContent()).getMainFieldText());
+		else if (test.getQuestions()[questionNumber] instanceof ChooseOneQuestion)
+			answers[questionNumber] = new ChooseOneAnswer(selectedAnswerNumber);
+		else if (test.getQuestions()[questionNumber] instanceof SelectMultipleQuestion)
+			answers[questionNumber] = new SelectMultipleAnswer(selectedAnswers);
 		else if (test.getQuestions()[questionNumber] instanceof ArrangementQuestion)
 			answers[questionNumber] = new ArrangementAnswer(answerArrangementForArrangement);
 		else if (test.getQuestions()[questionNumber] instanceof MatchingQuestion)
@@ -1155,42 +1331,51 @@ public final class TestingPart extends ProtectedFXWindow
 	private void openQuestion(int prev, int questionNumber)
 	{
 		check(questionNumber);
-		questionInfoTextfield.setText(msgSys.getMsg(test.getQuestions()[questionNumber].getClass().getSimpleName() + "Info"));
+		questionInfoTextfield
+				.setText(msgSys.getMsg(test.getQuestions()[questionNumber].getClass().getSimpleName() + "Info"));
 		if (answers[questionNumber] instanceof ArrangementAnswer)
 			buttonsArrangement = ((ArrangementAnswer) answers[questionNumber]).getAnswerArrangementForArrangement();
-		else buttonsArrangement = test.getQuestions()[questionNumber] instanceof ArrangementQuestion ? intLessZeroArr(answerButtons.length)// array(answerButtons.length)
+		else buttonsArrangement = test.getQuestions()[questionNumber] instanceof ArrangementQuestion
+				? intLessZeroArr(answerButtons.length)// array(answerButtons.length)
 				: intLessZeroArr(answerButtons.length);
 		if (answers[questionNumber] instanceof MatchingAnswer)
 			buttonsArrangement = ((MatchingAnswer) answers[questionNumber]).getAnswerArrangementForMatching();
-		else buttonsArrangement = test.getQuestions()[questionNumber] instanceof ArrangementQuestion ? intLessZeroArr(answerButtons.length)// array(answerButtons.length)
+		else buttonsArrangement = test.getQuestions()[questionNumber] instanceof ArrangementQuestion
+				? intLessZeroArr(answerButtons.length)// array(answerButtons.length)
 				: intLessZeroArr(answerButtons.length);
 		if (answers[questionNumber] instanceof DistributionAnswer)
-			buttonsArrangementForDistribution = ((DistributionAnswer) answers[questionNumber]).getAnswerArrangementForDistribution();
+			buttonsArrangementForDistribution = ((DistributionAnswer) answers[questionNumber])
+					.getAnswerArrangementForDistribution();
 		else buttonsArrangementForDistribution = intLessZeroListsArr(answerButtons.length);
 		if (test.getQuestions()[questionNumber] instanceof EnterTextQuestion)
 		{
 			for (ButtonFX button : answerButtons)
 				button.setVisible(false);
-			enterButton.setVisible(true);
-			((ButtonFXTextContent) enterButton.getContent()).setText(((EnterTextAnswer) answers[questionNumber]).getAnswerText());
-			enterButton.setClicked(false);
-			enterButton.setEnabled(true);
+			enterTextButton.setVisible(true);
+			((ButtonFXTextContent) enterTextButton.getContent())
+					.setText(((EnterTextAnswer) answers[questionNumber]).getAnswerText());
+			enterTextButton.setClicked(false);
+			enterTextButton.setEnabled(true);
 		}
 		else
 		{
-			enterButton.setVisible(false);
+			enterTextButton.setVisible(false);
 			for (int i = 0; i < answerButtons.length; i++)
 				answerButtons[i].setVisible(test.getQuestions()[questionNumber].getAnswers().length > i);
 			for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; i++)
 			{
-				((ButtonFXHtmlContent) answerButtons[i].getContent()).setHtml(Test.replaceContentEditable(((HtmlAnswerVariant) test
-						.getQuestions()[questionNumber].getAnswers()[i]).getHtml()));
+				((ButtonFXHtmlContent) answerButtons[i].getContent()).setHtml(Test.replaceContentEditable(
+						((HtmlAnswerVariant) test.getQuestions()[questionNumber].getAnswers()[i]).getHtml()));
 				answerButtons[i].setClicked(false);
 				answerButtons[i].setEnabled(true);
 			}
 		}
-		updateAnswersPane(test.getQuestions()[questionNumber].getAnswers().length);
-		for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; updateButtonMenu(questionNumber, i), i++);
+		resizeAnswersPane(test.getQuestions()[questionNumber] instanceof EnterTextQuestion,
+				test.getQuestions()[questionNumber].getAnswers().length, getMainPanel().getPrefWidth(),
+				getMainPanel().getPrefHeight());
+		for (int i = 0; i < test.getQuestions()[questionNumber].getAnswers().length; updateButtonMenu(questionNumber,
+				i), i++)
+			;
 
 		questionSign.setDisabledBackground(theme.getDistribution().getQuestionBackground());
 		questionSign.setDisabledFrame(theme.getDistribution().getQuestionFrame());
@@ -1228,37 +1413,41 @@ public final class TestingPart extends ProtectedFXWindow
 		finish.setNormalForeground(theme.getSpecialButtonsForeground());
 
 		if (!skippedQuestions.contains(questionNumber))
-			lastNotSkippedQuestion = questionNumber;
+			lastNotSkippedQuestion.set(questionNumber);
 		selectedAnswers = new boolean[test.getQuestions()[questionNumber].getAnswers().length];
 		if (!(questionSign.getContent() instanceof ButtonFXHtmlContent))
 			questionSign.setContent(new ButtonFXHtmlContent(""));
-		((ButtonFXHtmlContent) questionSign.getContent()).setHtml(Test.replaceContentEditable(test.getQuestions()[questionNumber].getHtml()));
-		System.out.println(Test.replaceContentEditable(test.getQuestions()[questionNumber].getHtml()));
-		MenuItem[] items = new MenuItem[test.getQuestions()[questionNumber].getImages().length + test.getQuestions()[questionNumber].getVideos().length + test
-				.getQuestions()[questionNumber].getAudios().length];
+		((ButtonFXHtmlContent) questionSign.getContent())
+				.setHtml(Test.replaceContentEditable(test.getQuestions()[questionNumber].getHtml()));
+		MenuItem[] items = new MenuItem[test.getQuestions()[questionNumber].getImages().length
+				+ test.getQuestions()[questionNumber].getVideos().length
+				+ test.getQuestions()[questionNumber].getAudios().length];
 		int j = 0;
 		for (int ii = 0; ii < test.getQuestions()[questionNumber].getImages().length; ii++)
 		{
 			int i = ii;
-			items[j + i] = new MenuItem(msgSys.getMsg("image").split("")[0].toUpperCase() + msgSys.getMsg("image").substring(1) + " " + (i + 1));
-			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getImages()[i], 0, null,
-					true));
+			items[j + i] = new MenuItem(msgSys.getMsg("image").split("")[0].toUpperCase()
+					+ msgSys.getMsg("image").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null,
+					test.getQuestions()[questionNumber].getImages()[i], null, true));
 		}
 		j += test.getQuestions()[questionNumber].getImages().length;
 		for (int ii = 0; ii < test.getQuestions()[questionNumber].getVideos().length; ii++)
 		{
 			int i = ii;
-			items[j + i] = new MenuItem(msgSys.getMsg("video").split("")[0].toUpperCase() + msgSys.getMsg("video").substring(1) + " " + (i + 1));
-			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getVideos()[i], 0, null,
-					true));
+			items[j + i] = new MenuItem(msgSys.getMsg("video").split("")[0].toUpperCase()
+					+ msgSys.getMsg("video").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null,
+					test.getQuestions()[questionNumber].getVideos()[i], null, true));
 		}
 		j += test.getQuestions()[questionNumber].getVideos().length;
 		for (int ii = 0; ii < test.getQuestions()[questionNumber].getAudios().length; ii++)
 		{
 			int i = ii;
-			items[j + i] = new MenuItem(msgSys.getMsg("audio").split("")[0].toUpperCase() + msgSys.getMsg("audio").substring(1) + " " + (i + 1));
-			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null, test.getQuestions()[questionNumber].getAudios()[i], 0, null,
-					true));
+			items[j + i] = new MenuItem(msgSys.getMsg("audio").split("")[0].toUpperCase()
+					+ msgSys.getMsg("audio").substring(1) + " " + (i + 1));
+			items[j + i].setOnAction(e -> FXDialogsGenerator.showFXDialog(stage, (Rectangle) null,
+					test.getQuestions()[questionNumber].getAudios()[i], null, true));
 		}
 		questionSign.setContextMenu(new ContextMenu(items));
 		ArrayList<BackgroundImage> images = new ArrayList<BackgroundImage>();
@@ -1277,12 +1466,13 @@ public final class TestingPart extends ProtectedFXWindow
 
 		if (test.getTableQuestionSelector() == null)
 		{
-			next.setEnabled(questionNumber < test.getQuestions().length - 1 && (canGoToAllQuestions.getValue() || skippedQuestions.size() > 1 || !wasGoToEnd));
+			next.setEnabled(questionNumber < test.getQuestions().length - 1
+					&& (canGoToAllQuestions.get() || skippedQuestions.size() > 1 || !wasGoToEnd));
 			skip.setEnabled(questionNumber < test.getQuestions().length - 1);
 		}
 		finish.setEnabled(wasGoToEnd || test.getTableQuestionSelector() != null);
 
-		updateQuestionSelectPanel();
+		updateQuestionsPane();
 	}
 
 	private void updateButtonMenu(int questionNumber, int i)
@@ -1297,9 +1487,11 @@ public final class TestingPart extends ProtectedFXWindow
 				int rr = r;
 				item.setOnAction(e ->
 				{
-					if (item.isSelected() && !buttonsArrangementForDistribution[i].contains(question.getIndexesForNamesIndexes()[rr]))
+					if (item.isSelected()
+							&& !buttonsArrangementForDistribution[i].contains(question.getIndexesForNamesIndexes()[rr]))
 						buttonsArrangementForDistribution[i].add(question.getIndexesForNamesIndexes()[rr]);
-					else if (!item.isSelected() && buttonsArrangementForDistribution[i].contains(question.getIndexesForNamesIndexes()[rr]))
+					else if (!item.isSelected()
+							&& buttonsArrangementForDistribution[i].contains(question.getIndexesForNamesIndexes()[rr]))
 						buttonsArrangementForDistribution[i].remove((Object) question.getIndexesForNamesIndexes()[rr]);
 				});
 				m.getItems().add(item);
@@ -1371,8 +1563,8 @@ public final class TestingPart extends ProtectedFXWindow
 			EnterTextQuestion question = (EnterTextQuestion) _question;
 			for (int i = 0; i < question.getAnswers().length; i++)
 			{
-				String userAnswer = ((EnterTextAnswer) answers[questionNumber]).getAnswerText(), curAnswer = ((EnterTextAnswerVariant) question.getAnswers()[i])
-						.getText();
+				String userAnswer = ((EnterTextAnswer) answers[questionNumber]).getAnswerText(),
+						curAnswer = ((EnterTextAnswerVariant) question.getAnswers()[i]).getText();
 				if (question.isIgnoreCase())
 				{
 					userAnswer = userAnswer.toLowerCase();
@@ -1387,17 +1579,20 @@ public final class TestingPart extends ProtectedFXWindow
 					questionResult += question.getAnswers()[i].getAward();
 			}
 		}
-		if (_question instanceof PickOneQuestion)
+		if (_question instanceof ChooseOneQuestion)
 		{
-			PickOneQuestion question = (PickOneQuestion) _question;
-			if (((PickOneAnswer) answers[questionNumber]).getSelectedAnswerNumber() != -1)
-				questionResult += question.getAnswers()[((PickOneAnswer) answers[questionNumber]).getSelectedAnswerNumber()].getAward();
+			ChooseOneQuestion question = (ChooseOneQuestion) _question;
+			if (((ChooseOneAnswer) answers[questionNumber]).getSelectedAnswerNumber() != -1)
+				questionResult += question.getAnswers()[((ChooseOneAnswer) answers[questionNumber])
+						.getSelectedAnswerNumber()].getAward();
 		}
-		if (_question instanceof SelectSomeQuestion)
+		if (_question instanceof SelectMultipleQuestion)
 		{
-			SelectSomeQuestion question = (SelectSomeQuestion) _question;
+			SelectMultipleQuestion question = (SelectMultipleQuestion) _question;
 			for (int i = 0; i < question.getAnswers().length; i++)
-				questionResult += ((SelectSomeAnswer) answers[questionNumber]).getSelectedAnswers()[i] ? question.getAnswers()[i].getAward() : 0;
+				questionResult += ((SelectMultipleAnswer) answers[questionNumber]).getSelectedAnswers()[i]
+						? question.getAnswers()[i].getAward()
+						: 0;
 		}
 		if (_question instanceof ArrangementQuestion)
 		{
@@ -1410,16 +1605,9 @@ public final class TestingPart extends ProtectedFXWindow
 			{
 				boolean b = true;
 				for (Integer integer : hashMap.keySet())
-				{
-					System.out.println(answers);
-					System.out.println(answers[questionNumber]);
-					System.out.println(((ArrangementAnswer) answers[questionNumber]).getAnswerArrangementForArrangement());
-					System.out.println(answersIndexes[integer]);
-					System.out.println(((ArrangementAnswer) answers[questionNumber]).getAnswerArrangementForArrangement()[answersIndexes[integer]]);
-					System.out.println(hashMap);
-					if (((ArrangementAnswer) answers[questionNumber]).getAnswerArrangementForArrangement()[answersIndexes[integer]] != hashMap.get(integer))
+					if (((ArrangementAnswer) answers[questionNumber])
+							.getAnswerArrangementForArrangement()[answersIndexes[integer]] != hashMap.get(integer))
 						b = false;
-				}
 				if (b)
 					if (question.isHandleOnlyMaximal())
 						res = Math.max(res, question.getAnswerArrangementForArrangement().get(hashMap));
@@ -1438,7 +1626,8 @@ public final class TestingPart extends ProtectedFXWindow
 			{
 				boolean b = true;
 				for (Integer integer : hashMap.keySet())
-					if (((MatchingAnswer) answers[questionNumber]).getAnswerArrangementForMatching()[answersIndexes[integer]] != hashMap.get(integer))
+					if (((MatchingAnswer) answers[questionNumber])
+							.getAnswerArrangementForMatching()[answersIndexes[integer]] != hashMap.get(integer))
 						b = false;
 				if (b)
 					if (question.isHandleOnlyMaximal())
@@ -1454,7 +1643,8 @@ public final class TestingPart extends ProtectedFXWindow
 			int[] answersIndexes = new int[question.getAnswersIndexes().length];
 			for (int i = 0; i < question.getAnswersIndexes().length; i++)
 				answersIndexes[question.getAnswersIndexes()[i]] = i;
-			for (HashMap<Entry<Integer, Boolean>, ArrayList<Integer>> hashMap : question.getAnswerArrangementForDistribution().keySet())
+			for (HashMap<Entry<Integer, Boolean>, ArrayList<Integer>> hashMap : question
+					.getAnswerArrangementForDistribution().keySet())
 			{
 				boolean b = true;
 				ArrayList<Integer> list;
@@ -1462,12 +1652,14 @@ public final class TestingPart extends ProtectedFXWindow
 					if ((list = hashMap.get(integerBoolean)) != null)
 					{
 						for (Integer i : list)
-							if (!((DistributionAnswer) answers[questionNumber]).getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]]
-									.contains(i))
+							if (!((DistributionAnswer) answers[questionNumber])
+									.getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]]
+											.contains(i))
 								b = false;
 						if (integerBoolean.getSecond())
-							if (((DistributionAnswer) answers[questionNumber]).getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]]
-									.size() != hashMap.get(integerBoolean).size())
+							if (((DistributionAnswer) answers[questionNumber])
+									.getAnswerArrangementForDistribution()[answersIndexes[integerBoolean.getFirst()]]
+											.size() != hashMap.get(integerBoolean).size())
 								b = false;
 					}
 					else b = false;
@@ -1479,29 +1671,29 @@ public final class TestingPart extends ProtectedFXWindow
 			questionResult += res;
 		}
 		questionResult = Math.max(_question.getMinResult(), questionResult);
-		return new int[]
-		{
-				_question.getAward(),
-				questionResult,
-				_question.getMaxAward()
-		};
+		return new int[] { _question.getAward(), questionResult, _question.getMaxAward() };
 	}
 
 	private void check(int questionNumber)
 	{
-		if (test.getQuestions()[questionNumber] instanceof PickOneQuestion && !(answers[questionNumber] instanceof PickOneAnswer))
-			answers[questionNumber] = new PickOneAnswer(-1);
-		if (test.getQuestions()[questionNumber] instanceof SelectSomeQuestion && !(answers[questionNumber] instanceof SelectSomeAnswer))
-			answers[questionNumber] = new SelectSomeAnswer(new boolean[6]);
-		if (test.getQuestions()[questionNumber] instanceof EnterTextQuestion && !(answers[questionNumber] instanceof EnterTextAnswer))
+		if (test.getQuestions()[questionNumber] instanceof ChooseOneQuestion
+				&& !(answers[questionNumber] instanceof ChooseOneAnswer))
+			answers[questionNumber] = new ChooseOneAnswer(-1);
+		if (test.getQuestions()[questionNumber] instanceof SelectMultipleQuestion
+				&& !(answers[questionNumber] instanceof SelectMultipleAnswer))
+			answers[questionNumber] = new SelectMultipleAnswer(new boolean[6]);
+		if (test.getQuestions()[questionNumber] instanceof EnterTextQuestion
+				&& !(answers[questionNumber] instanceof EnterTextAnswer))
 			answers[questionNumber] = new EnterTextAnswer("");
-		if (test.getQuestions()[questionNumber] instanceof ArrangementQuestion && !(answers[questionNumber] instanceof ArrangementAnswer))
+		if (test.getQuestions()[questionNumber] instanceof ArrangementQuestion
+				&& !(answers[questionNumber] instanceof ArrangementAnswer))
 			answers[questionNumber] = new ArrangementAnswer(intLessZeroArr(6));
-		if (test.getQuestions()[questionNumber] instanceof MatchingQuestion && !(answers[questionNumber] instanceof MatchingAnswer))
+		if (test.getQuestions()[questionNumber] instanceof MatchingQuestion
+				&& !(answers[questionNumber] instanceof MatchingAnswer))
 			answers[questionNumber] = new MatchingAnswer(intLessZeroArr(6));
-		if (test.getQuestions()[questionNumber] instanceof DistributionQuestion && !(answers[questionNumber] instanceof DistributionAnswer))
+		if (test.getQuestions()[questionNumber] instanceof DistributionQuestion
+				&& !(answers[questionNumber] instanceof DistributionAnswer))
 			answers[questionNumber] = new DistributionAnswer(intLessZeroListsArr(6));
-		System.out.println(test.getQuestions()[questionNumber].getClass().getSimpleName() + " : " + answers[questionNumber]);
 	}
 
 	private int[] intLessZeroArr(int length)

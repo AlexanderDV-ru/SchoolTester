@@ -10,8 +10,12 @@ import java.util.logging.LogRecord;
 
 import javax.swing.ImageIcon;
 
+import ru.alexanderdv.schooltester.main.Main;
+import ru.alexanderdv.simpleutilities.SystemUtils;
+
 /**
- * Logger - the class extending by "java.util.logging.Logger" used to convenient interaction with logging
+ * Logger - the class extending by "java.util.logging.Logger" used to convenient
+ * interaction with logging
  * 
  * @author AlexandrDV/AlexanderDV
  * @version 5.9.0a
@@ -23,9 +27,12 @@ public class Logger extends java.util.logging.Logger
 	public static final ArrayList<Image> defaultIcons = new ArrayList<Image>();
 	static
 	{
-		defaultIcons.add(new ImageIcon(Logger.class.getResource("/Icon16x.png")).getImage());
-		defaultIcons.add(new ImageIcon(Logger.class.getResource("/Icon32x.png")).getImage());
-		defaultIcons.add(new ImageIcon(Logger.class.getResource("/Icon48x.png")).getImage());
+		defaultIcons.add(
+				new ImageIcon(Logger.class.getResource(Main.resourcesPath + "/images" + "/Icon16x.png")).getImage());
+		defaultIcons.add(
+				new ImageIcon(Logger.class.getResource(Main.resourcesPath + "/images" + "/Icon32x.png")).getImage());
+		defaultIcons.add(
+				new ImageIcon(Logger.class.getResource(Main.resourcesPath + "/images" + "/Icon48x.png")).getImage());
 	}
 
 	/**
@@ -59,7 +66,8 @@ public class Logger extends java.util.logging.Logger
 	// {
 	// // Save log to file if log isn't empty
 	// if (!log.equals(""))
-	// FXFrame.writeFile(new File("CLogs/" + Calendar.getInstance().getTimeInMillis() + ".log"), log);
+	// FXFrame.writeFile(new File("CLogs/" +
+	// Calendar.getInstance().getTimeInMillis() + ".log"), log);
 	// System.exit(code);// Call exit function
 	// }
 	//
@@ -80,11 +88,14 @@ public class Logger extends java.util.logging.Logger
 	{
 		// Save log to file if log isn't empty
 		if (!log.equals(""))
-			SystemUtils.writeFile(new File("CLogs/" + Calendar.getInstance().getTimeInMillis() + ".log"), log, "Cp1251");
+			SystemUtils.writeFile(new File("CLogs/" + Calendar.getInstance().getTimeInMillis() + ".log"), log,
+					"Cp1251");
 	}
 
 	// /**
-	// * Creates "JDialog" with message - 'msg', with type of message - 'messageType', with type of option - 'optionType' in the middle of 'Component'
+	// * Creates "JDialog" with message - 'msg', with type of message -
+	// 'messageType', with type of option - 'optionType' in the middle of
+	// 'Component'
 	// *
 	// * @param comp
 	// * - the component in the middle of them "JDialog" will be created
@@ -95,17 +106,21 @@ public class Logger extends java.util.logging.Logger
 	// * @param optionType
 	// * - the optionType of created "JDialog"
 	// */
-	// public static void showMsgDialog(Component comp, Object msg, int messageType, int optionType)
+	// public static void showMsgDialog(Component comp, Object msg, int messageType,
+	// int optionType)
 	// {
-	// JOptionPane pane = new JOptionPane(msg, messageType, optionType);// Create "JOoptionPane" with props - 'msg', 'messageType' and 'optionType'
-	// JDialog dialog = pane.createDialog(Main.program);// Create "JDialog" with default title of program from "JOptionPane"
+	// JOptionPane pane = new JOptionPane(msg, messageType, optionType);// Create
+	// "JOoptionPane" with props - 'msg', 'messageType' and 'optionType'
+	// JDialog dialog = pane.createDialog(Main.program);// Create "JDialog" with
+	// default title of program from "JOptionPane"
 	// dialog.setIconImages(defaultIcons);// Set icon to default icon of program
 	// dialog.setLocationRelativeTo(comp);// Set position to middle of component
 	// dialog.setVisible(true);// Make "JDialog" visiblestage = primaryStage;
 	// }
 	//
 	// /**
-	// * Creates "JDialog" with message - 'msg', with type of message - 'messageType', with type of option - 'optionType' in the middle of 'stage'
+	// * Creates "JDialog" with message - 'msg', with type of message -
+	// 'messageType', with type of option - 'optionType' in the middle of 'stage'
 	// *
 	// * @param stage
 	// * - the stage in the middle of them "JDialog" will be created
@@ -116,10 +131,14 @@ public class Logger extends java.util.logging.Logger
 	// * @param optionType
 	// * - the optionType of created "JDialog"
 	// */
-	// public static void showMsgDialog(Stage stage, Object msg, int messageType, int optionType)
+	// public static void showMsgDialog(Stage stage, Object msg, int messageType,
+	// int optionType)
 	// {
-	// Component component = new Panel();// Create component to middle of created "JDialog"
-	// component.setBounds((int) stage.getX(), (int) stage.getY(), (int) stage.getWidth(), (int) stage.getHeight());// Change bounds of component to bounds of
+	// Component component = new Panel();// Create component to middle of created
+	// "JDialog"
+	// component.setBounds((int) stage.getX(), (int) stage.getY(), (int)
+	// stage.getWidth(), (int) stage.getHeight());// Change bounds of component to
+	// bounds of
 	// // 'stage'
 	// showMsgDialog(component, msg, messageType, optionType);// Shows msgDialog
 	// }
@@ -169,8 +188,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a boolean value. The string produced by <code>{@link
-			 * java.lang.String#valueOf(boolean)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(boolean)}</code> is translated into bytes according
+			 * to the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param b
 			 *            The <code>boolean</code> to be printed
@@ -184,8 +204,9 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a character. The character is translated into one or more bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * Prints a character. The character is translated into one or more bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param c
 			 *            The <code>char</code> to be printed
@@ -200,8 +221,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints an integer. The string produced by <code>{@link
-			 * java.lang.String#valueOf(int)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(int)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param i
 			 *            The <code>int</code> to be printed
@@ -217,8 +239,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a long integer. The string produced by <code>{@link
-			 * java.lang.String#valueOf(long)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(long)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param l
 			 *            The <code>long</code> to be printed
@@ -234,8 +257,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a floating-point number. The string produced by <code>{@link
-			 * java.lang.String#valueOf(float)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(float)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param f
 			 *            The <code>float</code> to be printed
@@ -250,8 +274,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a double-precision floating-point number. The string produced by <code>{@link java.lang.String#valueOf(double)}</code> is translated into
-			 * bytes according to the platform's default character encoding, and these bytes are written in exactly the manner of the <code>{@link
+			 * Prints a double-precision floating-point number. The string produced by
+			 * <code>{@link java.lang.String#valueOf(double)}</code> is translated into
+			 * bytes according to the platform's default character encoding, and these bytes
+			 * are written in exactly the manner of the <code>{@link
 			 * #write(int)}</code> method.
 			 *
 			 * @param d
@@ -267,8 +293,9 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an array of characters. The characters are converted into bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * Prints an array of characters. The characters are converted into bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param s
 			 *            The array of chars to be printed
@@ -285,8 +312,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a string. If the argument is <code>null</code> then the string <code>"null"</code> is printed. Otherwise, the string's characters are
-			 * converted into bytes according to the platform's default character encoding, and these bytes are written in exactly the manner of the
+			 * Prints a string. If the argument is <code>null</code> then the string
+			 * <code>"null"</code> is printed. Otherwise, the string's characters are
+			 * converted into bytes according to the platform's default character encoding,
+			 * and these bytes are written in exactly the manner of the
 			 * <code>{@link #write(int)}</code> method.
 			 *
 			 * @param s
@@ -302,8 +331,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints an object. The string produced by the <code>{@link
-			 * java.lang.String#valueOf(Object)}</code> method is translated into bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(Object)}</code> method is translated into bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param obj
 			 *            The <code>Object</code> to be printed
@@ -320,8 +350,10 @@ public class Logger extends java.util.logging.Logger
 			/* Methods that do terminate lines */
 
 			/**
-			 * Terminates the current line by writing the line separator string. The line separator string is defined by the system property
-			 * <code>line.separator</code>, and is not necessarily a single newline character (<code>'\n'</code>).
+			 * Terminates the current line by writing the line separator string. The line
+			 * separator string is defined by the system property
+			 * <code>line.separator</code>, and is not necessarily a single newline
+			 * character (<code>'\n'</code>).
 			 */
 			@Override
 			public void println()
@@ -332,7 +364,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a boolean and then terminate the line. This method behaves as though it invokes <code>{@link #print(boolean)}</code> and then
+			 * Prints a boolean and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(boolean)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -347,7 +380,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a character and then terminate the line. This method behaves as though it invokes <code>{@link #print(char)}</code> and then
+			 * Prints a character and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(char)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -362,7 +396,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an integer and then terminate the line. This method behaves as though it invokes <code>{@link #print(int)}</code> and then
+			 * Prints an integer and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(int)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -377,7 +412,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a long and then terminate the line. This method behaves as though it invokes <code>{@link #print(long)}</code> and then
+			 * Prints a long and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(long)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -392,7 +428,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a float and then terminate the line. This method behaves as though it invokes <code>{@link #print(float)}</code> and then
+			 * Prints a float and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(float)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -407,7 +444,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a double and then terminate the line. This method behaves as though it invokes <code>{@link #print(double)}</code> and then
+			 * Prints a double and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(double)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -422,7 +460,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an array of characters and then terminate the line. This method behaves as though it invokes <code>{@link #print(char[])}</code> and then
+			 * Prints an array of characters and then terminate the line. This method
+			 * behaves as though it invokes <code>{@link #print(char[])}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -437,7 +476,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a String and then terminate the line. This method behaves as though it invokes <code>{@link #print(String)}</code> and then
+			 * Prints a String and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(String)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -452,8 +492,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an Object and then terminate the line. This method calls at first String.valueOf(x) to get the printed object's string value, then behaves
-			 * as though it invokes <code>{@link #print(String)}</code> and then <code>{@link #println()}</code>.
+			 * Prints an Object and then terminate the line. This method calls at first
+			 * String.valueOf(x) to get the printed object's string value, then behaves as
+			 * though it invokes <code>{@link #print(String)}</code> and then
+			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
 			 *            The <code>Object</code> to be printed.
@@ -472,8 +514,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a boolean value. The string produced by <code>{@link
-			 * java.lang.String#valueOf(boolean)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(boolean)}</code> is translated into bytes according
+			 * to the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param b
 			 *            The <code>boolean</code> to be printed
@@ -487,8 +530,9 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a character. The character is translated into one or more bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * Prints a character. The character is translated into one or more bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param c
 			 *            The <code>char</code> to be printed
@@ -503,8 +547,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints an integer. The string produced by <code>{@link
-			 * java.lang.String#valueOf(int)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(int)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param i
 			 *            The <code>int</code> to be printed
@@ -520,8 +565,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a long integer. The string produced by <code>{@link
-			 * java.lang.String#valueOf(long)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(long)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param l
 			 *            The <code>long</code> to be printed
@@ -537,8 +583,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints a floating-point number. The string produced by <code>{@link
-			 * java.lang.String#valueOf(float)}</code> is translated into bytes according to the platform's default character encoding, and these bytes are
-			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(float)}</code> is translated into bytes according to
+			 * the platform's default character encoding, and these bytes are written in
+			 * exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param f
 			 *            The <code>float</code> to be printed
@@ -553,8 +600,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a double-precision floating-point number. The string produced by <code>{@link java.lang.String#valueOf(double)}</code> is translated into
-			 * bytes according to the platform's default character encoding, and these bytes are written in exactly the manner of the <code>{@link
+			 * Prints a double-precision floating-point number. The string produced by
+			 * <code>{@link java.lang.String#valueOf(double)}</code> is translated into
+			 * bytes according to the platform's default character encoding, and these bytes
+			 * are written in exactly the manner of the <code>{@link
 			 * #write(int)}</code> method.
 			 *
 			 * @param d
@@ -570,8 +619,9 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an array of characters. The characters are converted into bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * Prints an array of characters. The characters are converted into bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param s
 			 *            The array of chars to be printed
@@ -588,8 +638,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a string. If the argument is <code>null</code> then the string <code>"null"</code> is printed. Otherwise, the string's characters are
-			 * converted into bytes according to the platform's default character encoding, and these bytes are written in exactly the manner of the
+			 * Prints a string. If the argument is <code>null</code> then the string
+			 * <code>"null"</code> is printed. Otherwise, the string's characters are
+			 * converted into bytes according to the platform's default character encoding,
+			 * and these bytes are written in exactly the manner of the
 			 * <code>{@link #write(int)}</code> method.
 			 *
 			 * @param s
@@ -605,8 +657,9 @@ public class Logger extends java.util.logging.Logger
 
 			/**
 			 * Prints an object. The string produced by the <code>{@link
-			 * java.lang.String#valueOf(Object)}</code> method is translated into bytes according to the platform's default character encoding, and these bytes
-			 * are written in exactly the manner of the <code>{@link #write(int)}</code> method.
+			 * java.lang.String#valueOf(Object)}</code> method is translated into bytes
+			 * according to the platform's default character encoding, and these bytes are
+			 * written in exactly the manner of the <code>{@link #write(int)}</code> method.
 			 *
 			 * @param obj
 			 *            The <code>Object</code> to be printed
@@ -623,8 +676,10 @@ public class Logger extends java.util.logging.Logger
 			/* Methods that do terminate lines */
 
 			/**
-			 * Terminates the current line by writing the line separator string. The line separator string is defined by the system property
-			 * <code>line.separator</code>, and is not necessarily a single newline character (<code>'\n'</code>).
+			 * Terminates the current line by writing the line separator string. The line
+			 * separator string is defined by the system property
+			 * <code>line.separator</code>, and is not necessarily a single newline
+			 * character (<code>'\n'</code>).
 			 */
 			@Override
 			public void println()
@@ -635,7 +690,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a boolean and then terminate the line. This method behaves as though it invokes <code>{@link #print(boolean)}</code> and then
+			 * Prints a boolean and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(boolean)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -650,7 +706,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a character and then terminate the line. This method behaves as though it invokes <code>{@link #print(char)}</code> and then
+			 * Prints a character and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(char)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -665,7 +722,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an integer and then terminate the line. This method behaves as though it invokes <code>{@link #print(int)}</code> and then
+			 * Prints an integer and then terminate the line. This method behaves as though
+			 * it invokes <code>{@link #print(int)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -680,7 +738,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a long and then terminate the line. This method behaves as though it invokes <code>{@link #print(long)}</code> and then
+			 * Prints a long and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(long)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -695,7 +754,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a float and then terminate the line. This method behaves as though it invokes <code>{@link #print(float)}</code> and then
+			 * Prints a float and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(float)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -710,7 +770,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a double and then terminate the line. This method behaves as though it invokes <code>{@link #print(double)}</code> and then
+			 * Prints a double and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(double)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -725,7 +786,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an array of characters and then terminate the line. This method behaves as though it invokes <code>{@link #print(char[])}</code> and then
+			 * Prints an array of characters and then terminate the line. This method
+			 * behaves as though it invokes <code>{@link #print(char[])}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -740,7 +802,8 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints a String and then terminate the line. This method behaves as though it invokes <code>{@link #print(String)}</code> and then
+			 * Prints a String and then terminate the line. This method behaves as though it
+			 * invokes <code>{@link #print(String)}</code> and then
 			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
@@ -755,8 +818,10 @@ public class Logger extends java.util.logging.Logger
 			}
 
 			/**
-			 * Prints an Object and then terminate the line. This method calls at first String.valueOf(x) to get the printed object's string value, then behaves
-			 * as though it invokes <code>{@link #print(String)}</code> and then <code>{@link #println()}</code>.
+			 * Prints an Object and then terminate the line. This method calls at first
+			 * String.valueOf(x) to get the printed object's string value, then behaves as
+			 * though it invokes <code>{@link #print(String)}</code> and then
+			 * <code>{@link #println()}</code>.
 			 *
 			 * @param x
 			 *            The <code>Object</code> to be printed.

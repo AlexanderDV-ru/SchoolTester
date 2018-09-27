@@ -4,8 +4,8 @@ import java.net.URL;
 
 import javafx.scene.AccessibleAction;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
-import ru.alexanderdv.simpleutilities.MathWithText;
-import ru.alexanderdv.simpleutilities.MathWithText.MathAction;
+import ru.alexanderdv.simpleutilities.MathUtils;
+import ru.alexanderdv.simpleutilities.MathUtils.MathAction;
 
 /**
  * 
@@ -110,7 +110,7 @@ public final class CalculatorPart extends ProtectedFXWindow
 		InitCalculatorPart.instance.btnPower.setOnAction(e -> InitCalculatorPart.instance.area.setText(InitCalculatorPart.instance.area.getText() + "^"));
 		InitCalculatorPart.instance.btnRoot.setOnAction(e -> InitCalculatorPart.instance.area.setText(InitCalculatorPart.instance.area.getText() + "√"));
 		InitCalculatorPart.instance.btnDot.setOnAction(e -> InitCalculatorPart.instance.area.setText(InitCalculatorPart.instance.area.getText() + "."));
-		InitCalculatorPart.instance.btnEquals.setOnAction(e -> InitCalculatorPart.instance.area.setText("" + MathWithText.calculate(
+		InitCalculatorPart.instance.btnEquals.setOnAction(e -> InitCalculatorPart.instance.area.setText("" + MathUtils.calculate(
 				InitCalculatorPart.instance.area.getText(), mathActions)));
 		InitCalculatorPart.instance.btnPi.setOnAction(e -> InitCalculatorPart.instance.area.setText(InitCalculatorPart.instance.area.getText() + (piSym ? "π"
 				: Math.PI)));

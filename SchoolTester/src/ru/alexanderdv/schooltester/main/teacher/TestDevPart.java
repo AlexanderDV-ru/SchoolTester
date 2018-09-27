@@ -1,7 +1,6 @@
 package ru.alexanderdv.schooltester.main.teacher;
 
 import java.awt.MouseInfo;
-import java.awt.Rectangle;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.AbstractMap.SimpleEntry;
@@ -29,16 +28,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -50,14 +51,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.HTMLEditor;
-import javafx.stage.Stage;
+import ru.alexanderdv.fxutilities.components.TextFieldWithHints;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Config;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
+import ru.alexanderdv.simpleutilities.SystemUtils;
 
 /**
  * 
@@ -66,41 +67,32 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  */
 public final class TestDevPart extends ProtectedFXWindow
 {
+	private static final MessageSystem msgSys = Main.msgSys;
 	public static TestDevPart instance;
 	private TabPane tabPane;
 	private Button addNewTestButton;
 
-	public TestDevPart(boolean inDevelope)
+	public TestDevPart()
 	{
-		super(null, Main.createPane(1000, 700), 1, 1, inDevelope, true);
+		super(null, Main.createPane(1000, 700), 1, 1, true, true);
 		instance = this;
 		initialize();
+		createActionHandlers();
 	}
 
 	private void initialize()
 	{
-		tabPane = new TabPane();
-		panel.getChildren().add(tabPane);
-		tabPane.setPrefSize(panel.getPrefWidth(), panel.getPrefHeight());
-		addNewTestButton = new Button("+");
-		panel.getChildren().add(addNewTestButton);
-		addNewTestButton.setPrefSize(25, 25);
-		addNewTestButton.setLayoutX(panel.getPrefWidth() - addNewTestButton.getPrefWidth() - 2);
-		addNewTestButton.setLayoutY(2);
+		panel.getChildren().add(tabPane = new TabPane());
+		panel.getChildren().add(addNewTestButton = new Button("+"));
 		addNewTestButton.setOnAction(e ->
 		{
 			String name = "New test ";
-			for (int i = 1;; i++)
+			for (int i = 1; !name.endsWith(i + ""); i++)
 			{
-				boolean exist = false;
 				for (Tab t : tabPane.getTabs())
 					if (t.getText().equals(name + i))
-						exist = true;
-				if (!exist)
-				{
-					name += i;
-					break;
-				}
+						continue;
+				name += i;
 			}
 			TestDevTab tab = new TestDevTab(name);
 			tabPane.getTabs().add(tab);
@@ -125,9 +117,9 @@ public final class TestDevPart extends ProtectedFXWindow
 	}
 
 	@Override
-	public void updateLabelsInPart()
+	public void updateLabels()
 	{
-		super.updateLabelsInPart();
+		super.updateLabels();
 		for (Tab t : tabPane.getTabs())
 			if (t instanceof TestDevTab)
 				((TestDevTab) t).updateLabels();
@@ -148,7 +140,17 @@ public final class TestDevPart extends ProtectedFXWindow
 	@Override
 	protected void _resize(int w, int h)
 	{
+		tabPane.setLayoutX(0);
+		tabPane.setLayoutY(0);
+		tabPane.setPrefSize(w, h);
 
+		addNewTestButton.setPrefSize(25, 25);
+		addNewTestButton.setLayoutX(panel.getPrefWidth() - addNewTestButton.getPrefWidth() - 2);
+		addNewTestButton.setLayoutY(2);
+
+		for (Tab tab : tabPane.getTabs())
+			if (tab instanceof TestDevTab)
+				((TestDevTab) tab).resize(w, h - Main.tabsSwitchHeight);
 	}
 
 }
@@ -183,18 +185,50 @@ abstract class AccordionElement
 	}
 }
 
-class AccordionField extends AccordionElement
+abstract class AccordionField<ValueControl extends Control> extends AccordionElement
 {
 	final Pane pane;
 	final Label label;
-	final TextField textfield;
+	final ValueControl control;
 
-	public AccordionField(Container<String> name, Pane pane, Label label, TextField textfield)
+	public AccordionField(Container<String> name, Pane pane, Label label, ValueControl control)
 	{
 		super(name);
 		this.pane = pane;
 		this.label = label;
-		this.textfield = textfield;
+		this.control = control;
+	}
+
+	public abstract String getValue();
+}
+
+class AccordionTextfield extends AccordionField<TextField>
+{
+
+	public AccordionTextfield(Container<String> name, Pane pane, Label label, TextField control)
+	{
+		super(name, pane, label, control);
+	}
+
+	@Override
+	public String getValue()
+	{
+		return control.getText();
+	}
+}
+
+class AccordionCheckbox extends AccordionField<CheckBox>
+{
+
+	public AccordionCheckbox(Container<String> name, Pane pane, Label label, CheckBox control)
+	{
+		super(name, pane, label, control);
+	}
+
+	@Override
+	public String getValue()
+	{
+		return control.isSelected() + "";
 	}
 }
 
@@ -215,10 +249,12 @@ class Accordion extends Pane
 {
 	HashMap<Integer, AccordionElement> map2 = new HashMap<Integer, AccordionElement>();
 	Accordion parent;
+	TitledPane titledPane;
 
-	public Accordion(Accordion parent)
+	public Accordion(Accordion parent, TitledPane titledPane)
 	{
 		this.parent = parent;
+		this.titledPane = titledPane;
 	}
 
 	public void add(AccordionObject accordionObject)
@@ -243,7 +279,9 @@ class Accordion extends Pane
 			else if (map2.get(i) instanceof AccordionObject)
 			{
 				((AccordionObject) map2.get(i)).titledPane.setLayoutY(y);
-				y += (((AccordionObject) map2.get(i)).titledPane.isExpanded() ? ((AccordionObject) map2.get(i)).accordion.getPrefHeight() : 0) + 25;
+				y += (((AccordionObject) map2.get(i)).titledPane.isExpanded()
+						? ((AccordionObject) map2.get(i)).accordion.getPrefHeight()
+						: 0) + 25;
 			}
 		this.map2.clear();
 		int i = 0;
@@ -355,46 +393,7 @@ class HtmlAndVisualEditor extends TabPane
 	}
 }
 
-class ComboBoxWithSearch extends TextField
-{
-	ArrayList<String> items;
-	ContextMenu last;
 
-	public ComboBoxWithSearch()
-	{
-		super("");
-		items = new ArrayList<String>();
-		Container<Boolean> itemed = new Container<Boolean>();
-		itemed.t = false;
-		textProperty().addListener((a, b, c) ->
-		{
-			if (itemed.t)
-			{
-				itemed.t = false;
-				return;
-			}
-			ArrayList<MenuItem> mitems = new ArrayList<MenuItem>();
-			for (String s : items)
-				if (getText() != null)
-					if (s.startsWith(getText()))
-					{
-						MenuItem i = new MenuItem(s);
-						i.setOnAction(e ->
-						{
-							itemed.t = true;
-							setText(i.getText());
-							positionCaret(getText().length());
-						});
-						mitems.add(i);
-					}
-			ContextMenu menu = new ContextMenu(mitems.toArray(new MenuItem[0]));
-			menu.show(this, localToScreen(0, 0).getX(), localToScreen(0, getPrefHeight()).getY());
-			if (last != null)
-				last.hide();
-			last = menu;
-		});
-	}
-}
 
 class ScriptEditor extends CodeArea
 {
@@ -402,7 +401,8 @@ class ScriptEditor extends CodeArea
 	private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", types) + ")\\b";
 	private static final String ERROR_PATTERN = "(\"(([^\"]+(\n|\\Z))|(\n|\\Z)))|((\\A|[\n])(" + String.join("|", types)
 			+ ")(([^ ])|([ ][a-zA-Z][0-9a-zA-Z]+[^=:])|([ ][^a-zA-Z]))[^\n](\\Z|[\n]))";
-	// private static final String ERROR_PATTERN = "\\b(" + String.join("|", types) + ")\\b";
+	// private static final String ERROR_PATTERN = "\\b(" + String.join("|", types)
+	// + ")\\b";
 	private static final String COMMENT_PATTERN = "(\\A|\n)//[^\n]+";
 	private static final String SEMICOLON_PATTERN = "\\:";
 	private static final String FLOAT_PATTERN = "\\b[0-9]+[.][0-9]+\\b";
@@ -412,7 +412,7 @@ class ScriptEditor extends CodeArea
 
 	public ScriptEditor()
 	{
-		String stylesheet = TestDevPart.class.getResource("/schooltesterscript-keywords.css").toString();
+		String stylesheet = TestDevPart.class.getResource("/"+Main.resourcesPackage.replace(".", "/")+"/schooltesterscript-keywords.css").toString();
 		IntFunction<String> format = (digits -> " %" + digits + "d ");
 		setParagraphGraphicFactory(LineNumberFactory.get(this, format));
 		getStylesheets().add(stylesheet);
@@ -431,8 +431,9 @@ class ScriptEditor extends CodeArea
 					else if (line.contains(":"))
 						vars.add(line.substring(type.length() + 1, line.indexOf(":")));
 				}
-		Matcher matcher = Pattern.compile("(?<ERROR>" + ERROR_PATTERN + ")" + "|(?<VARS>" + "\\b(" + String.join("|", vars) + ")\\b" + ")" + "|(?<KEYWORD>"
-				+ KEYWORD_PATTERN + ")" + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")" + "|(?<STRING>" + STRING_PATTERN + ")" + "|(?<COMMENT>" + COMMENT_PATTERN
+		Matcher matcher = Pattern.compile("(?<ERROR>" + ERROR_PATTERN + ")" + "|(?<VARS>" + "\\b("
+				+ String.join("|", vars) + ")\\b" + ")" + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")" + "|(?<SEMICOLON>"
+				+ SEMICOLON_PATTERN + ")" + "|(?<STRING>" + STRING_PATTERN + ")" + "|(?<COMMENT>" + COMMENT_PATTERN
 				+ ")" + "|(?<FLOAT>" + FLOAT_PATTERN + ")" + "|(?<INT>" + INT_PATTERN + ")").matcher(text);
 		int lastKwEnd = 0;
 		StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
@@ -444,7 +445,8 @@ class ScriptEditor extends CodeArea
 									: matcher.group("COMMENT") != null ? "comment"
 											: matcher.group("STRING") != null ? "string"
 													: matcher.group("FLOAT") != null ? "float"
-															: matcher.group("INT") != null ? "int" : matcher.group("ERROR") != null ? "error" : null;
+															: matcher.group("INT") != null ? "int"
+																	: matcher.group("ERROR") != null ? "error" : null;
 			assert styleClass != null;
 			spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
 			spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
@@ -457,8 +459,9 @@ class ScriptEditor extends CodeArea
 
 class DirFilesView extends VBox
 {
-	private static Background selectedBG = new Background(new BackgroundFill(Color.BLUE, new CornerRadii(0), new Insets(0))), notSelectedBG = new Background(
-			new BackgroundFill(Color.TRANSPARENT, new CornerRadii(0), new Insets(0)));
+	private static Background selectedBG = new Background(
+			new BackgroundFill(Color.BLUE, new CornerRadii(0), new Insets(0))),
+			notSelectedBG = new Background(new BackgroundFill(Color.TRANSPARENT, new CornerRadii(0), new Insets(0)));
 	ArrayList<String> typeFilter;
 	boolean blacklist;
 	File dir;
@@ -503,123 +506,239 @@ class DirFilesView extends VBox
 
 class TestDevTab extends Tab
 {
+	private static final MessageSystem msgSys = Main.msgSys;
 	private boolean initialized;
 	private Tab codeTab, constructorTab;
 	private Button save;
+	private String testName;
+	private Button delete;
+	private HBox pane1h;
+	private TextField name1;
+	private CodeArea area;
 
 	private static HashMap<String, HashMap<String, Field>> fields = createFields();
+	private TitledPane testTitledPane;
+
+	public void resize(int w, int h1)
+	{
+		double height = 20, dst = 5, offset = height + dst;
+		double height2 = 30, dst2 = 5, offset2 = height2 + dst2;
+		double height3 = 25, dst3 = 5, offset3 = height3 + dst3;
+
+		pane1h.setPrefSize(w, height2);
+		pane1h.setLayoutX(0);
+		pane1h.setLayoutY(h1 - pane1h.getPrefHeight());
+
+		codeTab.getTabPane().setLayoutX(0);
+		codeTab.getTabPane().setLayoutY(0);
+		codeTab.getTabPane().setPrefSize(w, pane1h.getLayoutY());
+
+		double h = h1 - Main.tabsSwitchHeight - pane1h.getPrefHeight();
+
+		pane2.setPrefSize(500, h);
+		pane2.setLayoutX(w - pane2.getPrefWidth());
+		pane2.setLayoutY(0);
+
+		pane1p.setLayoutX(0);
+		pane1p.setLayoutY(0);
+		pane1p.setPrefSize(pane2.getLayoutX(), h);
+
+		if (testTitledPane != null)
+		{
+			sp.setLayoutX(0);
+			sp.setLayoutY(0);
+			sp.setPrefSize(pane1p.getPrefWidth(), pane1p.getPrefHeight());
+
+			pp1.titledPane.setLayoutX(0);
+			pp1.titledPane.setLayoutY(0);
+			pp1.titledPane.setPrefSize(sp.getPrefWidth() - 15, sp.getPrefHeight());
+
+			pp1.setLayoutX(0);
+			pp1.setLayoutY(0);
+			pp1.setPrefSize(sp.getPrefWidth() - 16, sp.getPrefHeight());
+
+			resize(pp1);
+		}
+	}
+
+	private void resize(Accordion acc)
+	{
+		for (Integer i : acc.map2.keySet())
+		{
+			if (acc.map2.get(i) instanceof AccordionObject)
+			{
+				((AccordionObject) acc.map2.get(i)).titledPane
+						.setPrefWidth(acc.getPrefWidth() - ((AccordionObject) acc.map2.get(i)).titledPane.getLayoutX());
+				((AccordionObject) acc.map2.get(i)).accordion.setPrefWidth(
+						acc.getPrefWidth() - ((AccordionObject) acc.map2.get(i)).accordion.getLayoutX() - 1);
+				resize(((AccordionObject) acc.map2.get(i)).accordion);
+			}
+			else if (acc.map2.get(i) instanceof AccordionField)
+				((AccordionField) acc.map2.get(i)).pane
+						.setPrefWidth(acc.getPrefWidth() - ((AccordionField) acc.map2.get(i)).pane.getLayoutX());
+		}
+	}
 
 	private static HashMap<String, HashMap<String, Field>> createFields()
 	{
 		fields = new HashMap<String, HashMap<String, Field>>();
-		for (String language : MessageSystem.getMessages().keySet())
+		for (String language : msgSys.getMessages().keySet())
 		{
 			ArrayList<Field> languageFieldsList = new ArrayList<Field>();
 
 			ArrayList<String> parent_Test = toGetMessagedList(language, "test");
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("test", language), FieldType.Object, false, toGetMessagedList(language)));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("test", language), FieldType.Object, false, toGetMessagedList(language)));
 
-			languageFieldsList.add(new Field("syntaxLanguage", FieldType.String, false, new String[]
-			{
-					"ru_ru",
-					"en_uk"
-			}, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("programVersion", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testVersion", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("colorType", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testCreationDate", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testLanguage", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testSubject", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testAuthors", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testNaming", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("testDescription", language), FieldType.String, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("timeLimit", language), FieldType.Number, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("timeEndWarning", language), FieldType.Number, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("smartMode", language), FieldType.Bool, false, parent_Test));
+			languageFieldsList.add(new Field("syntaxLanguage", FieldType.String, false,
+					new String[] { "ru_ru", "en_uk" }, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("programVersion", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testVersion", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("colorType", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testCreationDate", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testLanguage", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testSubject", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testAuthors", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testNaming", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("testDescription", language), FieldType.String, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("timeLimit", language), FieldType.Number, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("timeEndWarning", language), FieldType.Number, false, parent_Test));
+			languageFieldsList.add(new Field(msgSys.getMsg("smartMode", language), FieldType.Bool, false, parent_Test));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("startPermissions", language), FieldType.Object, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("hintsPermissions", language), FieldType.Object, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("startPermissions", language), FieldType.Object, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("hintsPermissions", language), FieldType.Object, false, parent_Test));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("scripts", language), FieldType.Object, false, parent_Test));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("script", language), FieldType.Object, true, toGetMessagedList(language, "scripts")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("scriptName", language), FieldType.String, false, toGetMessagedList(language, "script")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("scriptText", language), FieldType.Script, false, toGetMessagedList(language, "script")));
+			languageFieldsList.add(new Field(msgSys.getMsg("scripts", language), FieldType.Object, false, parent_Test));
+			languageFieldsList.add(new Field(msgSys.getMsg("script", language), FieldType.Object, true,
+					toGetMessagedList(language, "scripts")));
+			languageFieldsList.add(new Field(msgSys.getMsg("scriptName", language), FieldType.String, false,
+					toGetMessagedList(language, "script")));
+			languageFieldsList.add(new Field(msgSys.getMsg("scriptText", language), FieldType.Script, false,
+					toGetMessagedList(language, "script")));
 
 			ArrayList<String> parent_Permissions = toGetMessagedList(language, "startPermissions", "hintsPermissions");
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("showLastAnswerQualityPermission", language), FieldType.Bool, false, parent_Permissions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("showAllAnswersQualityPermission", language), FieldType.Bool, false, parent_Permissions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("showRightAnswerPermission", language), FieldType.Bool, false, parent_Permissions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("goToAllAnswersPermission", language), FieldType.Bool, false, parent_Permissions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("skipPermission", language), FieldType.Bool, false, parent_Permissions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("pausePermission", language), FieldType.Bool, false, parent_Permissions));
+			languageFieldsList.add(new Field(msgSys.getMsg("showLastAnswerQualityPermission", language), FieldType.Bool,
+					false, parent_Permissions));
+			languageFieldsList.add(new Field(msgSys.getMsg("showAllAnswersQualityPermission", language), FieldType.Bool,
+					false, parent_Permissions));
+			languageFieldsList.add(new Field(msgSys.getMsg("showRightAnswerPermission", language), FieldType.Bool,
+					false, parent_Permissions));
+			languageFieldsList.add(new Field(msgSys.getMsg("goToAllAnswersPermission", language), FieldType.Bool, false,
+					parent_Permissions));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("skipPermission", language), FieldType.Bool, false, parent_Permissions));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("pausePermission", language), FieldType.Bool, false, parent_Permissions));
 
 			ArrayList<String> parent_AnswerQuestion = toGetMessagedList(language, "question", "answer");
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("clippedImages", language), FieldType.Object, false, parent_AnswerQuestion));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("clippedVideos", language), FieldType.Object, false, parent_AnswerQuestion));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("clippedAudios", language), FieldType.Object, false, parent_AnswerQuestion));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("image", language), FieldType.Image, true, toGetMessagedList(language, "clippedImages")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("video", language), FieldType.Video, true, toGetMessagedList(language, "clippedVideos")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("audio", language), FieldType.Audio, true, toGetMessagedList(language, "clippedAudio")));
+			languageFieldsList.add(new Field(msgSys.getMsg("clippedImages", language), FieldType.Object, false,
+					parent_AnswerQuestion));
+			languageFieldsList.add(new Field(msgSys.getMsg("clippedVideos", language), FieldType.Object, false,
+					parent_AnswerQuestion));
+			languageFieldsList.add(new Field(msgSys.getMsg("clippedAudios", language), FieldType.Object, false,
+					parent_AnswerQuestion));
+			languageFieldsList.add(new Field(msgSys.getMsg("image", language), FieldType.Image, true,
+					toGetMessagedList(language, "clippedImages")));
+			languageFieldsList.add(new Field(msgSys.getMsg("video", language), FieldType.Video, true,
+					toGetMessagedList(language, "clippedVideos")));
+			languageFieldsList.add(new Field(msgSys.getMsg("audio", language), FieldType.Audio, true,
+					toGetMessagedList(language, "clippedAudio")));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("questions", language), FieldType.Object, false, parent_Test));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("questions", language), FieldType.Object, false, parent_Test));
 
 			ArrayList<String> parent_Questions = toGetMessagedList(language, "questions");
 			ArrayList<String> parent_Question = toGetMessagedList(language, "question");
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("pickOne", language), FieldType.Object, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("selectSome", language), FieldType.Object, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("enterText", language), FieldType.Object, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("distribution", language), FieldType.Object, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("matching", language), FieldType.Object, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("arrangement", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("chooseOne", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("selectMultiple", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("enterText", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("distribution", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("matching", language), FieldType.Object, false, parent_Questions));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("arrangement", language), FieldType.Object, false, parent_Questions));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("question", language), FieldType.Object, true, toGetMessagedList(language, "group")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answers", language), FieldType.Object, false, toGetMessagedList(language, "question")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answer", language), FieldType.Object, true, toGetMessagedList(language, "answers",
-					"answersCombination")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("usedScript", language), FieldType.String, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("questionIndex", language), FieldType.Number, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("award", language), FieldType.Number, false, toGetMessagedList(language, "answer", "question",
-					"awardForAnswer")));
+			languageFieldsList.add(new Field(msgSys.getMsg("question", language), FieldType.Object, true,
+					toGetMessagedList(language, "group")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answers", language), FieldType.Object, false,
+					toGetMessagedList(language, "question")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answer", language), FieldType.Object, true,
+					toGetMessagedList(language, "answers", "answersCombination")));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("usedScript", language), FieldType.String, false, parent_Question));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("questionIndex", language), FieldType.Number, false, parent_Question));
+			languageFieldsList.add(new Field(msgSys.getMsg("award", language), FieldType.Number, false,
+					toGetMessagedList(language, "answer", "question", "awardForAnswer")));
 			languageFieldsList.add(new Field("html", FieldType.Html, false, parent_AnswerQuestion));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("text", language), FieldType.String, false, parent_AnswerQuestion));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("fontSize", language), FieldType.Number, false, toGetMessagedList(language, "pickOne",
-					"selectSome", "enterText", "distribution", "matching", "arrangement", "questions", "question", "answers", "answer", "group")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("ignoreCase", language), FieldType.Bool, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("ignoredCharacters", language), FieldType.String, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("minimalResult", language), FieldType.Number, false, toGetMessagedList(language, "question",
-					"questions")));// TODO Добавить паренты
-			languageFieldsList.add(new Field(MessageSystem.getMsg("questionsToTestAmount", language), FieldType.Number, false, toGetMessagedList(language,
-					"group")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("randomize", language), FieldType.Bool, false, toGetMessagedList(language, "group",
-					"questions", "pickOne", "selectSome", "enterText", "distribution", "matching", "arrangement")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("randomizeBlocks", language), FieldType.Bool, false, toGetMessagedList(language,
-					"questions")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("randomizeGroups", language), FieldType.Bool, false, toGetMessagedList(language, "pickOne",
-					"selectSome", "enterText", "distribution", "matching", "arrangement")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answerFontSize", language), FieldType.Number, false, parent_Questions));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("handleOnlyMaximal", language), FieldType.Bool, false, parent_Question));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("ignoreCase", language), FieldType.Bool, false, parent_Question));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("ignoredCharacters", language), FieldType.String, false, parent_Question));
+			languageFieldsList.add(new Field(msgSys.getMsg("minimalResult", language), FieldType.Number, false,
+					toGetMessagedList(language, "question", "questions")));// TODO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			languageFieldsList.add(new Field(msgSys.getMsg("questionsToTestAmount", language), FieldType.Number, false,
+					toGetMessagedList(language, "group")));
+			languageFieldsList.add(new Field(msgSys.getMsg("randomize", language), FieldType.Bool, false,
+					toGetMessagedList(language, "group", "questions", "pickOne", "selectSome", "enterText",
+							"distribution", "matching", "arrangement")));
+			languageFieldsList.add(new Field(msgSys.getMsg("randomizeBlocks", language), FieldType.Bool, false,
+					toGetMessagedList(language, "questions")));
+			languageFieldsList.add(new Field(msgSys.getMsg("randomizeGroups", language), FieldType.Bool, false,
+					toGetMessagedList(language, "pickOne", "selectSome", "enterText", "distribution", "matching",
+							"arrangement")));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("answerFontSize", language), FieldType.Number, false, parent_Questions));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("handleOnlyMaximal", language), FieldType.Bool, false, parent_Question));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("awardsForAnswersCombinations", language), FieldType.Object, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("awardForAnswersCombination", language), FieldType.Object, true, toGetMessagedList(language,
-					"awardsForAnswersCombinations")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answersCombination", language), FieldType.Object, false, toGetMessagedList(language,
-					"awardForAnswersCombination")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answerNumber", language), FieldType.Number, false, toGetMessagedList(language, "answer")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answerIndexes", language), FieldType.Object, false, toGetMessagedList(language, "answer")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("index", language), FieldType.Number, true, toGetMessagedList(language, "answerIndexes")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("answerIndex", language), FieldType.Number, false, toGetMessagedList(language, "answer")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("onlyThisIndexes", language), FieldType.Bool, false, toGetMessagedList(language, "answer")));
+			languageFieldsList.add(new Field(msgSys.getMsg("awardsForAnswersCombinations", language), FieldType.Object,
+					false, parent_Question));
+			languageFieldsList.add(new Field(msgSys.getMsg("awardForAnswersCombination", language), FieldType.Object,
+					true, toGetMessagedList(language, "awardsForAnswersCombinations")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answersCombination", language), FieldType.Object, false,
+					toGetMessagedList(language, "awardForAnswersCombination")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answerNumber", language), FieldType.Number, false,
+					toGetMessagedList(language, "answer")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answerIndexes", language), FieldType.Object, false,
+					toGetMessagedList(language, "answer")));
+			languageFieldsList.add(new Field(msgSys.getMsg("index", language), FieldType.Number, true,
+					toGetMessagedList(language, "answerIndexes")));
+			languageFieldsList.add(new Field(msgSys.getMsg("answerIndex", language), FieldType.Number, false,
+					toGetMessagedList(language, "answer")));
+			languageFieldsList.add(new Field(msgSys.getMsg("onlyThisIndexes", language), FieldType.Bool, false,
+					toGetMessagedList(language, "answer")));
 
-			languageFieldsList.add(new Field(MessageSystem.getMsg("indexesForNames", language), FieldType.Object, false, parent_Question));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("naming", language), FieldType.String, true, toGetMessagedList(language, "indexesForNames")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("onlyThisIndexes", language), FieldType.Bool, false, toGetMessagedList(language,
-					"answerIndex")));
-			languageFieldsList.add(new Field(MessageSystem.getMsg("group", language), FieldType.Object, true, toGetMessagedList(language, "pickOne",
-					"selectSome", "enterText", "distribution", "matching", "arrangement")));
+			languageFieldsList.add(
+					new Field(msgSys.getMsg("indexesForNames", language), FieldType.Object, false, parent_Question));
+			languageFieldsList.add(new Field(msgSys.getMsg("naming", language), FieldType.String, true,
+					toGetMessagedList(language, "indexesForNames")));
+			languageFieldsList.add(new Field(msgSys.getMsg("onlyThisIndexes", language), FieldType.Bool, false,
+					toGetMessagedList(language, "answerIndex")));
+			languageFieldsList
+					.add(new Field(msgSys.getMsg("group", language), FieldType.Object, true, toGetMessagedList(language,
+							"chooseOne", "selectMultiple", "enterText", "distribution", "matching", "arrangement")));
 			HashMap<String, Field> languageFields = new HashMap<String, Field>();
 
 			HashMap<String, ArrayList<String>> fieldsWithChildren = new HashMap<String, ArrayList<String>>();
@@ -645,7 +764,7 @@ class TestDevTab extends Tab
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		for (String key : array)
-			list.add(MessageSystem.getMsg(key, language));
+			list.add(msgSys.getMsg(key, language));
 		return list;
 	}
 
@@ -657,6 +776,7 @@ class TestDevTab extends Tab
 	public TestDevTab(String name)
 	{
 		super(name);
+		testName = name;
 	}
 
 	private static final HashMap<String, ArrayList<String>> keyWordsWithDigit = createKeyWordsWithDigit();
@@ -678,7 +798,7 @@ class TestDevTab extends Tab
 	private static HashMap<String, ArrayList<String>> createKeyWordsWithDigit()
 	{
 		HashMap<String, ArrayList<String>> keyWords = new HashMap<String, ArrayList<String>>();
-		for (String language : MessageSystem.getMessages().keySet())
+		for (String language : msgSys.getMessages().keySet())
 		{
 			ArrayList<String> keyWordsToLanguage = new ArrayList<String>();
 			for (String name : fields.get(language).keySet())
@@ -692,7 +812,7 @@ class TestDevTab extends Tab
 	private static HashMap<String, ArrayList<String>> createKeyWordsWithoutDigit()
 	{
 		HashMap<String, ArrayList<String>> keyWords = new HashMap<String, ArrayList<String>>();
-		for (String language : MessageSystem.getMessages().keySet())
+		for (String language : msgSys.getMessages().keySet())
 		{
 			ArrayList<String> keyWordsToLanguage = new ArrayList<String>();
 			for (String name : fields.get(language).keySet())
@@ -706,9 +826,9 @@ class TestDevTab extends Tab
 	private static HashMap<String, String> createKeywordParents()
 	{
 		HashMap<String, String> keywordParents = new HashMap<String, String>();
-		for (String language : MessageSystem.getMessages().keySet())
-			keywordParents.put(language, "\\b(" + String.join("|", keyWordsWithoutDigit.get(language)) + "|" + replaceBetween("%d<", ">", "[0-9]+", String.join(
-					"|", keyWordsWithDigit.get(language))) + ")\\b");
+		for (String language : msgSys.getMessages().keySet())
+			keywordParents.put(language, "\\b(" + String.join("|", keyWordsWithoutDigit.get(language)) + "|"
+					+ replaceBetween("%d<", ">", "[0-9]+", String.join("|", keyWordsWithDigit.get(language))) + ")\\b");
 		return keywordParents;
 
 	}
@@ -716,17 +836,20 @@ class TestDevTab extends Tab
 	private static String replaceBetween(String first, String second, String replacement, String text)
 	{
 		for (; text.indexOf(first) < text.indexOf(second) && text.indexOf(first) != -1;)
-			text = text.substring(0, text.indexOf(first)) + replacement + text.substring(text.indexOf(second) + second.length());
+			text = text.substring(0, text.indexOf(first)) + replacement
+					+ text.substring(text.indexOf(second) + second.length());
 		return text;
 	}
 
 	private static HashMap<String, Pattern> createPatterns()
 	{
 		HashMap<String, Pattern> patterns = new HashMap<String, Pattern>();
-		for (String language : MessageSystem.getMessages().keySet())
-			patterns.put(language, Pattern.compile("(?<KEYWORD>" + KEYWORD_PATTERNS.get(language) + ")" + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
-					+ "|(?<STRING>" + STRING_PATTERN + ")" + "|(?<COMMENT>" + COMMENT_PATTERN + ")" + "|(?<ERROR>" + ERROR_PATTERN + ")" + "|(?<NUMBER>"
-					+ NUMBER_PATTERN + ")"));
+		for (String language : msgSys.getMessages().keySet())
+			patterns.put(language,
+					Pattern.compile(
+							"(?<KEYWORD>" + KEYWORD_PATTERNS.get(language) + ")" + "|(?<SEMICOLON>" + SEMICOLON_PATTERN
+									+ ")" + "|(?<STRING>" + STRING_PATTERN + ")" + "|(?<COMMENT>" + COMMENT_PATTERN
+									+ ")" + "|(?<ERROR>" + ERROR_PATTERN + ")" + "|(?<NUMBER>" + NUMBER_PATTERN + ")"));
 		return patterns;
 	}
 
@@ -749,7 +872,8 @@ class TestDevTab extends Tab
 					: matcher.group("SEMICOLON") != null ? "semicolon"
 							: matcher.group("COMMENT") != null ? "comment"
 									: matcher.group("ERROR") != null ? "error"
-											: matcher.group("STRING") != null ? "string" : matcher.group("NUMBER") != null ? "number" : null;
+											: matcher.group("STRING") != null ? "string"
+													: matcher.group("NUMBER") != null ? "number" : null;
 			assert styleClass != null;
 			spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
 			spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
@@ -760,19 +884,11 @@ class TestDevTab extends Tab
 	}
 
 	private static final HashMap<String, Pattern> PATTERNS = createPatterns();
-	private String testName;
-	private Button delete;
-	private HBox pane1h;
-	private TextField name1;
-	private CodeArea area;
 
 	public void initialize()
 	{
 		if (initialized)
 			throw new NullPointerException("Already initialized!");
-		testName = getText();
-
-		area = new CodeArea();
 		save = new Button("save");
 		delete = new Button("delete");
 		Label errF = new Label();
@@ -782,15 +898,18 @@ class TestDevTab extends Tab
 		pane1h.getChildren().add(save);
 		pane1h.getChildren().add(delete);
 		pane1h.getChildren().add(errF);
+		Pane splitPane = new Pane();
+		splitPane.getChildren().add(
+				new TabPane(codeTab = new Tab("Code", area = new CodeArea()), constructorTab = new Tab("Constructor")));
 		area.setPrefHeight(getTabPane().getPrefHeight() - 30);
-		VBox splitPane = new VBox();
-		splitPane.getChildren().add(new TabPane(codeTab = new Tab("Code"), constructorTab = new Tab("Constructor")));
+		codeTab.getTabPane().setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		splitPane.getChildren().add(pane1h);
 		setContent(splitPane);
 		name1.setText(testName);
-		codeTab.setContent(area);
-		new Timer(100, e -> Platform.runLater(() -> setText(testName + (((area.getText().equals(SystemUtils.readFile(new File("Tests/" + testName + "/"
-				+ testName + ".test"), Charset.forName("cp1251"))))) ? "" : "*")))).start();
+		new Timer(100,
+				e -> Platform.runLater(() -> setText(testName + (((area.getText().equals(SystemUtils.readFile(
+						new File("Tests/" + testName + "/" + testName + ".test"), Charset.forName("cp1251"))))) ? ""
+								: "*")))).start();
 		save.setOnAction(e ->
 		{
 			if (constructorTab.isSelected())
@@ -798,14 +917,15 @@ class TestDevTab extends Tab
 			area.replaceText(area.getText().replace("\t\n", " \n").replace(" \n", "\n"));
 			testName = name1.getText();
 			setText(testName);
-			SystemUtils.writeFile(new File("Tests/" + testName + "/" + testName + ".test"), area.getText(), Charset.forName("cp1251"));
+			SystemUtils.writeFile(new File("Tests/" + testName + "/" + testName + ".test"), area.getText(),
+					Charset.forName("cp1251"));
 		});
 		delete.setOnAction(e ->
 		{
 			getTabPane().getTabs().remove(TestDevTab.this);
-			SystemUtils.removeFile(new File("Tests/" + testName));
+			SystemUtils.deleteFile(new File("Tests/" + testName));
 		});
-		String stylesheet = TestDevPart.class.getResource("/schooltester-keywords.css").toString();
+		String stylesheet = TestDevPart.class.getResource(Main.resourcesPath+"/schooltester-keywords.css").toString();
 		IntFunction<String> format = (digits -> " %" + digits + "d ");
 		area.setParagraphGraphicFactory(LineNumberFactory.get(area, format));
 		area.getStylesheets().add(stylesheet);
@@ -821,9 +941,9 @@ class TestDevTab extends Tab
 			syntaxLanguage = conf.getString("syntaxLanguage", "", true);
 			if (!conf.hasValue("syntaxLanguage"))
 				errF.setText("Add syntax language!");
-			else if (!MessageSystem.getMessages().containsKey(syntaxLanguage))
-				errF.setText("Supported syntax languages are '" + String.join("', '", MessageSystem.getMessages().keySet()) + "'! Current syntax - '"
-						+ syntaxLanguage + "' is not supported!");
+			else if (!msgSys.getMessages().containsKey(syntaxLanguage))
+				errF.setText("Supported syntax languages are '" + String.join("', '", msgSys.getMessages().keySet())
+						+ "'! Current syntax - '" + syntaxLanguage + "' is not supported!");
 			else errF.setText("");
 			area.setStyleSpans(0, computeHighlighting(newText));
 		});
@@ -832,26 +952,36 @@ class TestDevTab extends Tab
 			if (e.isControlDown())
 				if (e.getCode() == KeyCode.SPACE)
 					for (int i = area.getCaretPosition() - 1; i >= 0; i--)
-						if (i < area.getText().length() ? !Character.isLetter(area.getText().charAt(i)) && !Character.isDigit(area.getText().charAt(i)) : true)
+						if (i < area.getText().length() ? !Character.isLetter(area.getText().charAt(i))
+								&& !Character.isDigit(area.getText().charAt(i)) : true)
 						{
 							i++;
 							String s = String.join("\n", getKeyWordsFrom(area.getText(i, area.getCaretPosition())));
-							if (area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage)) != -1)
-								c.q = MathWithText.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage)),
-										area.getText().lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage)) + area.getText().substring(area.getText()
-												.lastIndexOf(MessageSystem.getMsg("question", syntaxLanguage))).indexOf(":")));
+							if (area.getText().lastIndexOf(msgSys.getMsg("question", syntaxLanguage)) != -1)
+								c.q = MathUtils.parseI(area.getText().substring(
+										area.getText().lastIndexOf(msgSys.getMsg("question", syntaxLanguage)),
+										area.getText().lastIndexOf(msgSys.getMsg("question", syntaxLanguage))
+												+ area.getText()
+														.substring(area.getText()
+																.lastIndexOf(msgSys.getMsg("question", syntaxLanguage)))
+														.indexOf(":")));
 							else c.q = 1;
 							if (c.q < 1)
 								c.q = 1;
-							if (area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage)) != -1)
-								c.a = MathWithText.parseI(area.getText().substring(area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage)),
-										area.getText().lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage)) + area.getText().substring(area.getText()
-												.lastIndexOf(MessageSystem.getMsg("answer", syntaxLanguage))).indexOf(":")));
+							if (area.getText().lastIndexOf(msgSys.getMsg("answer", syntaxLanguage)) != -1)
+								c.a = MathUtils.parseI(area.getText().substring(
+										area.getText().lastIndexOf(msgSys.getMsg("answer", syntaxLanguage)),
+										area.getText().lastIndexOf(msgSys.getMsg("answer", syntaxLanguage))
+												+ area.getText()
+														.substring(area.getText()
+																.lastIndexOf(msgSys.getMsg("answer", syntaxLanguage)))
+														.indexOf(":")));
 							else c.a = 1;
 							if (c.a < 1)
 								c.a = 1;
-							String[] keyWords = s.replace("%d<question>", "" + c.q).replace("%d<answer>", "" + c.a).replace("%d<awardForAnswer>", "" + 1)
-									.replace("%d<answerIndex>", "" + 1).split("\n");
+							String[] keyWords = s.replace("%d<question>", "" + c.q).replace("%d<answer>", "" + c.a)
+									.replace("%d<awardForAnswer>", "" + 1).replace("%d<answerIndex>", "" + 1)
+									.split("\n");
 							MenuItem[] items = new MenuItem[keyWords.length];
 							for (int r = 0; r < items.length; r++)
 							{
@@ -863,25 +993,29 @@ class TestDevTab extends Tab
 								});
 							}
 							area.setContextMenu(new ContextMenu(items));
-							area.getContextMenu().show(area, MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
+							area.getContextMenu().show(area, MouseInfo.getPointerInfo().getLocation().x,
+									MouseInfo.getPointerInfo().getLocation().y);
 							area.getContextMenu().requestFocus();
 							break;
 						}
 		});
 		area.setOnKeyReleased(e ->
 		{
-			String textToCaret = area.getText(0, Math.max(0, Math.min(area.getCaretPosition() - 1, area.getText().length() - 1)));
-			if (e.getCode() == KeyCode.ENTER && area.getText().charAt(Math.min(area.getCaretPosition(), area.getText().length() - 1)) == '\n')
+			String textToCaret = area.getText(0,
+					Math.max(0, Math.min(area.getCaretPosition() - 1, area.getText().length() - 1)));
+			if (e.getCode() == KeyCode.ENTER
+					&& area.getText().charAt(Math.min(area.getCaretPosition(), area.getText().length() - 1)) == '\n')
 			{
-				String tabs = getStartTabs(textToCaret.substring(Math.max(0, textToCaret.lastIndexOf("\n") + 1), textToCaret.length())) + (textToCaret.replace(
-						"\t", "").replace(" ", "").endsWith(":") ? "\t" : "");
-				area.replaceText(Math.max(0, Math.min(area.getCaretPosition(), area.getText().length() - 1)) - 1, Math.max(0, Math.min(area.getCaretPosition(),
-						area.getText().length() - 1)), "\n" + tabs);
+				String tabs = getStartTabs(
+						textToCaret.substring(Math.max(0, textToCaret.lastIndexOf("\n") + 1), textToCaret.length()))
+						+ (textToCaret.replace("\t", "").replace(" ", "").endsWith(":") ? "\t" : "");
+				area.replaceText(Math.max(0, Math.min(area.getCaretPosition(), area.getText().length() - 1)) - 1,
+						Math.max(0, Math.min(area.getCaretPosition(), area.getText().length() - 1)), "\n" + tabs);
 			}
 		});
-		constructorTab.setContent(new SplitPane(pane1p, pane2));
+		constructorTab.setContent(new Pane(pane1p, pane2));
 		codeTab.setOnSelectionChanged(e -> setCodeToConstructor());
-		pane2.setMinWidth(editor.getMinWidth());
+		pane2.setMinWidth(400);
 		constructorTab.setOnSelectionChanged(e ->
 		{
 			if (constructorTab.isSelected())
@@ -899,7 +1033,7 @@ class TestDevTab extends Tab
 				pane.setMinWidth(pane1p.getPrefWidth() - 10);
 				pane.setPrefWidth(pane.getMinWidth());
 
-				ScrollPane sp = new ScrollPane(pane);
+				sp = new ScrollPane(pane);
 				sp.setHbarPolicy(ScrollBarPolicy.ALWAYS);
 				sp.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 				pane1p.getChildren().add(sp);
@@ -907,7 +1041,9 @@ class TestDevTab extends Tab
 				sp.setMaxHeight(getTabPane().getPrefHeight() - 60);
 				sp.setPrefWidth(getTabPane().getPrefWidth());
 
-				pp1 = addObject(null, MessageSystem.getMsg("test", syntaxLanguage), null, tabsAndPanes, pane2, true, new Container<String>(), pane);
+				pp1 = addObject(null, msgSys.getMsg("test", syntaxLanguage), null, tabsAndPanes, pane2, true,
+						new Container<String>(), pane);
+				testTitledPane = pp1.titledPane;
 
 				for (String line : area.getText().replace("\r\n", "\n").replace("\r", "\n").split("\n"))
 				{
@@ -922,31 +1058,35 @@ class TestDevTab extends Tab
 					{
 						e.consume();
 						codeTab.getTabPane().getSelectionModel().select(codeTab);
-						FXDialogsGenerator.showFXDialog(TestDevPart.instance, (Rectangle) null, "Syntax error!", 0, null, true);
+						FXDialogsGenerator.showFXDialog(TestDevPart.instance.stage, "Syntax error!", null, true);
 						return;
 					}
 					Accordion p = tabsAndPanes.get(tabs).getKey();
 					if (line.contains(":"))
 						if (line.replace("\t", "").replace(" ", "").endsWith(":"))
-							addObject(p, line.substring(0, line.indexOf(":")).replace("\t", "").replace(" ", ""), tabs, tabsAndPanes, pane2, false, tabsAndPanes
-									.get(tabs).getValue(), null);
-						else addField(p, line.substring(0, line.indexOf(":")).replace("\t", "").replace(" ", ""), line.substring(line.indexOf(":") + 1), pane2,
-								tabsAndPanes.get(tabs).getValue());
+							addObject(p, line.substring(0, line.indexOf(":")).replace("\t", "").replace(" ", ""), tabs,
+									tabsAndPanes, pane2, false, tabsAndPanes.get(tabs).getValue(), null);
+						else addField(p, line.substring(0, line.indexOf(":")).replace("\t", "").replace(" ", ""),
+								line.substring(line.indexOf(":") + 1), pane2, tabsAndPanes.get(tabs).getValue());
 					else
 					{
 						e.consume();
 						codeTab.getTabPane().getSelectionModel().select(codeTab);
-						FXDialogsGenerator.showFXDialog(TestDevPart.instance, (Rectangle) null, "Syntax error!", 0, null, true);
+						FXDialogsGenerator.showFXDialog(TestDevPart.instance.stage, "Syntax error!", null, true);
 						return;
 					}
 					offsets.get(tabsAndPanes.get(tabs).getKey()).i++;
 				}
 				pp1.update();
 				pp1.setPrefWidth(pane1p.getWidth() - 5);
+				resize((int) getTabPane().getPrefWidth(),
+						(int) getTabPane().getPrefHeight() - (int) Main.tabsSwitchHeight);
 			}
 		});
 		initialized = true;
 	}
+
+	ScrollPane sp;
 
 	private void setCodeToConstructor()
 	{
@@ -972,7 +1112,7 @@ class TestDevTab extends Tab
 	Tab boolT = new Tab("Bool", bool);
 	ComboBox<String> restricted = new ComboBox<String>();
 	Tab restrictedT = new Tab("Restricted", restricted);
-	ComboBoxWithSearch field = new ComboBoxWithSearch();
+	TextFieldWithHints field = new TextFieldWithHints();
 	Tab fieldT = new Tab("Field", field);
 	DirFilesView file = new DirFilesView();
 	Tab fileT = new Tab("File", file);
@@ -989,8 +1129,10 @@ class TestDevTab extends Tab
 	private Color checkWrongSyntax(Container<String> ss, Container<String> parents)
 	{
 		String s = removeDigits(ss.t), parent = removeDigits(parents.t);
-		// System.out.println(s + "\t" + (fields.get(syntaxLanguage).get(s) == null) + "\t" + (fields.get(syntaxLanguage).get(s) != null ? fields.get(
-		// syntaxLanguage).get(s).parents.toString() : null) + "\t" + removeDigits(parent) + "\t" + parent);
+		// System.out.println(s + "\t" + (fields.get(syntaxLanguage).get(s) == null) +
+		// "\t" + (fields.get(syntaxLanguage).get(s) != null ? fields.get(
+		// syntaxLanguage).get(s).parents.toString() : null) + "\t" +
+		// removeDigits(parent) + "\t" + parent);
 		return fields.get(syntaxLanguage).get(s) == null ? Color.RED
 				: (!fields.get(syntaxLanguage).get(s).parents.contains(removeDigits(parent)) ? Color.RED : Color.BLACK);
 	}
@@ -1006,14 +1148,15 @@ class TestDevTab extends Tab
 
 	private void addField(Accordion p, String name, String text, TabPane pane2, Container<String> parent)
 	{
+		Container<String> s = new Container<String>();
+		s.t = name;
 		Pane pan1 = new Pane();
 		Label l = new Label(toLabel(name));
 		l.setPrefWidth(p.getPrefWidth() / 2);
-		TextField f = new TextField(text);
-		f.setPrefWidth(p.getPrefWidth() / 2);
-		f.setEditable(false);
-		Container<String> s = new Container<String>();
-		s.t = name;
+		FieldType fieldType1 = fields.get(syntaxLanguage).get(removeDigits(s.t)) != null
+				? fields.get(syntaxLanguage).get(removeDigits(s.t)).type
+				: FieldType.String;
+
 		MenuItem change = new MenuItem("Change");
 		Runnable checkWrongSyntax = () -> l.setTextFill(checkWrongSyntax(s, parent));
 		checkWrongSyntax.run();
@@ -1023,14 +1166,14 @@ class TestDevTab extends Tab
 			pane2.getTabs().clear();
 			pane2.getTabs().add(fieldT);
 			field.setText(s.t);
-			field.items = fields.get(syntaxLanguage).get(parent.t) != null ? fields.get(syntaxLanguage).get(parent.t).children : new ArrayList<String>();
+			field.getItems().clear();
+			field.getItems().addAll(toFieldNameItems(getChildrenOf(parent.t, syntaxLanguage)));
 			onGoToOther.t = () ->
 			{
 				l.setText(toLabel(s.t = field.getText()));
 				checkWrongSyntax.run();
 			};
 		});
-
 		Menu delete = new Menu("Delete");
 		Menu cantCancel = new Menu("You can't cancel this action!");
 		MenuItem yes = new MenuItem("Yes");
@@ -1040,200 +1183,282 @@ class TestDevTab extends Tab
 		delete.getItems().add(new MenuItem("No"));
 
 		l.setContextMenu(new ContextMenu(change, delete));
-		setOnDoubleClick(f, 400, eve ->
+
+		Pane span;
+
+		String val = text.replace(" ", "").replace("\t", "");
+		if (fieldType1 == FieldType.Bool && (val.equals("true") || val.equals("false")))
 		{
-			onGoToOther.t.run();
-			pane2.getTabs().clear();
-			FieldType fieldType = fields.get(syntaxLanguage).get(removeDigits(s.t)) != null ? fields.get(syntaxLanguage).get(removeDigits(s.t)).type
-					: FieldType.String;
-			boolean b = false;
-			if (fields.get(syntaxLanguage).get(removeDigits(s.t)) != null ? fields.get(syntaxLanguage).get(removeDigits(s.t)).restrictors == null : true)
-				switch (fieldType)
-				{
-					case Html:
-					{
-						pane2.getTabs().add(htmlT);
-						String str = f.getText();
-						editor.visualTab.getTabPane().getSelectionModel().select(editor.visualTab);
-						if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
-							editor.visual.setHtmlText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
-						else editor.visual.setHtmlText(str);
-						onGoToOther.t = () -> f.setText("\"" + (editor.htmlTab.isSelected() ? editor.html.getText() : editor.visual.getHtmlText()) + "\"");
-					}
-						break;
-					case String:
-					{
-						pane2.getTabs().add(stringT);
-						String str = f.getText();
-						if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
-							string.setText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
-						else string.setText(str);
-						onGoToOther.t = () -> f.setText("\"" + string.getText() + "\"");
-					}
-						break;
-					case Script:
-					{
-						pane2.getTabs().add(scriptT);
-						String str = f.getText().replace("\\n", "\r\n");
-						if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
-							script.replaceText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
-						else script.replaceText(str);
-						onGoToOther.t = () -> f.setText("\"" + script.getText().replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n") + "\"");
-					}
-						break;
-					case Number:
-					{
-						pane2.getTabs().add(numberT);
-						number.setText(f.getText());
-						onGoToOther.t = () -> f.setText(number.getText());
-					}
-						break;
-					case Bool:
-					{
-						pane2.getTabs().add(boolT);
-						bool.setSelected(f.getText().replace(" ", "").replace("\t", "").equals("true"));
-						onGoToOther.t = () -> f.setText(bool.isSelected() + "");
-					}
-						break;
-					case Object:
-					{
-						FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, "Error! This value is object!", 0, null, true);
-						pane2.getTabs().add(stringT);
-						string.setText(f.getText());
-						onGoToOther.t = () -> f.setText(string.getText());
-					}
-						break;
-					case Audio:
-						if (!b)
-						{
-							file.typeFilter = new ArrayList<String>();
-							file.typeFilter.add("aif");
-							file.typeFilter.add("aiff");
-							file.typeFilter.add("fxm");
-							file.typeFilter.add("flv");
-							file.typeFilter.add("wav");
-							file.typeFilter.add("mp3");
-							b = true;
-						}
-					case Video:
-						if (!b)
-						{
-							file.typeFilter = new ArrayList<String>();
-							file.typeFilter.add("fxm");
-							file.typeFilter.add("flv");
-							file.typeFilter.add("mp4");
-							b = true;
-						}
-					case Image:
-						if (!b)
-						{
-							file.typeFilter = new ArrayList<String>();
-							file.typeFilter.add("bmp");
-							file.typeFilter.add("gif");
-							file.typeFilter.add("jpg");
-							file.typeFilter.add("png");
-							b = true;
-						}
-					case File:
-					{
-						pane2.getTabs().add(fileT);
-						file.blacklist = !b;
-						if (!b)
-						{
-							file.typeFilter = new ArrayList<String>();
-							b = true;
-						}
-						file.dir = new File("Tests/" + testName);
-						file.update();
-						String ss = "";
-						if (f.getText().contains("\"") && f.getText().indexOf("\"") != f.getText().lastIndexOf("\""))
-							ss = f.getText().substring(f.getText().indexOf("\"") + 1, f.getText().lastIndexOf("\""));
-						for (Node n : file.getChildren())
-							if (n instanceof Button)
-								if (((Button) n).getText().equals(ss))
-									((Button) n).fire();
-						onGoToOther.t = () -> f.setText("\"" + file.selected + "\"");
-					}
-						break;
-				}
-			else
-			{
-				pane2.getTabs().add(restrictedT);
-				restricted.getItems().clear();
-				restricted.getItems().addAll(fields.get(syntaxLanguage).get(removeDigits(s.t)).restrictors);
-				restricted.getSelectionModel().select(0);
-				switch (fieldType)
-				{
-					case Html:
-					case String:
-					case Image:
-					case Video:
-					case Audio:
-					case File:
-					case Script:
-						onGoToOther.t = () -> f.setText("\"" + restricted.getSelectionModel().getSelectedItem() + "\"");
-						break;
-					case Number:
-					case Bool:
-					case Object:
-						onGoToOther.t = () -> f.setText(restricted.getSelectionModel().getSelectedItem());
-						break;
-				}
-			}
-		});
-		Button btn = new Button();
-		btn.setMaxWidth(5);
-		btn.setLayoutX(p.getPrefWidth() / 2);
-		Pane span = new Pane(l, btn, f);
-		class B
-		{
-			boolean b;
-		}
-		B b = new B();
-		btn.setOnMousePressed(eve -> b.b = true);
-		btn.setOnMouseReleased(eve -> b.b = false);
-		Runnable r = () ->
-		{
-			btn.setLayoutX(Math.min(Math.max(btn.getLayoutX(), MathWithText.size(l.getText(), l.getFont()).width), p.getPrefWidth() - 60));
-			l.setPrefWidth(btn.getLayoutX());
-			f.setLayoutX(btn.getLayoutX() + 3);
-			f.setPrefWidth(p.getPrefWidth() - btn.getLayoutX());
-		};
-		Runnable r2 = () ->
-		{
-			if (b.b)
-			{
-				btn.setLayoutX(span.screenToLocal(MouseInfo.getPointerInfo().getLocation().x, 0).getX());
-				r.run();
-			}
-		};
-		span.setOnMouseMoved(eve -> r2.run());
-		span.setOnMouseDragged(eve -> r2.run());
-		span.setOnDragDone(eve -> r2.run());
-		l.setOnMouseMoved(eve -> r2.run());
-		l.setOnMouseDragged(eve -> r2.run());
-		l.setOnDragDone(eve -> r2.run());
-		btn.setOnMouseMoved(eve -> r2.run());
-		btn.setOnMouseDragged(eve -> r2.run());
-		btn.setOnDragDone(eve -> r2.run());
-		f.setOnMouseMoved(eve -> r2.run());
-		f.setOnMouseDragged(eve -> r2.run());
-		f.setOnDragDone(eve -> r2.run());
-		pan1.getChildren().add(span);
-		if (p != null)
-		{
-			AccordionField field = new AccordionField(s, pan1, l, f);
+			CheckBox f = new CheckBox();
+			f.setSelected(val.equals("true"));
+			AccordionField field = new AccordionCheckbox(s, pan1, l, f);
 			p.add(field);
-			yes.setOnAction(e -> p.remove(field));
+			span = new Pane(l, f);
+			pan1.prefWidthProperty().addListener((a, b, c) ->
+			{
+				span.setPrefSize(pan1.getPrefWidth(), pan1.getPrefHeight());
+				f.setPrefWidth(15);
+				f.setLayoutX(span.getPrefWidth() - f.getPrefWidth());
+				l.setPrefWidth(span.getPrefWidth() - f.getPrefWidth());
+			});
 		}
-		span.setMinWidth(p.getPrefWidth());
-		span.setPrefWidth(p.getPrefWidth());
-		span.setMaxWidth(p.getPrefWidth());
+		else if (fieldType1 == FieldType.Number && val.lastIndexOf("-") <= 0
+				&& val.replaceAll("[0123456789-]", "").length() == 0)
+		{
+			TextField f = new TextField(val);
+			f.setTextFormatter(new TextFormatter<>(c -> c.getControlNewText().lastIndexOf("-") <= 0
+					&& c.getControlNewText().replaceAll("[0123456789-]", "").length() == 0 ? c : null));
+			AccordionField field = new AccordionTextfield(s, pan1, l, f);
+			p.add(field);
+			span = new Pane(l, f);
+			pan1.prefWidthProperty().addListener((a, b, c) ->
+			{
+				span.setPrefSize(pan1.getPrefWidth(), pan1.getPrefHeight());
+				f.setPrefWidth(50);
+				f.setLayoutX(span.getPrefWidth() - f.getPrefWidth());
+				l.setPrefWidth(span.getPrefWidth() - f.getPrefWidth());
+			});
+		}
+		else
+		{
+			TextField f = new TextField(text);
+			f.setPrefWidth(p.getPrefWidth() / 2);
+			f.setEditable(false);
+			f.setOnMouseClicked(eve ->
+			{
+				onGoToOther.t.run();
+
+				pane2.getTabs().clear();
+				FieldType fieldType = fields.get(syntaxLanguage).get(removeDigits(s.t)) != null
+						? fields.get(syntaxLanguage).get(removeDigits(s.t)).type
+						: FieldType.String;
+				boolean b = false;
+				if (fields.get(syntaxLanguage).get(removeDigits(s.t)) != null
+						? fields.get(syntaxLanguage).get(removeDigits(s.t)).restrictors == null
+						: true)
+					switch (fieldType)
+					{
+						case Html:
+						{
+							pane2.requestFocus();
+							pane2.getTabs().add(htmlT);
+							String str = f.getText();
+							editor.visualTab.getTabPane().requestFocus();
+							editor.visualTab.getTabPane().getSelectionModel().select(editor.visualTab);
+							if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
+								editor.visual.setHtmlText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
+							else editor.visual.setHtmlText(str);
+							onGoToOther.t = () -> f.setText("\"" + (editor.htmlTab.isSelected() ? editor.html.getText()
+									: editor.visual.getHtmlText()) + "\"");
+						}
+							break;
+						case String:
+						{
+							pane2.requestFocus();
+							pane2.getTabs().add(stringT);
+							String str = f.getText();
+							if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
+								string.setText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
+							else string.setText(str);
+							onGoToOther.t = () -> f.setText("\"" + string.getText() + "\"");
+						}
+							break;
+						case Script:
+						{
+							pane2.requestFocus();
+							pane2.getTabs().add(scriptT);
+							String str = f.getText().replace("\\n", "\r\n");
+							if (str.contains("\"") && str.indexOf("\"") != str.lastIndexOf("\""))
+								script.replaceText(str.substring(str.indexOf("\"") + 1, str.lastIndexOf("\"")));
+							else script.replaceText(str);
+							onGoToOther.t = () -> f.setText("\""
+									+ script.getText().replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
+									+ "\"");
+						}
+							break;
+						default:
+						{
+							FXDialogsGenerator.showFXDialog(TestDevPart.instance.stage,
+									"Error! This value is " + fieldType + "!", null, true);
+							pane2.requestFocus();
+							pane2.getTabs().add(stringT);
+							string.setText(f.getText());
+							onGoToOther.t = () -> f.setText(string.getText());
+						}
+							break;
+						case Audio:
+							if (!b)
+							{
+								file.typeFilter = new ArrayList<String>();
+								file.typeFilter.add("aif");
+								file.typeFilter.add("aiff");
+								file.typeFilter.add("fxm");
+								file.typeFilter.add("flv");
+								file.typeFilter.add("wav");
+								file.typeFilter.add("mp3");
+								b = true;
+							}
+						case Video:
+							if (!b)
+							{
+								file.typeFilter = new ArrayList<String>();
+								file.typeFilter.add("fxm");
+								file.typeFilter.add("flv");
+								file.typeFilter.add("mp4");
+								b = true;
+							}
+						case Image:
+							if (!b)
+							{
+								file.typeFilter = new ArrayList<String>();
+								file.typeFilter.add("bmp");
+								file.typeFilter.add("gif");
+								file.typeFilter.add("jpg");
+								file.typeFilter.add("png");
+								b = true;
+							}
+						case File:
+						{
+							pane2.requestFocus();
+							pane2.getTabs().add(fileT);
+							file.blacklist = !b;
+							if (!b)
+							{
+								file.typeFilter = new ArrayList<String>();
+								b = true;
+							}
+							file.dir = new File("Tests/" + testName);
+							file.update();
+							String ss = "";
+							if (f.getText().contains("\"")
+									&& f.getText().indexOf("\"") != f.getText().lastIndexOf("\""))
+								ss = f.getText().substring(f.getText().indexOf("\"") + 1,
+										f.getText().lastIndexOf("\""));
+							for (Node n : file.getChildren())
+								if (n instanceof Button)
+									if (((Button) n).getText().equals(ss))
+										((Button) n).fire();
+							onGoToOther.t = () -> f.setText("\"" + file.selected + "\"");
+						}
+							break;
+					}
+				else
+				{
+					pane2.getTabs().add(restrictedT);
+					restricted.getItems().clear();
+					restricted.getItems().addAll(fields.get(syntaxLanguage).get(removeDigits(s.t)).restrictors);
+					restricted.getSelectionModel().select(0);
+					switch (fieldType)
+					{
+						case Html:
+						case String:
+						case Image:
+						case Video:
+						case Audio:
+						case File:
+						case Script:
+							onGoToOther.t = () -> f
+									.setText("\"" + restricted.getSelectionModel().getSelectedItem() + "\"");
+							break;
+						case Number:
+						case Bool:
+						case Object:
+							onGoToOther.t = () -> f.setText(restricted.getSelectionModel().getSelectedItem());
+							break;
+					}
+				}
+			});
+			Button btn = new Button();
+			btn.setMaxWidth(5);
+			btn.setLayoutX(p.getPrefWidth() / 2);
+			span = new Pane(l, btn, f);
+			class B
+			{
+				boolean b;
+			}
+			B b = new B();
+			btn.setOnMousePressed(eve -> b.b = true);
+			btn.setOnMouseReleased(eve -> b.b = false);
+			Runnable r = () ->
+			{
+				btn.setLayoutX(
+						Math.min(Math.max(btn.getLayoutX(), l.getLayoutBounds().getWidth()),
+								p.getPrefWidth() - 60));
+				l.setPrefWidth(btn.getLayoutX());
+				f.setLayoutX(btn.getLayoutX() + 3);
+				f.setPrefWidth(p.getPrefWidth() - btn.getLayoutX());
+			};
+			Runnable r2 = () ->
+			{
+				if (b.b)
+				{
+					btn.setLayoutX(span.screenToLocal(MouseInfo.getPointerInfo().getLocation().x, 0).getX());
+					r.run();
+				}
+			};
+			span.setOnMouseMoved(eve -> r2.run());
+			span.setOnMouseDragged(eve -> r2.run());
+			span.setOnDragDone(eve -> r2.run());
+			l.setOnMouseMoved(eve -> r2.run());
+			l.setOnMouseDragged(eve -> r2.run());
+			l.setOnDragDone(eve -> r2.run());
+			btn.setOnMouseMoved(eve -> r2.run());
+			btn.setOnMouseDragged(eve -> r2.run());
+			btn.setOnDragDone(eve -> r2.run());
+			f.setOnMouseMoved(eve -> r2.run());
+			f.setOnMouseDragged(eve -> r2.run());
+			f.setOnDragDone(eve -> r2.run());
+
+			if (p != null)
+			{
+				AccordionField field = new AccordionTextfield(s, pan1, l, f);
+				p.add(field);
+				yes.setOnAction(e -> p.remove(field));
+			}
+			r.run();
+			pan1.prefWidthProperty().addListener((a, b2, c) ->
+			{
+				span.setPrefSize(pan1.getPrefWidth(), pan1.getPrefHeight());
+				// f.setPrefWidth(12);
+				// f.setLayoutX(span.getPrefWidth() - f.getPrefWidth());
+				// l.setPrefWidth(span.getPrefWidth() - f.getPrefWidth());
+				r.run();
+			});
+		}
+		pan1.getChildren().add(span);
+		// span.setMinWidth(p.getPrefWidth());
+		// span.setPrefWidth(p.getPrefWidth());
+		// span.setMaxWidth(p.getPrefWidth());
 		pan1.setMinWidth(p.getPrefWidth());
 		pan1.setPrefWidth(p.getPrefWidth());
 		pan1.setMaxWidth(p.getPrefWidth());
-		r.run();
 		p.update();
+	}
+
+	private ArrayList<String> toFieldNameItems(ArrayList<String> fieldsNames)
+	{
+		ArrayList<String> items = new ArrayList<String>();
+		if (fieldsNames != null)
+			for (String field : fieldsNames)
+				if (fields.get(syntaxLanguage).get(field) != null)
+					if (fields.get(syntaxLanguage).get(field).type != FieldType.Object)
+						items.add(field);
+		return items;
+	}
+
+	private ArrayList<String> getChildrenOf(String field, String syntaxLanguage)
+	{
+		String restrictedField = field;
+		for (; restrictedField.length() > 0 ? Character.isDigit(restrictedField.charAt(restrictedField.length() - 1))
+				: false;)
+			restrictedField = restrictedField.substring(0, restrictedField.length() - 1);
+		Field f = fields.get(syntaxLanguage).get(restrictedField);
+		if (f != null)
+			if (restrictedField.equals(field))
+				return f.children;
+			else if (f.numberized)
+				return f.children;
+		return null;
 	}
 
 	private String toLabel(String name)
@@ -1246,9 +1471,11 @@ class TestDevTab extends Tab
 			if (Character.isUpperCase(name.charAt(i)) || Character.isDigit(name.charAt(i)))
 				if (!(Character.isUpperCase(last) || Character.isDigit(last)))
 					res += (" " + name.charAt(i)).toLowerCase();
-				else res = res.substring(0, res.length() - 1) + (res.charAt(res.length() - 1) + "").toUpperCase() + name.charAt(i);
-			else res += ((Character.isUpperCase(last) || Character.isDigit(last)) && (res.length() > 1 ? (Character.isUpperCase(name.charAt(i - 2)) || Character
-					.isDigit(name.charAt(i - 2))) : false) ? " " : "") + name.charAt(i);
+				else res = res.substring(0, res.length() - 1) + (res.charAt(res.length() - 1) + "").toUpperCase()
+						+ name.charAt(i);
+			else res += ((Character.isUpperCase(last) || Character.isDigit(last)) && (res.length() > 1
+					? (Character.isUpperCase(name.charAt(i - 2)) || Character.isDigit(name.charAt(i - 2)))
+					: false) ? " " : "") + name.charAt(i);
 		return res;
 	}
 
@@ -1270,8 +1497,9 @@ class TestDevTab extends Tab
 		});
 	}
 
-	private Accordion addObject(Accordion p, String name, String tabs, HashMap<String, SimpleEntry<Accordion, Container<String>>> tabsAndPanes, TabPane pane2,
-			boolean first, Container<String> parent, Pane pppppp)
+	private Accordion addObject(Accordion p, String name, String tabs,
+			HashMap<String, SimpleEntry<Accordion, Container<String>>> tabsAndPanes, TabPane pane2, boolean first,
+			Container<String> parent, Pane pppppp)
 	{
 		String thisTabs = tabs != null ? tabs + "\t" : "";
 		Pane PP1 = new Pane();
@@ -1281,7 +1509,7 @@ class TestDevTab extends Tab
 		t.setAnimated(false);
 		if (!first)
 			t.setLayoutY(offsets.get(tabsAndPanes.get(tabs).getKey()).i * 30);
-		Accordion pp = new Accordion(p);
+		Accordion pp = new Accordion(p, t);
 		t.expandedProperty().addListener(e -> pp.update());
 		PP1.getChildren().add(pp);
 		pp.prefHeightProperty().addListener(eve -> t.setPrefHeight(pp.getPrefHeight() + 26));
@@ -1302,7 +1530,8 @@ class TestDevTab extends Tab
 
 		MenuItem itemAdd = new MenuItem("Add field");
 		itemAdd.setOnAction(ev -> addField(pp, "newField", "", pane2, s));
-		MenuItem objectAdd = new MenuItem("Add object");// TODO Сделать подсветку неверного синтаксиса у объектов, решить проблему с ответ1, а не ответ
+		MenuItem objectAdd = new MenuItem("Add object");// TODO пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+														// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ1, пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 		objectAdd.setOnAction(ev -> addObject(pp, "newObject", thisTabs, tabsAndPanes, pane2, false, s, null));
 		if (!first)
 		{
@@ -1316,8 +1545,8 @@ class TestDevTab extends Tab
 				pane2.getTabs().add(fieldT);
 				field.setText(s.t);
 				field.setPrefSize(200, 30);
-				if (fields.get(syntaxLanguage).get(parent.t) != null)
-					field.items = fields.get(syntaxLanguage).get(parent.t).children;
+				field.getItems().clear();
+				field.getItems().addAll(toObjectNameItems(getChildrenOf(parent.t, syntaxLanguage)));
 				onGoToOther.t = () ->
 				{
 					t.setText(toLabel(s.t = field.getText()));
@@ -1345,6 +1574,17 @@ class TestDevTab extends Tab
 		return pp;
 	}
 
+	private ArrayList<String> toObjectNameItems(ArrayList<String> fieldsNames)
+	{
+		ArrayList<String> items = new ArrayList<String>();
+		if (fieldsNames != null)
+			for (String field : fieldsNames)
+				if (fields.get(syntaxLanguage).get(field) != null)
+					if (fields.get(syntaxLanguage).get(field).type == FieldType.Object)
+						items.add(field);
+		return items;
+	}
+
 	Accordion pp1;
 
 	private String handleText(Accordion acc, String tabs)
@@ -1357,7 +1597,8 @@ class TestDevTab extends Tab
 				res += handleText(((AccordionObject) acc.map2.get(i)).accordion, tabs + "\t");
 			}
 			else if (acc.map2.get(i) instanceof AccordionField)
-				res += tabs + ((AccordionField) acc.map2.get(i)).name.t + ":" + ((AccordionField) acc.map2.get(i)).textfield.getText() + "\n";
+				res += tabs + ((AccordionField) acc.map2.get(i)).name.t + ":"
+						+ ((AccordionField) acc.map2.get(i)).getValue() + "\n";
 
 		return res;
 	}

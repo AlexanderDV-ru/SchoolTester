@@ -10,27 +10,39 @@ import java.io.Serializable;
 public final class TestingPartSettings implements Serializable
 {
 	private static final long serialVersionUID = -7827956887882600250L;
-	private final boolean fixedHeightOfQuestionSelectButton;
+
+	private final boolean fillAllHeightOfQuestionsPanel;
+	private final boolean maximazeHeightOfQuestionsPanelElements;
 	private final boolean fillAllHeightOfAnswersPanel;
-	private final boolean maximazeAnswerButtonHeight;
+	private final boolean maximazeHeightOfAnswersPanelElements;
 
-	public TestingPartSettings(boolean fixedHeightOfQuestionSelectButton, boolean fillAllHeightOfAnswersPanel, boolean maximazeAnswerButtonHeight)
+	public TestingPartSettings(boolean fillAllHeightOfQuestionsPanel, boolean maximazeHeightOfQuestionsPanelElements,
+			boolean fillAllHeightOfAnswersPanel, boolean maximazeHeightOfAnswersPanelElements)
 	{
-		this.fixedHeightOfQuestionSelectButton = fixedHeightOfQuestionSelectButton;
+		this.fillAllHeightOfQuestionsPanel = fillAllHeightOfQuestionsPanel;
+		this.maximazeHeightOfQuestionsPanelElements = maximazeHeightOfQuestionsPanelElements;
 		this.fillAllHeightOfAnswersPanel = fillAllHeightOfAnswersPanel;
-		this.maximazeAnswerButtonHeight = maximazeAnswerButtonHeight;
+		this.maximazeHeightOfAnswersPanelElements = maximazeHeightOfAnswersPanelElements;
 	}
 
 	/**
-	 * @return the fixedQSelectBtnHeight
+	 * @return the fillAllHeightOfQuestionsPanel
 	 */
-	public boolean isFixedHeightOfQuestionSelectButton()
+	public boolean isFillAllHeightOfQuestionsPanel()
 	{
-		return fixedHeightOfQuestionSelectButton;
+		return fillAllHeightOfQuestionsPanel;
 	}
 
 	/**
-	 * @return the fillAllHeight
+	 * @return the maximazeHeightOfQuestionsPanelElements
+	 */
+	public boolean isMaximazeHeightOfQuestionsPanelElements()
+	{
+		return maximazeHeightOfQuestionsPanelElements;
+	}
+
+	/**
+	 * @return the fillAllHeightOfAnswersPanel
 	 */
 	public boolean isFillAllHeightOfAnswersPanel()
 	{
@@ -38,10 +50,10 @@ public final class TestingPartSettings implements Serializable
 	}
 
 	/**
-	 * @return the maximazeHeight
+	 * @return the maximazeHeightOfAnswersPanelElements
 	 */
-	public boolean isMaximazeAnswerButtonHeight()
+	public boolean isMaximazeHeightOfAnswersPanelElements()
 	{
-		return maximazeAnswerButtonHeight;
+		return maximazeHeightOfAnswersPanelElements;
 	}
 }

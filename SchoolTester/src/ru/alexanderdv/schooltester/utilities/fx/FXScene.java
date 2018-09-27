@@ -9,6 +9,8 @@ import java.io.IOException;
 
 import javax.swing.Timer;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -30,7 +32,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Logger;
+import ru.alexanderdv.simpleutilities.MathUtils;
 
 /**
  * 
@@ -54,12 +58,15 @@ public final class FXScene extends AnchorPane
 	public static final double minX, minY, maxX, maxY;
 	private EventHandler<WindowEvent> ev, ev3;
 	public static final Rectangle[] bounds;
+	private static final int appsPanelHeight = 50;
 
 	private boolean xb1, xb2, yb1, yb2;
 	private int minWidth;
 	private int minHeight;
 	private int minContentWidth;
 	private int minContentHeight;
+	private int maxWidth;
+	private int maxHeight;
 	static
 	{
 		GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
@@ -115,20 +122,25 @@ public final class FXScene extends AnchorPane
 
 	public FXScene(Stage stage, int borderSize, String titleText, boolean canResize, int type)
 	{
+		if (stage == null)
+			throw new NullPointerException("Stage must be not null!");
 		this.canResize = canResize;
 		this.type = type;
 		this.borderSize = borderSize;
 		this.stage = stage;
-		this.setBackground(new Background(new BackgroundFill(new Color(0.4, 0.4, 0.4, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
+		this.setBackground(new Background(
+				new BackgroundFill(new Color(0.4, 0.4, 0.4, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
 		titlePane = new Pane();
 		this.getChildren().add(titlePane);
 		title = new Label("         " + titleText);
-		title.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
+		title.setBackground(
+				new Background(new BackgroundFill(new Color(1, 1, 1, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
 		title.setFont(new Font("System Bold", 10));
 		titlePane.getChildren().add(title);
 		try
 		{
-			icon = new ImageView(new Image(Logger.class.getResource("/Icon16x.png").openStream()));
+			icon = new ImageView(
+					new Image(Logger.class.getResource(Main.resourcesPath + "/images" + "/Icon16x.png").openStream()));
 		}
 		catch (IOException e)
 		{
@@ -145,11 +157,56 @@ public final class FXScene extends AnchorPane
 		exit.setFont(new Font("Verdana", 12));
 		titlePane.getChildren().add(exit);
 		content = new ScrollPane();
-		content.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
+		content.setBackground(
+				new Background(new BackgroundFill(new Color(1, 1, 1, 1), new CornerRadii(0), new Insets(0, 0, 0, 0))));
 		this.getChildren().add(content);
 		addingWidth = borderSize * 2;
 		addingHeight = borderSize * 3 + titlePaneHeight;
+		stage.xProperty().addListener((val, oldValue, newValue) -> updateStageBounds());
+		stage.yProperty().addListener((val, oldValue, newValue) -> updateStageBounds());
+		stage.widthProperty().addListener((val, oldValue, newValue) -> updateStageBounds());
+		stage.heightProperty().addListener((val, oldValue, newValue) -> updateStageBounds());
 		resize();
+	}
+
+	private void updateStageBounds()
+	{
+		double x = stage.getX(), y = stage.getY(), w = stage.getWidth(), h = stage.getHeight();
+
+		if (x < minX + 1)
+			x = minX + 1;
+		else if (x > maxX - 1)
+			x = maxX - 1;
+
+		if (y < minY + 1)
+			y = minY + 1;
+		else if (y > maxY - 1)
+			y = maxY - 1;
+
+		if (w > maxX - 1 - appsPanelHeight)
+			w = maxX - 1 - appsPanelHeight;
+		else if (x + w > maxX - 1)
+			x = maxX - 1 - w;
+
+		if (h > maxY - 1 - appsPanelHeight)
+			h = maxY - 1 - appsPanelHeight;
+		else if (y + h > maxY - 1)
+			y = maxY - 1 - h;
+
+		if (x != stage.getX())
+			stage.setX(x);
+		if (y != stage.getY())
+			stage.setY(y);
+		if (w != stage.getWidth())
+		{
+			setPrefWidth(w);
+			resize();
+		}
+		if (h != stage.getHeight())
+		{
+			setPrefHeight(h);
+			resize();
+		}
 	}
 
 	public void resize()
@@ -159,12 +216,7 @@ public final class FXScene extends AnchorPane
 		stage.setWidth(width);
 		stage.setHeight(height);
 
-		double[] buttonsSizes = new double[]
-		{
-				type > 1 ? 40 : 0,
-				type > 2 ? 40 : 0,
-				type > 0 ? 40 : 0
-		};
+		double[] buttonsSizes = new double[] { type > 1 ? 40 : 0, type > 2 ? 40 : 0, type > 0 ? 40 : 0 };
 		titlePane.setLayoutX(borderSize);
 		titlePane.setLayoutY(borderSize);
 		titlePane.setMinWidth(width - borderSize * 2);
@@ -179,12 +231,15 @@ public final class FXScene extends AnchorPane
 
 		title.setLayoutX(0);
 		title.setLayoutY(0);
-		title.setMinWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0) - (buttonsSizes[1] > 0 ? buttonsSizes[1]
-				+ borderSize : 0) - (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
-		title.setPrefWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0) - (buttonsSizes[1] > 0 ? buttonsSizes[1]
-				+ borderSize : 0) - (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
-		title.setMaxWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0) - (buttonsSizes[1] > 0 ? buttonsSizes[1]
-				+ borderSize : 0) - (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
+		title.setMinWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0)
+				- (buttonsSizes[1] > 0 ? buttonsSizes[1] + borderSize : 0)
+				- (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
+		title.setPrefWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0)
+				- (buttonsSizes[1] > 0 ? buttonsSizes[1] + borderSize : 0)
+				- (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
+		title.setMaxWidth(titlePane.getPrefWidth() - (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0)
+				- (buttonsSizes[1] > 0 ? buttonsSizes[1] + borderSize : 0)
+				- (buttonsSizes[2] > 0 ? buttonsSizes[2] + borderSize : 0));
 		title.setMinHeight(titlePane.getPrefHeight());
 		title.setPrefHeight(titlePane.getPrefHeight());
 		title.setMaxHeight(titlePane.getPrefHeight());
@@ -199,7 +254,8 @@ public final class FXScene extends AnchorPane
 		hide.setMaxHeight(titlePane.getPrefHeight() - 1);
 		hide.setVisible(buttonsSizes[0] > 0);
 
-		max.setLayoutX(title.getLayoutX() + title.getPrefWidth() + borderSize + (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0));
+		max.setLayoutX(title.getLayoutX() + title.getPrefWidth() + borderSize
+				+ (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0));
 		max.setLayoutY(0);
 		max.setMinWidth(buttonsSizes[1]);
 		max.setPrefWidth(buttonsSizes[1]);
@@ -209,9 +265,9 @@ public final class FXScene extends AnchorPane
 		max.setMaxHeight(titlePane.getPrefHeight() - 1);
 		max.setVisible(buttonsSizes[1] > 0);
 
-		exit.setLayoutX(title.getLayoutX() + title.getPrefWidth() + borderSize + (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0) + (buttonsSizes[1] > 0
-				? buttonsSizes[1] + borderSize
-				: 0));
+		exit.setLayoutX(title.getLayoutX() + title.getPrefWidth() + borderSize
+				+ (buttonsSizes[0] > 0 ? buttonsSizes[0] + borderSize : 0)
+				+ (buttonsSizes[1] > 0 ? buttonsSizes[1] + borderSize : 0));
 		exit.setLayoutY(0);
 		exit.setMinWidth(buttonsSizes[2]);
 		exit.setPrefWidth(buttonsSizes[2]);
@@ -232,8 +288,8 @@ public final class FXScene extends AnchorPane
 
 		if (content.getContent() != null)
 			if (content.getContent() instanceof Region)
-				((Region) content.getContent()).setPrefSize(Math.max(minContentWidth, content.getPrefWidth() - 2), Math.max(minContentHeight, content
-						.getPrefHeight() - 2));
+				((Region) content.getContent()).setPrefSize(Math.max(minContentWidth, content.getPrefWidth() - 2),
+						Math.max(minContentHeight, content.getPrefHeight() - 2));
 
 		hide.setOnAction(e ->
 		{
@@ -254,7 +310,8 @@ public final class FXScene extends AnchorPane
 				stage.getOnCloseRequest().handle(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			stage.close();
 		});
-		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) e.getScreenX(), (int) e.getScreenY()), true);
+		EventHandler<MouseEvent> ev = (e) -> updatePosition(new Point((int) e.getScreenX(), (int) e.getScreenY()),
+				true);
 		EventHandler<MouseEvent> ev2 = (e) -> lastPoint = new Point((int) e.getScreenX(), (int) e.getScreenY());
 		icon.setOnMouseDragged(ev);
 		icon.setOnMousePressed(ev2);
@@ -269,23 +326,24 @@ public final class FXScene extends AnchorPane
 				{
 
 					if (xb2)
-						setPrefWidth(Math.max(minWidth, e.getScreenX() - stage.getX()));
+						setPrefWidth(Math.max(minWidth, Math.min(e.getScreenX() - stage.getX(), maxWidth)));
 					else if (xb1)
 						if (minWidth < stage.getX() - e.getScreenX() + getPrefWidth())
 						{
-							setPrefWidth(Math.max(minWidth, stage.getX() - e.getScreenX() + getPrefWidth()));
+							setPrefWidth(Math.max(minWidth,
+									Math.min(stage.getX() - e.getScreenX() + getPrefWidth(), maxWidth)));
 							stage.setX(e.getScreenX());
 						}
 
 					if (yb2)
-						setPrefHeight(Math.max(minHeight, e.getScreenY() - stage.getY()));
+						setPrefHeight(Math.max(minHeight, Math.min(e.getScreenY() - stage.getY(), maxHeight)));
 					else if (yb1)
 						if (minHeight < stage.getY() - e.getScreenY() + getPrefHeight())
 						{
-							setPrefHeight(Math.max(minHeight, stage.getY() - e.getScreenY() + getPrefHeight()));
+							setPrefHeight(Math.max(minHeight,
+									Math.min(stage.getY() - e.getScreenY() + getPrefHeight(), maxHeight)));
 							stage.setY(e.getScreenY());
 						}
-
 					resize();
 				}
 		});
@@ -296,7 +354,8 @@ public final class FXScene extends AnchorPane
 
 			lastSizePoint = new Point((int) (e.getScreenX()), (int) (e.getScreenY()));
 		});
-		// this.setOnMousePressed(e -> lastSizePoint = new Point((int) stage.getWidth(), (int) stage.getHeight()));
+		// this.setOnMousePressed(e -> lastSizePoint = new Point((int) stage.getWidth(),
+		// (int) stage.getHeight()));
 
 		setOnMouseDragReleased(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
 		setOnMouseDragOver(e -> clicked = e.isPrimaryButtonDown() || e.isSecondaryButtonDown());
@@ -341,14 +400,16 @@ public final class FXScene extends AnchorPane
 				}
 			else setCursor(Cursor.DEFAULT);
 
-			if (x <= borderSize || x >= getScene().getWidth() - borderSize - 1 || y <= borderSize || y >= getScene().getHeight() - borderSize - 1 || !clicked)
-			{
-				xb1 = x <= borderSize;
-				xb2 = x >= getScene().getWidth() - borderSize - 1;
+			int valO = (xb1 ? 1 : 0) + (xb2 ? 1 : 0) + (yb1 ? 1 : 0) + (yb2 ? 1 : 0);
+			int valN = (x <= borderSize ? 1 : 0) + (x >= getScene().getWidth() - borderSize - 1 ? 1 : 0)
+					+ (y <= borderSize ? 1 : 0) + (y >= getScene().getHeight() - borderSize - 1 ? 1 : 0);
 
-				yb1 = y <= borderSize;
-				yb2 = y >= getScene().getHeight() - borderSize - 1;
-			}
+			xb1 = x <= borderSize || valO > valN && clicked && xb1;
+			xb2 = x >= getScene().getWidth() - borderSize - 1 || valO > valN && clicked && xb2;
+
+			yb1 = y <= borderSize || valO > valN && clicked && yb1;
+			yb2 = y >= getScene().getHeight() - borderSize - 1 || valO > valN && clicked && yb2;
+
 		}
 		catch (NullPointerException e)
 		{
@@ -361,35 +422,36 @@ public final class FXScene extends AnchorPane
 		{
 			stage.setX(stage.getX() + nowPoint.getX() - lastPoint.getX());
 			stage.setY(stage.getY() + nowPoint.getY() - lastPoint.getY());
+			updateStageBounds();
 		}
-		stage.setX(Math.max(minX + 1, Math.min(stage.getX(), maxX - 1)));
-		stage.setY(Math.max(minY + 1, Math.min(stage.getY(), maxY - 1)));
 		if (nowPoint != null)
 			lastPoint = nowPoint;
 	}
 
-	public void setContent(Node node, double width, double height, double minWidth, double minHeight)
+	public void setContent(Node node, double width, double height, double minimalWidth, double minimalHeight)
 	{
+		this.minContentWidth = (int) minimalWidth;
+		this.minContentHeight = (int) minimalHeight;
+		this.minWidth = (int) (minContentWidth + 2 + borderSize * 2);
+		this.minHeight = (int) (minContentHeight + 2 + borderSize * 3 + titlePaneHeight);
+		this.maxWidth = (int) (maxX - minX - appsPanelHeight);
+		this.maxHeight = (int) (maxX - minX - appsPanelHeight);
+
 		content.setContent(node);
 
-		content.setMinWidth(width + 2);
+		content.setMinWidth(minContentWidth);
 		content.setPrefWidth(width + 2);
 		content.setMaxWidth(width + 2);
-		content.setMinHeight(height + 2);
+		content.setMinHeight(minContentHeight);
 		content.setPrefHeight(height + 2);
 		content.setMaxHeight(height + 2);
 
-		setMinWidth(content.getPrefWidth() + borderSize * 2);
-		setPrefWidth(content.getPrefWidth() + borderSize * 2);
-		setMaxWidth(content.getPrefWidth() + borderSize * 2);
-		setMinHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
-		setPrefHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
-		setMaxHeight(content.getPrefHeight() + borderSize * 3 + titlePaneHeight);
-
-		this.minWidth = (int) (minWidth + 2 + borderSize * 2);
-		this.minHeight = (int) (minHeight + 2 + borderSize * 3 + titlePaneHeight);
-		this.minContentWidth = (int) minWidth;
-		this.minContentHeight = (int) minHeight;
+		setMinWidth(minWidth);
+		setPrefWidth(width + 2 + borderSize * 2);
+		setMaxWidth(maxWidth);
+		setMinHeight(minHeight);
+		setPrefHeight(height + 2 + borderSize * 3 + titlePaneHeight);
+		setMaxHeight(maxHeight);
 		resize();
 	}
 
@@ -422,5 +484,10 @@ public final class FXScene extends AnchorPane
 	public int getButtonsWidth()
 	{
 		return (int) (hide.getPrefWidth() + max.getPrefWidth() + exit.getPrefWidth());
+	}
+
+	public int getTitleWidth()
+	{
+		return (int)MathUtils.size(title.getText(), java.awt.Font.decode(title.getFont().getName()+"-"+title.getFont().getStyle()+"-"+title.getFont().getSize())).getWidth();
 	}
 }

@@ -5,12 +5,26 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import ru.alexanderdv.fxutilities.components.ComboboxWithAdd;
+import ru.alexanderdv.schooltester.utilities.enums.Subject;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.types.Account;
-import ru.alexanderdv.schooltester.utilities.types.StageContainer;
+import ru.alexanderdv.schooltester.utilities.types.Account.AccountType;
+import ru.alexanderdv.simpleutilities.SecureContainer;
 
 /**
  * 
@@ -19,13 +33,117 @@ import ru.alexanderdv.schooltester.utilities.types.StageContainer;
  */
 public final class AccountsPart extends FXWindow implements ActionListener
 {
-	public static final Property<Account> account = new Property<Account>();
+	public static final SecureContainer<Account> account = new SecureContainer<Account>(null);
 	public static AccountsPart instance;
+
+	public TextField loginField, passwordField, passwordRepeatField;
+
+	public ComboBox<AccountType> accountTypeCombobox;
+
+	public TabPane tabPane;
+
+	public Tab signUpTab;
+
+	public Button signUpButton;
+
+	public Tab signInTab;
+
+	public Button signInButton;
+
+	public Tab deleteAccountTab;
+
+	public Button deleteAccountButton;
+
+	public Tab signOutTab;
+
+	public Button signOutButton;
+
+	public Tab profileTab;
+
+	public Tab securityTab;
+
+	public TextField newPasswordField, newPasswordRepeatField;
+
+	public Button changePasswordButton;
+
+	public Tab mainTab;
+
+	public TextField surnameField, nameField, secondNameField, countryField, regionField, cityField, schoolField;
+
+	public MenuButton subjectsCombobox;
+	public ArrayList<Subject> selectedsubjectsCombobox = new ArrayList<Subject>();
+
+	public Tab familyTab;
+
+	public Label maritalStatusLabel, grandParentsLabel, parentsLabel, childrenLabel, grandChildrenLabel, siblingsLabel,
+			exSpousesLabel, spouseLabel, otherRelativesLabel;
+
+	public TextField maritalStatusField, spouseField;
+
+	public ComboboxWithAdd grandParentsCombobox, parentsCombobox, childrenCombobox, grandChildrenCombobox,
+			siblingsCombobox, exSpousesCombobox, otherRelativesCombobox;
+
+	public Tab contactsTab;
+
+	public Label phoneNumbersLabel, emailsLabel, personalSitesLabel, otherSitesLabel, otherContactsLabel;
+
+	public ComboboxWithAdd phoneNumbersCombobox, emailsCombobox, personalSitesCombobox, otherSitesCombobox,
+			otherContactsCombobox;
+
+	public Tab lifeTab;
+
+	public Label ageLabel, genderLabel, mainLanguagesLabel, otherLanguagesLabel, educationLabel, careerLabel;
+
+	public TextField ageField;
+
+	public ComboBox<String> genderCombobox;
+
+	public ComboboxWithAdd mainLanguagesCombobox, otherLanguagesCombobox;
+
+	public TextArea educationArea, careerArea;
+
+	public Tab ideasTab;
+
+	public Label aboutAlhogolLabel, aboutNarcoticsLabel, aboutSmokingLabel, ideasLabel, interestsLabel,
+			favouriteBlogsLabel, favouriteBooksLabel, favouriteComputerGamesLabel, favouriteFilmsLabel,
+			favouriteGamesLabel, favouriteMusicLabel, favouritePeopleLabel, favouriteShowsLabel, favouriteQuotesLabel,
+			mainInLifeLabel, mainInPeopleLabel, worldOutlookLabel, otherViewsLabel, politicalViewsLabel,
+			inspirationLabel;
+
+	public TextField aboutAlhogolField, aboutNarcoticsField, aboutSmokingField, ideasField, interestsField,
+			favouriteBlogsField, favouriteBooksField, favouriteComputerGamesField, favouriteFilmsField,
+			favouriteGamesField, favouriteMusicField, favouritePeopleField, favouriteShowsField, favouriteQuotesField,
+			mainInLifeField, mainInPeopleField, worldOutlookField, otherViewsField, politicalViewsField,
+			inspirationField;
+
+	public Tab aboutYouTab;
+
+	public Label biografyLabel, homeCountryLabel, homeRegionLabel, homeCityLabel;
+
+	public TextArea biografyArea;
+
+	public TextField homeCountryField, homeRegionField, homeCityField;
+
+	public Button saveButton;
+
+	public GridPane profileMainFields, familyFields, contactsFields, lifeFields, lifeFields2, ideasFields,
+			aboutYouFields;
+
+	public ScrollPane ideasScrollpane;
+
+	public TabPane profileTabs;
 
 	public AccountsPart(String secondaryTitle, URL url, boolean inDevelope)
 	{
 		super(secondaryTitle, url, 1, inDevelope, true);
 		instance = this;
+		createActionHandlers();
+	}
+
+	@Override
+	protected void createActionHandlers()
+	{
+		super.createActionHandlers();
 		InitAccountsPart.instance.createActionHandlers();
 		stage.setOnShown(e -> resize());
 	}
@@ -43,8 +161,9 @@ public final class AccountsPart extends FXWindow implements ActionListener
 				break;
 
 			case "accountInfoChangedByYou":
-				if (packet.getOldAccount()._getPasswordHash()==packet.getNewAccount()._getPasswordHash())
-					InitAccountsPart.instance.passwordField.setText(InitAccountsPart.instance.newPasswordField.getText());
+				if (packet.getOldAccount()._getPasswordHash() == packet.getNewAccount()._getPasswordHash())
+					InitAccountsPart.instance.passwordField
+							.setText(InitAccountsPart.instance.newPasswordField.getText());
 			case "passwordIsInvalid":
 				InitAccountsPart.instance.newPasswordField.setText("");
 				InitAccountsPart.instance.newPasswordRepeatField.setText("");
@@ -75,7 +194,8 @@ public final class AccountsPart extends FXWindow implements ActionListener
 				break;
 		}
 		if (showDialog)
-			FXDialogsGenerator.showFXDialog((StageContainer) null, (Stage) null, msgSys.getMsg(packet.getRequest()), 0, null, true);
+			FXDialogsGenerator.showFXDialog(AccountsPart.instance.stage, msgSys.getMsg(packet.getRequest()), null,
+					true);
 		InitAccountsPart.instance.changeVisibleTabs(account.get());
 	}
 
@@ -94,9 +214,9 @@ public final class AccountsPart extends FXWindow implements ActionListener
 			}
 	}
 
-	public void updateLabelsInPart()
+	public void updateLabels()
 	{
-		super.updateLabelsInPart();
+		super.updateLabels();
 		InitAccountsPart.instance.loginField.setPromptText(msgSys.getMsg("login"));
 		InitAccountsPart.instance.passwordField.setPromptText(msgSys.getMsg("password"));
 		InitAccountsPart.instance.passwordRepeatField.setPromptText(msgSys.getMsg("passwordRepeat"));
@@ -219,7 +339,8 @@ public final class AccountsPart extends FXWindow implements ActionListener
 				InitAccountsPart.instance.interestsField.setPromptText(msgSys.getMsg("interests"));
 				InitAccountsPart.instance.favouriteBlogsField.setPromptText(msgSys.getMsg("favouriteBlogs"));
 				InitAccountsPart.instance.favouriteBooksField.setPromptText(msgSys.getMsg("favouriteBooks"));
-				InitAccountsPart.instance.favouriteComputerGamesField.setPromptText(msgSys.getMsg("favouriteComputerGames"));
+				InitAccountsPart.instance.favouriteComputerGamesField
+						.setPromptText(msgSys.getMsg("favouriteComputerGames"));
 				InitAccountsPart.instance.favouriteFilmsField.setPromptText(msgSys.getMsg("favouriteFilms"));
 				InitAccountsPart.instance.favouriteGamesField.setPromptText(msgSys.getMsg("favouriteGames"));
 				InitAccountsPart.instance.favouriteMusicField.setPromptText(msgSys.getMsg("favouriteMusic"));
@@ -246,30 +367,6 @@ public final class AccountsPart extends FXWindow implements ActionListener
 				InitAccountsPart.instance.homeCityField.setPromptText(msgSys.getMsg("homeCity"));
 			}
 			InitAccountsPart.instance.saveButton.setText(msgSys.getMsg("save"));
-		}
-	}
-
-	public static class Property<C>
-	{
-		private C c;
-		private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
-
-		public C get()
-		{
-			return c;
-		}
-
-		public void set(C c)
-		{
-			this.c = c;
-			for (ActionListener listener : listeners)
-				listener.actionPerformed(new ActionEvent(this, 0, "propertyChanged"));
-		}
-
-		public void addActionListener(ActionListener listener)
-		{
-			if (listener != null)
-				listeners.add(listener);
 		}
 	}
 

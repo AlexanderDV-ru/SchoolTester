@@ -14,6 +14,7 @@ import javafx.scene.layout.Pane;
  * @author AlexanderDV/AlexandrDV
  * @version 5.9.5a
  */
+@Deprecated
 public class InitCrossWordGeneratorPart
 {
 	public static InitCrossWordGeneratorPart instance;

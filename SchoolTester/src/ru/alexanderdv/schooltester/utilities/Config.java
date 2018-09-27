@@ -344,22 +344,22 @@ public final class Config
 	private boolean getBoolean(String path, String language)
 	{
 		String value = getValue(path).replace(" ", "").replace("\t", "");
-		if (value.equals(MessageSystem.getMsg("Config.boolean.true0", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.true0", language)))
 			return true;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.true1", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.true1", language)))
 			return true;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.true2", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.true2", language)))
 			return true;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.true3", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.true3", language)))
 			return true;
 
-		if (value.equals(MessageSystem.getMsg("Config.boolean.false0", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.false0", language)))
 			return false;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.false1", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.false1", language)))
 			return false;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.false2", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.false2", language)))
 			return false;
-		if (value.equals(MessageSystem.getMsg("Config.boolean.false3", language)))
+		if (value.equals(msgSys.getMsg("Config.boolean.false3", language)))
 			return false;
 
 		print(msgSys.getMsg("valueMustBeTypeOf").replace("%1", value).replace("%2", path).replace("%3", getFullPathInParents()).replace("%4", "Boolean"));

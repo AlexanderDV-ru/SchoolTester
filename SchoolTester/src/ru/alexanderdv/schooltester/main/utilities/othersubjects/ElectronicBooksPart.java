@@ -20,7 +20,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import ru.alexanderdv.schooltester.utilities.Config;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
 
 /**
  * 
@@ -78,7 +78,7 @@ public final class ElectronicBooksPart extends ProtectedFXWindow
 				cb1.getItems().add(s2.split(":\t")[0]);
 				String text = getByName(s, cfg2.getString(s2.split(":\t")[0], null, false));
 				map.put(s2.split(":\t")[0], text);
-				map2.put(s2.split(":\t")[0], MathWithText.changeTextToWidth(text, (int) (textArea.getPrefWidth() / (test2(text.replace("\n", " "), font)
+				map2.put(s2.split(":\t")[0], MathUtils.changeTextToWidth(text, (int) (textArea.getPrefWidth() / (test2(text.replace("\n", " "), font)
 						.getWidth() / text.length())), true, false));
 			}
 			cb1.setOnAction(e -> textArea.setText(map.get(cb1.getSelectionModel().getSelectedItem())));

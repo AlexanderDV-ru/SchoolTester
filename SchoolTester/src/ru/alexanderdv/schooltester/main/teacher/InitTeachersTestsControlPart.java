@@ -1,32 +1,13 @@
 package ru.alexanderdv.schooltester.main.teacher;
 
-import java.io.File;
-
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import ru.alexanderdv.schooltester.utilities.ByteUtils;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
-import ru.alexanderdv.schooltester.utilities.fx.ComboboxWithAdd;
-import ru.alexanderdv.schooltester.utilities.types.TestSettings;
-import ru.alexanderdv.schooltester.utilities.types.TestingPartSettings;
-
 /**
  * 
  * @author AlexanderDV
  * @version 6.1.5a
  */
+@Deprecated
 public final class InitTeachersTestsControlPart
-{
+{/*
 	public static InitTeachersTestsControlPart instance;
 	@FXML
 	public GridPane gridPane;
@@ -97,7 +78,7 @@ public final class InitTeachersTestsControlPart
 	public Button btn;
 	@FXML
 	public TextField login;
-
+*//*
 	public void saveTestSettings()
 	{
 		SystemUtils.writeFile(new File("testSettings.data"), ByteUtils.objectToByteArray(new TestSettings(indicateLastAnswerQualityRadiobutton.isSelected(),
@@ -111,7 +92,7 @@ public final class InitTeachersTestsControlPart
 		SystemUtils.writeFile(new File("testSettings.data"), ByteUtils.objectToByteArray(new TestingPartSettings(fixedQSelectBtnHeightCheckbox.isSelected(),
 				fillAllHeightOfAnswersPanelCheckbox.isSelected(), maximazeAnswerButtonHeightCheckbox.isSelected())));
 	}
-
+*//*
 	public void changeTestSettings()
 	{
 		TestSettings testSettings;
@@ -155,7 +136,7 @@ public final class InitTeachersTestsControlPart
 		fillAllHeightOfAnswersPanelCheckbox.setSelected(testingPartSettings.isFillAllHeightOfAnswersPanel());
 		maximazeAnswerButtonHeightCheckbox.setSelected(testingPartSettings.isMaximazeAnswerButtonHeight());
 	}
-
+*//*
 	@FXML
 	public void initialize()
 	{
@@ -183,5 +164,5 @@ public final class InitTeachersTestsControlPart
 			classNumberCombobox2.getItems().add(i + "");
 		classNumberCombobox2.getSelectionModel().select(0);
 		classNumberCombobox2.setPromptText(classNumberCombobox2.getSelectionModel().getSelectedItem());
-	}
+	}*/
 }

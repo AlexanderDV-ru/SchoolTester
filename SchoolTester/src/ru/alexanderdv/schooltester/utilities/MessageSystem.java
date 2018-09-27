@@ -10,33 +10,50 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementAnswer;
+import javax.swing.JOptionPane;
+
+import ru.alexanderdv.schooltester.utilities.questionvars.ArrangementAnswer;
+import ru.alexanderdv.simpleutilities.MessageUtils;
 
 /**
  * 
  * @author AlexanderDV
- * @version 6.1.5a
+ * @version 6.1.6a
  */
-public final class MessageSystem
+public final class MessageSystem extends MessageUtils
 {
-	private static final String siteUrl = "http://schooltester.ucoz.org/";
-	private String language;
-	private static final HashMap<String, HashMap<String, String>> messages = new HashMap<String, HashMap<String, String>>();
+	public MessageSystem(String language, String languageResourcesPackage)
+	{
+		super(language, languageResourcesPackage);
+		init1();
+		init2();
+		init3();
+		init4();
+		init5();
+	}
 
-	static
+	public static final String siteUrl = "http://schooltester.ucoz.org/";
+	// private String language;
+	// private static final HashMap<String, HashMap<String, String>> messages = new
+	// HashMap<String, HashMap<String, String>>();
+
+	void init1()
 	{
 
 		System.out.println("Message system loading...");
-		messages.put("en_uk", new HashMap<String, String>());
+		//messages.put("en_uk", new HashMap<String, String>());
 		{
 			String language = "en_uk";
 			messages.get(language).put("verifyRequestSended",
-					"Your computer not verified! To verify your computer communicate with us, you can do this in our site: " + siteUrl);
-			messages.get(language).put("notVerified", "Your computer not verified! To verify your computer communicate with us, you can do this in our site: "
-					+ siteUrl);
+					"Your computer not verified! To verify your computer communicate with us, you can do this in our site: "
+							+ siteUrl);
+			messages.get(language).put("notVerified",
+					"Your computer not verified! To verify your computer communicate with us, you can do this in our site: "
+							+ siteUrl);
 		}
 	}
-	static
+
+	void init2()
 	{
 		String language = "en_uk";
 		HashMap<String, String> map = messages.get(language);
@@ -285,9 +302,10 @@ public final class MessageSystem
 		map.put("JM", "Jamaica");
 		map.put("FM", "Yap");
 	}
-	static
+
+	void init3()
 	{
-		messages.put("ru_ru", new HashMap<String, String>());
+		//messages.put("ru_ru", new HashMap<String, String>());
 		{
 			String language = "ru_ru";
 			messages.get(language).put("verifyRequestSended",
@@ -298,7 +316,8 @@ public final class MessageSystem
 							+ siteUrl);
 		}
 	}
-	static
+	void init4()
+	
 	{
 		String language = "ru_ru";
 		HashMap<String, String> map = messages.get(language);
@@ -549,13 +568,19 @@ public final class MessageSystem
 		map.put("JP", "Япония");
 
 	}
-	static
+
+	void init5()
 	{
-		// for (File lang : new File(MessageSystem.class.getResource("/").getFile()).listFiles())
+		// for (File lang : new
+		// File(MessageSystem.class.getResource("/").getFile()).listFiles())
 		// System.out.println(lang.getAbsolutePath());
-		// for (File lang : new File(MessageSystem.class.getResource("/").getFile()).listFiles(file -> file.getName().endsWith(".lang") && file.isFile() && file
-		// .getName().length() == 10 && Character.isLetter(file.getName().charAt(0)) && Character.isLetter(file.getName().charAt(1)) && file.getName()
-		// .charAt(2) == '_' && Character.isLetter(file.getName().charAt(3)) && Character.isLetter(file.getName().charAt(4))))
+		// for (File lang : new
+		// File(MessageSystem.class.getResource("/").getFile()).listFiles(file ->
+		// file.getName().endsWith(".lang") && file.isFile() && file
+		// .getName().length() == 10 && Character.isLetter(file.getName().charAt(0)) &&
+		// Character.isLetter(file.getName().charAt(1)) && file.getName()
+		// .charAt(2) == '_' && Character.isLetter(file.getName().charAt(3)) &&
+		// Character.isLetter(file.getName().charAt(4))))
 		// {
 
 		// char[] englishLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -565,72 +590,81 @@ public final class MessageSystem
 		// for (char c4 : englishLetters)
 		// {
 		// String language = c1 + "" + c2 + "_" + c3 + "" + c4;
-
-		System.out.println("Message system .lang files loading...");
-		
-		ArrayList<String> languagesL = new ArrayList<String>();
-		String[] languages;
-		if (!new File("langs.list").exists())
-		{
-			char[] englishLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-			for (char c1 : englishLetters)
-				for (char c2 : englishLetters)
-					for (char c3 : englishLetters)
-						for (char c4 : englishLetters)
-						{
-							String language = c1 + "" + c2 + "_" + c3 + "" + c4;
-							if (MessageSystem.class.getResourceAsStream("/" + language + ".lang") != null)
-								languagesL.add(language);
-						}
-			SystemUtils.writeFile(new File("langs.list"), String.join(System.lineSeparator(), languagesL), "UTF-8");
-			languages=languagesL.toArray(new String[0]);
-		}
-		else languages = SystemUtils.readFile(new File("langs.list"), "UTF-8").replace("\r\n", "\n").replace("\r", "\n").split("\n");
-		for (String language : languages)
-		{
-			InputStream stream = MessageSystem.class.getResourceAsStream("/" + language + ".lang");
-			if (stream == null)
-				continue;
-			try
-			{
-				BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-				if (!messages.containsKey(language))
-					messages.put(language, new HashMap<String, String>());
-				for (String l; (l = br.readLine()) != null;)
-				{
-					String[] splited = l.split("': '");
-					if (splited.length == 2 && splited[0].startsWith("'") && splited[1].endsWith("'") && !splited[0].endsWith("\\") && !splited[1].endsWith(
-							"\\'"))
-					{
-						String key = splited[0].substring(1), value = splited[1].substring(0, splited[1].length() - 1);
-						if (!messages.get(language).containsKey(key))
-							messages.get(language).put(key, value);
-					}
-				}
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				e.printStackTrace();
-				continue;
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-				continue;
-			}
-		}
-
-		for (String s : messages.keySet().toArray(new String[0]))
-		{
-			HashMap<String, String> l = new HashMap<String, String>();
-			for (String s2 : messages.get(s).keySet())
-				l.put(s2.toLowerCase(), messages.get(s).get(s2));
-			messages.remove(s);
-			messages.put(s.toLowerCase(), l);
-		}
+		//
+		// System.out.println("Message system .lang files loading...");
+		//
+		// ArrayList<String> languagesL = new ArrayList<String>();
+		// String[] languages;
+		// if (!new File("langs.list").exists())
+		// {
+		// char[] englishLetters = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+		// for (char c1 : englishLetters)
+		// for (char c2 : englishLetters)
+		// for (char c3 : englishLetters)
+		// for (char c4 : englishLetters)
+		// {
+		// String language = c1 + "" + c2 + "_" + c3 + "" + c4;
+		// if (MessageSystem.class.getResourceAsStream("/" + language + ".lang") !=
+		// null)
+		// languagesL.add(language);
+		// }
+		// SystemUtils.writeFile(new File("langs.list"),
+		// String.join(System.lineSeparator(), languagesL), "UTF-8");
+		// languages=languagesL.toArray(new String[0]);
+		// }
+		// else languages = SystemUtils.readFile(new File("langs.list"),
+		// "UTF-8").replace("\r\n", "\n").replace("\r", "\n").split("\n");
+		// for (String language : languages)
+		// {
+		// InputStream stream = MessageSystem.class.getResourceAsStream("/" + language +
+		// ".lang");
+		// if (stream == null)
+		// continue;
+		// try
+		// {
+		// BufferedReader br = new BufferedReader(new InputStreamReader(stream,
+		// "UTF-8"));
+		// if (!messages.containsKey(language))
+		// messages.put(language, new HashMap<String, String>());
+		// for (String l; (l = br.readLine()) != null;)
+		// {
+		// String[] splited = l.split("': '");
+		// if (splited.length == 2 && splited[0].startsWith("'") &&
+		// splited[1].endsWith("'") && !splited[0].endsWith("\\") &&
+		// !splited[1].endsWith(
+		// "\\'"))
+		// {
+		// String key = splited[0].substring(1), value = splited[1].substring(0,
+		// splited[1].length() - 1);
+		// if (!messages.get(language).containsKey(key))
+		// messages.get(language).put(key, value);
+		// }
+		// }
+		// }
+		// catch (UnsupportedEncodingException e)
+		// {
+		// e.printStackTrace();
+		// continue;
+		// }
+		// catch (IOException e)
+		// {
+		// e.printStackTrace();
+		// continue;
+		// }
+		// }
+//
+//		for (String s : messages.keySet().toArray(new String[0]))
+//		{
+//			HashMap<String, String> l = new HashMap<String, String>();
+//			for (String s2 : messages.get(s).keySet())
+//				l.put(s2.toLowerCase(), messages.get(s).get(s2));
+//			messages.remove(s);
+//			messages.put(s.toLowerCase(), l);
+//		}
 		{
 			String language = "en_uk";
-			messages.get(language).put("privacypolicytext", getMsg("privacyPolicy", language) + "\n" + "0.1 When using the program, you agree to these terms.\n"
+			messages.get(language).put("privacypolicytext", getMsg("privacyPolicy", language) + "\n"
+					+ "0.1 When using the program, you agree to these terms.\n"
 					+ "0.2 If you read this Privacy Policy in a language other than Russian, you agree that, in the event of any discrepancies,\n"
 					+ "the Russian version will prevail.\n"
 					+ "1.1 Attention! Any data entered in the SchoolTester program is transferred to the server, the bytes are encrypted during"
@@ -657,8 +691,10 @@ public final class MessageSystem
 					+ " of the laws of the Russian Federation by users of the program.\n" + "4.1 The program permits:\n"
 					+ "4.1.1 Accounts: Create multiple accounts, do not specify additional data in the account, delete your account.\n"
 					+ "4.1.2 Tests: Create tests, pass tests, exchange your tests, including buying tests, selling tests, exchanging\n"
-					+ "tests for tangible and intangible rewards, view test results.\n" + " 4.1.3 Communication: everything that is not forbidden\n"
-					+ "4.1.4 Evaluation: anything that is not prohibited\n" + " 4.1.5 HW: everything that is not forbidden\n"
+					+ "tests for tangible and intangible rewards, view test results.\n"
+					+ " 4.1.3 Communication: everything that is not forbidden\n"
+					+ "4.1.4 Evaluation: anything that is not prohibited\n"
+					+ " 4.1.5 HW: everything that is not forbidden\n"
 					+ " 4.1.6 Utilities: everything that is not forbidden\n" + "4.2 The program prohibits:\n"
 					+ "4.2.1 Accounts: Incorrect information (Accounts with unauthorized information will be deleted), create fake accounts (Fake\n"
 					+ "accounts will be deleted).\n"
@@ -666,40 +702,57 @@ public final class MessageSystem
 					+ "anything illegal or offensive (Tests that propagate anything illegal or offensive will be blocked), tests containing\n"
 					+ "obscene words, pictures, etc. (Tests containing obscene words, pictures, etc. will be blocked), tests containing insults or\n"
 					+ "something indecent (Tests containing insults or anything indecent will be blocked).\n"
-					+ "4.2.3 Communication: everything that is not forbidden\n" + " 4.2.4 Evaluation: to lay down unreasonable estimates\n"
+					+ "4.2.3 Communication: everything that is not forbidden\n"
+					+ " 4.2.4 Evaluation: to lay down unreasonable estimates\n"
 					+ "4.2.5 HW: HW with false information (HW with false information will be blocked), create HW propaganda\n"
 					+ "anything illegal or offensive (HW propagandizing anything illegal or offensive will be blocked), HW containing\n"
 					+ "obscene words, pictures, etc. (HW containing obscene words, pictures, etc. will be blocked), HW containing insults or\n"
-					+ "something indecent (HW containing insults or anything indecent will be blocked).\n" + " 4.2.6 Utilities: No bans");
+					+ "something indecent (HW containing insults or anything indecent will be blocked).\n"
+					+ " 4.2.6 Utilities: No bans");
 			messages.get(language).put("usersmanualtext", getMsg("usersManual", language) + "\n"
 					+ "The program is designed to test students. The program consists of two parts - main and testing. Main part."
 					+ "The main part is intended for tuning the testing part and viewing statistics by tests. Сверху есть панель настроек со вкладками \""
-					+ getMsg("window", language) + "\", \"" + getMsg("settings", language) + "\", \"" + getMsg("help", language) + "\". Во вкладке \"" + getMsg(
-							"help", language) + "\" есть \"" + getMsg("privacyPolicy", language) + "\" и \"" + getMsg("usersManual", language)
-					+ "\". Во вкладке \"" + getMsg("settings", language) + "\" есть вкладка \"" + getMsg("language", language)
-					+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \"" + getMsg("window", language)
-					+ "\" можно переключить режим работы программы: выберите \"" + getMsg("testMode", language) + "\" или \"" + getMsg("statsMode", language)
-					+ "\". В любом режиме работы программы под панелью настроек есть поле выбора \"" + getMsg("testFileName", language)
-					+ "\", поле выбора с полем ввода \"" + getMsg("class", language) + "\", поле ввода \"" + getMsg("surname", language) + "\", поле ввода \""
-					+ getMsg("name", language) + "\" и поле ввода \"" + getMsg("secondName", language)
-					+ "\". В режиме тестирования появляется также поле ввода \"" + getMsg("timeToTest", language) + "\", кнопка \"" + getMsg("start", language)
-					+ "\", переключатель \"" + getMsg("none", language) + "\", переключатель \"" + getMsg("indicateAnswerQuality", language)
-					+ "\", зависящие от него флажок \"" + getMsg("indicateAnswersQuality", language) + "\" и флажок \"" + getMsg("showRightAnswer", language)
-					+ "\", переключатель \"" + getMsg("goToAllQuestions", language) + "\", флажок \"" + getMsg("skipBtn", language) + "\", флажок \"" + getMsg(
-							"pause", language) + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", language) + "\", флажок \"" + getMsg("anticopy",
-									language) + "\", флажок \"" + getMsg("antiscreenshot", language) + "\", кнопка \"" + getMsg("savePropsToDefault", language)
-					+ "\".");
-			String welcome = "Welcome to SchoolTester!\n" + "If you start working with the program, you submit the privacy policy.\n";
-			messages.get(language).put("notInAccountMsg", welcome + "Please, sign up or sign in, to start working with the program.");
-			messages.get(language).put("inTeacherAccountMsg", welcome + "There are common functions in tab '" + messages.get(language).get("common") + "'.\n"
-					+ "There are special for teacher functions in tab '" + messages.get(language).get("special") + "'.\n" + "And there are utilities in tab '"
-					+ messages.get(language).get("utils") + "'.\n");
-			messages.get(language).put("inStudentAccountMsg", welcome + "There are common functions in tab '" + messages.get(language).get("common") + "'.\n"
-					+ "There are special for student functions in tab '" + messages.get(language).get("special") + "'.\n" + "And there are utilities in tab '"
-					+ messages.get(language).get("utils") + "'.\n");
-			messages.get(language).put("inAdministatorAccountMsg", welcome + "There are common functions in tab '" + messages.get(language).get("common")
-					+ "'.\n" + "There are special for administrator functions in tab '" + messages.get(language).get("special") + "'.\n"
-					+ "And there are utilities in tab '" + messages.get(language).get("utils") + "'.\n");
+					+ getMsg("window", language) + "\", \"" + getMsg("settings", language) + "\", \""
+					+ getMsg("help", language) + "\". Во вкладке \"" + getMsg("help", language) + "\" есть \""
+					+ getMsg("privacyPolicy", language) + "\" и \"" + getMsg("usersManual", language)
+					+ "\". Во вкладке \"" + getMsg("settings", language) + "\" есть вкладка \""
+					+ getMsg("language", language)
+					+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \""
+					+ getMsg("window", language) + "\" можно переключить режим работы программы: выберите \""
+					+ getMsg("testMode", language) + "\" или \"" + getMsg("statsMode", language)
+					+ "\". В любом режиме работы программы под панелью настроек есть поле выбора \""
+					+ getMsg("testFileName", language) + "\", поле выбора с полем ввода \"" + getMsg("class", language)
+					+ "\", поле ввода \"" + getMsg("surname", language) + "\", поле ввода \"" + getMsg("name", language)
+					+ "\" и поле ввода \"" + getMsg("secondName", language)
+					+ "\". В режиме тестирования появляется также поле ввода \"" + getMsg("timeToTest", language)
+					+ "\", кнопка \"" + getMsg("start", language) + "\", переключатель \"" + getMsg("none", language)
+					+ "\", переключатель \"" + getMsg("indicateAnswerQuality", language)
+					+ "\", зависящие от него флажок \"" + getMsg("indicateAnswersQuality", language) + "\" и флажок \""
+					+ getMsg("showRightAnswer", language) + "\", переключатель \""
+					+ getMsg("goToAllQuestions", language) + "\", флажок \"" + getMsg("skipBtn", language)
+					+ "\", флажок \"" + getMsg("pause", language) + "\", зависящий от него флажок \""
+					+ getMsg("pauseOnUnfocus", language) + "\", флажок \"" + getMsg("anticopy", language)
+					+ "\", флажок \"" + getMsg("antiscreenshot", language) + "\", кнопка \""
+					+ getMsg("savePropsToDefault", language) + "\".");
+			String welcome = "Welcome to SchoolTester!\n"
+					+ "If you start working with the program, you submit the privacy policy.\n";
+			messages.get(language).put("notInAccountMsg",
+					welcome + "Please, sign up or sign in, to start working with the program.");
+			messages.get(language).put("inTeacherAccountMsg",
+					welcome + "There are common functions in tab '" + messages.get(language).get("common") + "'.\n"
+							+ "There are special for teacher functions in tab '" + messages.get(language).get("special")
+							+ "'.\n" + "And there are utilities in tab '" + messages.get(language).get("utils")
+							+ "'.\n");
+			messages.get(language).put("inStudentAccountMsg",
+					welcome + "There are common functions in tab '" + messages.get(language).get("common") + "'.\n"
+							+ "There are special for student functions in tab '" + messages.get(language).get("special")
+							+ "'.\n" + "And there are utilities in tab '" + messages.get(language).get("utils")
+							+ "'.\n");
+			messages.get(language).put("inAdministatorAccountMsg",
+					welcome + "There are common functions in tab '" + messages.get(language).get("common") + "'.\n"
+							+ "There are special for administrator functions in tab '"
+							+ messages.get(language).get("special") + "'.\n" + "And there are utilities in tab '"
+							+ messages.get(language).get("utils") + "'.\n");
 		}
 		{
 			String language = "ru_ru";
@@ -727,8 +780,9 @@ public final class MessageSystem
 					+ "4.1.1 Аккаунты: Cоздавать несколько аккаунтов, не указывать дополнительные данные в аккаунте, удалять свой аккаунт."
 					+ "4.1.2 Тесты: Создавать тесты, проходить тесты, обмениваться созданными вами тестами, в том числе покупать тесты, продавать тесты,"
 					+ " обменивать тесты на материальные и нематериальные вознаграждения, просматривать результаты тестов."
-					+ "4.1.3 Общение: все, что не запрещено" + "4.1.4 Оценки: все, что не запрещено" + "4.1.5 ДЗ: все, что не запрещено"
-					+ "4.1.6 Утилиты: все, что не запрещено" + "4.2 В программе запрещается: "
+					+ "4.1.3 Общение: все, что не запрещено" + "4.1.4 Оценки: все, что не запрещено"
+					+ "4.1.5 ДЗ: все, что не запрещено" + "4.1.6 Утилиты: все, что не запрещено"
+					+ "4.2 В программе запрещается: "
 					+ "4.2.1 Аккаунты: Указывать ненастоящую информацию(Аккаунты с ненастоящей информацией будут удаляться), создавать фальшивые аккаунты"
 					+ "(Фальшивые аккаунты будут удаляться)."
 					+ "4.2.2 Тесты: Создавать тесты с фальшивой информацией(Тесты с фальшивой информацией будут блокироваться), создавать тесты пропагандирующие "
@@ -739,7 +793,8 @@ public final class MessageSystem
 					+ "4.2.5 ДЗ: ДЗ с фальшивой информацией(ДЗ с фальшивой информацией будут блокироваться), создавать ДЗ пропагандирующие "
 					+ "что-либо незаконное или оскорбительное(ДЗ пропагандирующие что-либо незаконное или оскорбительное будут блокироваться), ДЗ содержащие "
 					+ "нецензурные слова, картинки и тд(ДЗ содержащие нецензурные слова, картинки и тд будут блокироваться), ДЗ содержащие оскорбления или "
-					+ "что-либо неприличное(ДЗ содержащие оскорбления или что-либо неприличное будут блокироваться)." + "4.2.6 Утилиты: запреты отсутствуют");
+					+ "что-либо неприличное(ДЗ содержащие оскорбления или что-либо неприличное будут блокироваться)."
+					+ "4.2.6 Утилиты: запреты отсутствуют");
 			messages.get(language).put("usersmanualtext", getMsg("usersManual", language) + "\n"
 					+ "Программа предназначена для тестирования учащихся с помощью тестов созданных пользователем, автором программы, а также найденных в "
 					+ "интернете. В программе есть несколько видов аккаунтов: Администратор, Студент и Учитель. В программе есть несколько разделов: \n"
@@ -748,33 +803,47 @@ public final class MessageSystem
 					+ "управления тестированием; \nРаздел утилит - часть доп. материалов(Словари, электронные учебники и тд), часть вспомогательных программ("
 					+ "Калькулятор, построитель графиков и тд).\n"
 					+ "Часть управления тестированием предназначена для настройки тестирующей части и просмотра статистики по тестам. Сверху есть панель настроек "
-					+ "со вкладками \"" + getMsg("window", language) + "\", \"" + getMsg("settings", language) + "\", \"" + getMsg("help", language)
-					+ "\". Во вкладке \"" + getMsg("help", language) + "\" есть \"" + getMsg("privacyPolicy", language) + "\" и \"" + getMsg("usersManual",
-							language) + "\". Во вкладке \"" + getMsg("settings", language) + "\" есть вкладка \"" + getMsg("language", language)
-					+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \"" + getMsg("window", language)
-					+ "\" можно переключить режим работы программы: выберите \"" + getMsg("testMode", language) + "\" или \"" + getMsg("statsMode", language)
-					+ "\". В любом режиме работы программы под панелью настроек есть поле выбора \"" + getMsg("testFileName", language)
-					+ "\", поле выбора с полем ввода \"" + getMsg("class", language) + "\", поле ввода \"" + getMsg("surname", language) + "\", поле ввода \""
-					+ getMsg("name", language) + "\" и поле ввода \"" + getMsg("secondName", language)
-					+ "\". В режиме тестирования появляется также поле ввода \"" + getMsg("timeToTest", language) + "\", кнопка \"" + getMsg("start", language)
-					+ "\", переключатель \"" + getMsg("none", language) + "\", переключатель \"" + getMsg("indicateAnswerQuality", language)
-					+ "\", зависящие от него флажок \"" + getMsg("indicateAnswersQuality", language) + "\" и флажок \"" + getMsg("showRightAnswer", language)
-					+ "\", переключатель \"" + getMsg("goToAllQuestions", language) + "\", флажок \"" + getMsg("skipBtn", language) + "\", флажок \"" + getMsg(
-							"pause", language) + "\", зависящий от него флажок \"" + getMsg("pauseOnUnfocus", language) + "\", флажок \"" + getMsg("anticopy",
-									language) + "\", флажок \"" + getMsg("antiscreenshot", language) + "\", кнопка \"" + getMsg("savePropsToDefault", language)
-					+ "\".");
+					+ "со вкладками \"" + getMsg("window", language) + "\", \"" + getMsg("settings", language)
+					+ "\", \"" + getMsg("help", language) + "\". Во вкладке \"" + getMsg("help", language)
+					+ "\" есть \"" + getMsg("privacyPolicy", language) + "\" и \"" + getMsg("usersManual", language)
+					+ "\". Во вкладке \"" + getMsg("settings", language) + "\" есть вкладка \""
+					+ getMsg("language", language)
+					+ "\". Для переключения языка выберите нужный в данной вкладке. Во вкладке \""
+					+ getMsg("window", language) + "\" можно переключить режим работы программы: выберите \""
+					+ getMsg("testMode", language) + "\" или \"" + getMsg("statsMode", language)
+					+ "\". В любом режиме работы программы под панелью настроек есть поле выбора \""
+					+ getMsg("testFileName", language) + "\", поле выбора с полем ввода \"" + getMsg("class", language)
+					+ "\", поле ввода \"" + getMsg("surname", language) + "\", поле ввода \"" + getMsg("name", language)
+					+ "\" и поле ввода \"" + getMsg("secondName", language)
+					+ "\". В режиме тестирования появляется также поле ввода \"" + getMsg("timeToTest", language)
+					+ "\", кнопка \"" + getMsg("start", language) + "\", переключатель \"" + getMsg("none", language)
+					+ "\", переключатель \"" + getMsg("indicateAnswerQuality", language)
+					+ "\", зависящие от него флажок \"" + getMsg("indicateAnswersQuality", language) + "\" и флажок \""
+					+ getMsg("showRightAnswer", language) + "\", переключатель \""
+					+ getMsg("goToAllQuestions", language) + "\", флажок \"" + getMsg("skipBtn", language)
+					+ "\", флажок \"" + getMsg("pause", language) + "\", зависящий от него флажок \""
+					+ getMsg("pauseOnUnfocus", language) + "\", флажок \"" + getMsg("anticopy", language)
+					+ "\", флажок \"" + getMsg("antiscreenshot", language) + "\", кнопка \""
+					+ getMsg("savePropsToDefault", language) + "\".");
 			String welcome = "Добро пожаловать в программу SchoolTester!\n"
 					+ "Если вы начинаете работать с программой, то вы принимаете политику конфенденциальности.\n";
-			messages.get(language).put("notInAccountMsg", welcome + "Пожалуйста, войдите в аккаунт, чтобы начать работать с программой.");
-			messages.get(language).put("inTeacherAccountMsg", welcome + "Во вкладке '" + messages.get(language).get("common") + "' находятся общие функции.\n"
-					+ "Во вкладке '" + messages.get(language).get("special") + "' находятся функции доступные только учителю.\n" + "Во вкладке '" + messages
-							.get(language).get("utils") + "' находятся дополнительные функции.");
-			messages.get(language).put("inStudentAccountMsg", welcome + "Во вкладке '" + messages.get(language).get("common") + "' находятся общие функции.\n"
-					+ "Во вкладке '" + messages.get(language).get("special") + "' находятся функции доступные только студенту.\n" + "Во вкладке '" + messages
-							.get(language).get("utils") + "' находятся дополнительные функции.");
-			messages.get(language).put("inAdministratorAccountMsg", welcome + "Во вкладке '" + messages.get(language).get("common")
-					+ "' находятся общие функции.\n" + "Во вкладке '" + messages.get(language).get("special") + "' находятся функции администратора.\n"
-					+ "Во вкладке '" + messages.get(language).get("utils") + "' находятся дополнительные функции.");
+			messages.get(language).put("notInAccountMsg",
+					welcome + "Пожалуйста, войдите в аккаунт, чтобы начать работать с программой.");
+			messages.get(language).put("inTeacherAccountMsg",
+					welcome + "Во вкладке '" + messages.get(language).get("common") + "' находятся общие функции.\n"
+							+ "Во вкладке '" + messages.get(language).get("special")
+							+ "' находятся функции доступные только учителю.\n" + "Во вкладке '"
+							+ messages.get(language).get("utils") + "' находятся дополнительные функции.");
+			messages.get(language).put("inStudentAccountMsg",
+					welcome + "Во вкладке '" + messages.get(language).get("common") + "' находятся общие функции.\n"
+							+ "Во вкладке '" + messages.get(language).get("special")
+							+ "' находятся функции доступные только студенту.\n" + "Во вкладке '"
+							+ messages.get(language).get("utils") + "' находятся дополнительные функции.");
+			messages.get(language).put("inAdministratorAccountMsg",
+					welcome + "Во вкладке '" + messages.get(language).get("common") + "' находятся общие функции.\n"
+							+ "Во вкладке '" + messages.get(language).get("special")
+							+ "' находятся функции администратора.\n" + "Во вкладке '"
+							+ messages.get(language).get("utils") + "' находятся дополнительные функции.");
 
 		}
 
@@ -788,48 +857,49 @@ public final class MessageSystem
 		}
 		System.out.println("Message system loaded!");
 	}
-
-	public MessageSystem(String language)
-	{
-		this.language = language;
-	}
-
-	public String getMsg(String key)
-	{
-		return getMsg(key, language);
-	}
-
-	public static String getMsg(String key, String language)
-	{
-		key = key.toLowerCase();
-		language = language.toLowerCase();
-		if (!messages.containsKey(language))
-			throw new IllegalArgumentException("Language '" + language + "' could not found!");
-		if (!messages.get(language).containsKey(key))
-			return key + "(null)";
-		return messages.get(language).get(key);
-	}
-
-	/**
-	 * @return the language
-	 */
-	public String getLanguage()
-	{
-		return language;
-	}
-
-	/**
-	 * @param language
-	 *            the language to set
-	 */
-	public void setLanguage(String language)
-	{
-		this.language = language;
-	}
-
-	public static HashMap<String, HashMap<String, String>> getMessages()
-	{
-		return messages;
-	}
+	//
+	// public MessageSystem(String language)
+	// {
+	// this.language = language;
+	// }
+	//
+	// public String getMsg(String key)
+	// {
+	// return getMsg(key, language);
+	// }
+	//
+	// public static String getMsg(String key, String language)
+	// {
+	// key = key.toLowerCase();
+	// language = language.toLowerCase();
+	// if (!messages.containsKey(language))
+	// throw new IllegalArgumentException("Language '" + language + "' could not
+	// found!");
+	// if (!messages.get(language).containsKey(key))
+	// return key + "(null)";
+	// return messages.get(language).get(key);
+	// }
+	//
+	// /**
+	// * @return the language
+	// */
+	// public String getLanguage()
+	// {
+	// return language;
+	// }
+	//
+	// /**
+	// * @param language
+	// * the language to set
+	// */
+	// public void setLanguage(String language)
+	// {
+	// this.language = language;
+	// }
+	//
+	// public static HashMap<String, HashMap<String, String>> getMessages()
+	// {
+	// return messages;
+	// }
 
 }

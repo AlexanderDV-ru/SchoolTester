@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 
 import javax.swing.Timer;
 
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,8 +25,7 @@ import javafx.util.Duration;
 import ru.alexanderdv.schooltester.main.Main;
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
-import ru.alexanderdv.schooltester.utilities.types.StageContainer;
-import ru.alexanderdv.simpleutilities.MathWithText;
+import ru.alexanderdv.simpleutilities.MathUtils;
 
 /**
  * 
@@ -34,11 +34,15 @@ import ru.alexanderdv.simpleutilities.MathWithText;
  */
 public final class FXDialogsGenerator
 {
+	private static final javafx.scene.text.Font font=new Label().getFont();
+	public static final int titlePaneWidth = 40 + (int)MathUtils.size(Main.program, java.awt.Font.decode(font.getName()+"-"+font.getStyle()+"-"+font.getSize())).getWidth()
+			+40;
 	private static Stage lastDialogStage;
 
 	/**
-	 * Creates FXDialog with owner - 'primaryStage', with message - 'msg', with type of message - 'messageType', with type of option - 'optionType' in the
-	 * middle of 'Component'
+	 * Creates FXDialog with owner - 'primaryStage', with message - 'msg', with type
+	 * of message - 'messageType', with type of option - 'optionType' in the middle
+	 * of 'Component'
 	 *
 	 * @param comp
 	 *            - the component in the middle of them FXDialog will be created
@@ -53,18 +57,10 @@ public final class FXDialogsGenerator
 	 * @param frameIsFX
 	 *            - the type of window frame
 	 */
-	public static Stage showFXDialog(StageContainer _comp, Rectangle parPos, Object msgm, int messageType, Region region, boolean wait)
+	public static Stage showFXDialog(Stage _comp, Rectangle parPos, Object msgm, Region region, boolean wait)
 	{
 		Object msg = msgm;
-		Stage comp = _comp != null ? _comp.getStage(new StageContainer.Wrapper()
-		{
-
-			@Override
-			public char[] check(int algo)
-			{
-				return (algo / 10000 % 10 + "" + algo / 1000 % 10 + "" + algo / 100 % 10 + "" + algo / 10 % 10 + "" + algo % 10).toCharArray();
-			}
-		}) : null;
+		Stage comp = _comp;
 		Stage stage = lastDialogStage = new Stage();
 		try
 		{
@@ -79,16 +75,17 @@ public final class FXDialogsGenerator
 			Pane panel = new Pane();
 			ImageView imageView;
 			MediaView mediaView = new MediaView();
-			Dimension size = msg instanceof String ? MathWithText.size((String) msg, new Font("System", 0, 12)) : new Dimension();
+			Dimension size = msg instanceof String ? MathUtils.size((String) msg, new Font("System", 0, 12))
+					: new Dimension();
 
 			if (msg instanceof String)
 			{
-				int w = ((int) (MathWithText.size(((String) msg).split("\n")[0], new Font("System", 0, 12)).getWidth() / ((String) msg).split("\n")[0]
-						.length()));
+				int w = ((int) (MathUtils.size(((String) msg).split("\n")[0], new Font("System", 0, 12)).getWidth()
+						/ ((String) msg).split("\n")[0].length()));
 				if (size.getWidth() > 800)
 				{
-					msg = MathWithText.changeTextToWidth((String) msg, 800 / w, true, true);
-					size = MathWithText.size((String) msg, new Font("System", 0, 12));
+					msg = MathUtils.changeTextToWidth((String) msg, 800 / w, true, true);
+					size = MathUtils.size((String) msg, new Font("System", 0, 12));
 				}
 			}
 			Label label = new Label(msg.toString());
@@ -97,7 +94,8 @@ public final class FXDialogsGenerator
 				imageView = new ImageView();
 				imageView.setImage((Image) msg);
 				Dimension screenedSize = toScreen(((Image) msg).getWidth(), ((Image) msg).getHeight());
-				int width = Math.max(screenedSize.width, 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + 30);
+				int width = Math.max(screenedSize.width,
+						40 + (int)MathUtils.size(stage.getTitle(), java.awt.Font.decode(fxScene.getTitleFont().getName()+"-"+fxScene.getTitleFont().getStyle()+"-"+fxScene.getTitleFont().getSize())).getWidth() + 30);
 				int height = screenedSize.height;
 				imageView.setFitWidth(width);
 				imageView.setFitHeight(height);
@@ -114,7 +112,8 @@ public final class FXDialogsGenerator
 				mediaPlayer.play();
 				panel.getChildren().add(mediaView);
 				Dimension screenedSize = toScreen(media.getWidth(), media.getHeight());
-				int width = Math.max(screenedSize.width, 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + 30);
+				int width = Math.max(screenedSize.width,
+						40 + (int)MathUtils.size(stage.getTitle(), java.awt.Font.decode(fxScene.getTitleFont().getName()+"-"+fxScene.getTitleFont().getStyle()+"-"+fxScene.getTitleFont().getSize())).getWidth() + 30);
 				int height = screenedSize.height;
 				mediaView.setFitWidth(Math.min(media.getWidth(), width));
 				mediaView.setFitHeight(Math.min(media.getHeight(), height));
@@ -220,20 +219,20 @@ public final class FXDialogsGenerator
 				size.height += (int) region.getPrefHeight();
 				size.width = Math.max(size.width, (int) region.getPrefHeight());
 			}
-			int pw = (int) Math.max(size.getWidth(), 40 + MathWithText.size(stage.getTitle(), fxScene.getTitleFont()).width + fxScene.getButtonsWidth()),
-					ph = (int) size.getHeight(), mw = pw, mh = ph;
+			int pw = (int) Math.max(size.getWidth(), titlePaneWidth), ph = (int) size.getHeight(), mw = pw, mh = ph;
 			fxScene.setContent(panel, pw, ph, mw, mh);
 			stage.setScene(new Scene(fxScene));
 			stage.sizeToScene();
 			stage.setResizable(false);
 			stage.getIcons().clear();
-			stage.getIcons().add(new Image(Logger.class.getResource("/Icon32x.png").openStream()));
+			stage.getIcons().add(
+					new Image(Logger.class.getResource(Main.resourcesPath + "/images" + "/Icon32x.png").openStream()));
 			stage.initModality(Modality.WINDOW_MODAL);
 			stage.initOwner(comp);
 			if (parPos != null)
 			{
-				stage.setX((int) (parPos.getX() + parPos.getHeight() / 2 - stage.getWidth() / 2));
-				stage.setY((int) (parPos.getY() + parPos.getHeight() / 2 - stage.getHeight() / 2));
+				stage.setX(parPos.getX() + parPos.getWidth() / 2 - stage.getWidth() / 2);
+				stage.setY(parPos.getY() + parPos.getHeight() / 2 - stage.getHeight() / 2);
 			}
 			stage.setOnCloseRequest(e ->
 			{
@@ -274,20 +273,24 @@ public final class FXDialogsGenerator
 		else return new Dimension((int) (d1 / d2 * (d2 - r2 - 100)), (int) (d2 / d2 * (d2 - r2 - 100)));
 	}
 
-	public static Stage showFXDialog(StageContainer comp, Stage parPos, Object msg, int messageType, Region region, boolean wait)
+	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, Region region, boolean wait)
 	{
-		return showFXDialog(comp, parPos != null ? new Rectangle((int) parPos.getX(), (int) parPos.getY(), (int) parPos.getWidth(), (int) parPos.getHeight())
-				: null, msg, messageType, region, wait);
+		return showFXDialog(comp,
+				parPos != null
+						? new Rectangle((int) parPos.getX(), (int) parPos.getY(), (int) parPos.getWidth(),
+								(int) parPos.getHeight())
+						: null,
+				msg, region, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Stage parPos, Object msg, int messageType, Region region, boolean wait)
+	public static Stage showFXDialog(Rectangle comp, Object msg, Region region, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, wait);
+		return showFXDialog(null, comp, msg, region, wait);
 	}
 
-	public static Stage showFXDialog(Stage comp, Rectangle parPos, Object msg, int messageType, Region region, boolean wait)
+	public static Stage showFXDialog(Stage comp, Object msg, Region region, boolean wait)
 	{
-		return showFXDialog(new StageContainer(comp), parPos, msg, messageType, region, wait);
+		return showFXDialog(comp, comp, msg, region, wait);
 	}
 
 	public static boolean hasShowedDialog()

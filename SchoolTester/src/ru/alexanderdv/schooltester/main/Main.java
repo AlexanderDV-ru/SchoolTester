@@ -1,6 +1,7 @@
 package ru.alexanderdv.schooltester.main;
 
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -8,23 +9,28 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
-import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import ru.alexanderdv.schooltester.main.student.StudentsTestsControlPart;
 import ru.alexanderdv.schooltester.main.teacher.TeachersTestsControlPart;
 import ru.alexanderdv.schooltester.main.teacher.TestDevPart;
@@ -33,6 +39,7 @@ import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart;
 import ru.alexanderdv.schooltester.main.utilities.SubjectUtilitiesPart.ButtonWithWindow;
 import ru.alexanderdv.schooltester.main.utilities.chemistry.ChemicalCompoundsDescriptionPart;
 import ru.alexanderdv.schooltester.main.utilities.math.CalculatorPart;
+import ru.alexanderdv.schooltester.main.utilities.math.ExpressionGeneratorPart;
 import ru.alexanderdv.schooltester.main.utilities.math.FunctionsWorkPart;
 import ru.alexanderdv.schooltester.main.utilities.math.UnitConverterPart;
 import ru.alexanderdv.schooltester.main.utilities.othersubjects.CrossWordGeneratorPart;
@@ -40,68 +47,83 @@ import ru.alexanderdv.schooltester.main.utilities.othersubjects.ElectronicBooksP
 import ru.alexanderdv.schooltester.utilities.Logger;
 import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
-import ru.alexanderdv.schooltester.utilities.SystemUtils;
 import ru.alexanderdv.schooltester.utilities.enums.SearchType;
 import ru.alexanderdv.schooltester.utilities.enums.Subject;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
 import ru.alexanderdv.schooltester.utilities.fx.FXWindow;
 import ru.alexanderdv.schooltester.utilities.fx.ProtectedFXWindow;
+import ru.alexanderdv.schooltester.utilities.fx.SchoolTesterFXWindow;
 import ru.alexanderdv.schooltester.utilities.network.AccountPacket;
 import ru.alexanderdv.schooltester.utilities.network.ConnectionQualityChecker;
 import ru.alexanderdv.schooltester.utilities.network.FilePacket;
 import ru.alexanderdv.schooltester.utilities.network.NetworkPacket;
 import ru.alexanderdv.schooltester.utilities.network.ResultSendPacket;
 import ru.alexanderdv.schooltester.utilities.network.SearchInMarketPacket;
+import ru.alexanderdv.schooltester.utilities.network.StudentOnlineTestPacket;
+import ru.alexanderdv.schooltester.utilities.network.TCPClient;
 import ru.alexanderdv.schooltester.utilities.network.TestingTaskPacket;
 import ru.alexanderdv.schooltester.utilities.network.VerifyPacket;
+import ru.alexanderdv.schooltester.utilities.types.Account.AccountType;
+import ru.alexanderdv.simpleutilities.ByteUtils;
+import ru.alexanderdv.simpleutilities.Container;
+import ru.alexanderdv.simpleutilities.SystemUtils;
 
 /**
  * 
  * @author AlexanderDV
- * @version 6.1.5a
+ * @version 6.2.0a
  */
 public final class Main extends Application
 {
-	public static final MessageSystem msgSys = new MessageSystem(SystemUtils.readFile(new File("language.cfg"), "cp1251"));
+	public static final String resourcesPackage = Main.class.getPackage().getName().split("\\.")[0] + "."
+			+ Main.class.getPackage().getName().split("\\.")[1] + "."
+			+ Main.class.getPackage().getName().split("\\.")[2] + "." + "resources";
+	public static final String resourcesPath = "/" + resourcesPackage.replace(".", "/");
+	public static final MessageSystem msgSys = new MessageSystem(
+			SystemUtils.readFile(new File("language.cfg"), "UTF-8"), resourcesPackage + ".languages");
 	static
 	{
-		if (!MessageSystem.getMessages().keySet().contains(msgSys.getLanguage()))
+		if (!msgSys.getMessages().keySet().contains(msgSys.getLanguage()))
 		{
 			msgSys.setLanguage("en_uk");
-			SystemUtils.writeFile(new File("language.cfg"), "en_uk", "cp1251");
+			SystemUtils.writeFile(new File("language.cfg"), "en_uk", "UTF-8");
 		}
 	}
 	private static final boolean debug = true;
 	public static final String programName = "SchoolTester";
-	public static final String programVersion = "6.1.5a";
+	public static final String programVersion = "6.2.0a";
 	public static final String programAuthors = "AlexanderDV";
 	public static final String program = programName + " v" + programVersion + " by " + programAuthors;
+	public static final Image icon = loadImage(Main.class.getResource(Main.resourcesPath + "/images" + "/Icon16x.png"));
 	public static final int spaceBetweenComponents = 8;
-	public static final int titleHeight = 30;
+	public static final int tabsSwitchHeight = 30;
+	public static final int paneTitleHeight = 25;
 	private static MarketPart marketPart;
 	private static StartPart startPart;
 	private static AccountsPart accountsPart;
 	private static ElectronicBooksPart electronicBooksPart;
-
+	//
 	private static FunctionsWorkPart functionsWorkPart;
 	private static CalculatorPart calculatorPart;
 	private static UnitConverterPart unitConverterPart;
+	private static ExpressionGeneratorPart expressionGeneratorPart;
 
 	private static TeachersTestsControlPart teachersTestsControlPart;
 	private static TestDevPart testDevPart;
+	private static TestingPart testingPart;
 
 	private static CrossWordGeneratorPart crossWordGeneratorPart;
 	private static ChemicalCompoundsDescriptionPart chemicalCompoundsDescriptionPart;
+
 	private static FXWindow[] parts;
+	private static SchoolTesterFXWindow[] parts2;
 
 	private static StudentsTestsControlPart studentsTestsControlPart;
-
-	// TODO static SecureNetUtils u = new SecureNetUtils(random.nextInt(50000), false, 14, 13);
 	int uuuValue;
 	private static int menuHeight = 24;
 	private static ArrayList<SubjectUtilitiesPart> subjectUtilitiesParts = new ArrayList<SubjectUtilitiesPart>();
 
-	public static final TCPClient client = pickReservOrStandardByOnline(/* "18.217.169.84" */"schooltester.ru", "94.181.44.135");
+	public static final TCPClient client = pickReservOrStandardByOnline("schooltester.ru", "94.181.44.135");
 
 	/**
 	 * The main method of program
@@ -114,18 +136,76 @@ public final class Main extends Application
 		launch(args);
 	}
 
+	private static Image loadImage(URL resource)
+	{
+		try
+		{
+			return new Image(resource.openStream());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return new WritableImage(16, 16);
+		}
+	}
+
 	@Override
-	public void start(Stage primaryStage) throws Exception
+	public void start(Stage stage) throws Exception
 	{
 		debug("FX loading...");
-		fxThread = Thread.currentThread();
 		instance = this;
-		primaryStage.setOpacity(0);
-		primaryStage.show();
-		primaryStage.close();
-		initParts();
+		debug("Parts initialization...");
+		testingPart = new TestingPart();
+		teachersTestsControlPart = new TeachersTestsControlPart();
+		testDevPart = new TestDevPart();
+
+		studentsTestsControlPart = new StudentsTestsControlPart();
+
+		marketPart = new MarketPart(true);
+
+		electronicBooksPart = new ElectronicBooksPart(
+				getClass().getResource(Main.resourcesPath + "/fxml" + "/ElectronicBooksPart.fxml"), true);
+		crossWordGeneratorPart = new CrossWordGeneratorPart(
+				getClass().getResource(Main.resourcesPath + "/fxml" + "/CrossWordGenerator.fxml"), false);
+
+		functionsWorkPart = new FunctionsWorkPart(
+				getClass().getResource(Main.resourcesPath + "/fxml" + "/FunctionsWorkPart.fxml"), true);
+		calculatorPart = new CalculatorPart(getClass().getResource(Main.resourcesPath + "/fxml" + "/Calculator.fxml"),
+				true);
+		unitConverterPart = new UnitConverterPart(
+				getClass().getResource(Main.resourcesPath + "/fxml" + "/UnitConverter.fxml"), true);
+		expressionGeneratorPart = new ExpressionGeneratorPart();
+
+		chemicalCompoundsDescriptionPart = new ChemicalCompoundsDescriptionPart();
+		subjectUtilitiesParts.add(
+				new SubjectUtilitiesPart(Subject.Math, false, new ButtonWithWindow(new Button("Calc"), calculatorPart),
+						new ButtonWithWindow(new Button("Functions"), functionsWorkPart),
+						new ButtonWithWindow(new Button("Converter"), unitConverterPart),
+						new ButtonWithWindow(new Button("expressionGenerator"), expressionGeneratorPart)));
+		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Chemistry, false,
+				new ButtonWithWindow(new Button("Chemical compounds descriptor"), chemicalCompoundsDescriptionPart)));
+		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.OtherSubject, false,
+				new ButtonWithWindow(new Button("Electronic book"), electronicBooksPart),
+				new ButtonWithWindow(new Button("Crossword generator"), crossWordGeneratorPart)));
+
+		accountsPart = (new AccountsPart(null,
+				getClass().getResource(Main.resourcesPath + "/fxml" + "/AccountPart.fxml"), true));
+		startPart = new StartPart(stage);
+
+		parts = new FXWindow[] { marketPart, accountsPart, electronicBooksPart, functionsWorkPart,
+				teachersTestsControlPart, testDevPart, crossWordGeneratorPart, chemicalCompoundsDescriptionPart,
+				calculatorPart };
+
+		parts2 = new SchoolTesterFXWindow[] { startPart, expressionGeneratorPart };
+
+		startPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		accountsPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		teachersTestsControlPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		crossWordGeneratorPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		electronicBooksPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		functionsWorkPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
+		debug("Parts initializated!");
 		debug("Listeners initialization...");
-		setAccountChangeListener();
 		getStartPart().addOnHiding(e ->
 		{
 			getTestDevPart().min();
@@ -139,38 +219,10 @@ public final class Main extends Application
 		debug("Labels updated!");
 		openNeedfulParts();
 		debug("FX loaded!");
-		startNetworking(primaryStage);
+		startNetworking();
 	}
 
-	private void setAccountChangeListener()
-	{
-		AccountsPart.account.addActionListener(e -> StartPart.instance.updateLabelsInPart());
-		AccountsPart.account.addActionListener(e ->
-		{
-			InitStartPart.instance.specialPane.getChildren().clear();
-			InitStartPart.instance.commonPane.getChildren().clear();
-			InitStartPart.instance.utilsPane.getChildren().clear();
-			String t = AccountsPart.account.get() != null ? AccountsPart.account.get().getAccountType().name().toLowerCase() : "none";
-			if (t.equals("teacher"))
-			{
-				InitStartPart.instance.specialPane.getChildren().add(InitStartPart.instance.openTeachersTestsControlPart);
-				InitStartPart.instance.specialPane.getChildren().add(InitStartPart.instance.openTestDevPart);
-			}
-			if (t.equals("student"))
-			{
-				InitStartPart.instance.specialPane.getChildren().add(InitStartPart.instance.openStundentsTestsControlPart);
-			}
-			if (!t.equals("none"))
-			{
-				for (Button subjectUtilitiesButton : InitStartPart.instance.subjectUtilitiesButtons.keySet())
-					InitStartPart.instance.utilsPane.getChildren().add(subjectUtilitiesButton);
-				InitStartPart.instance.commonPane.getChildren().add(InitStartPart.instance.openMarketPart);
-			}
-		});
-		AccountsPart.account.set(null);
-	}
-
-	private void startNetworking(Stage primaryStage)
+	private void startNetworking()
 	{
 		debug("Server connect trying...");
 		String request = connectToServer();
@@ -180,35 +232,41 @@ public final class Main extends Application
 		{
 			case "youAreInBlacklist":
 				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null, true);
+				FXDialogsGenerator.showFXDialog((Stage) null, msgSys.getMsg(request), null, true);
 				exit(ExitCodes.YouAreInBlacklist);
 				break;
 			case "keyIsBad":
 				SystemUtils.writeFile(new File("lock.cfg"), "locked: true", "Cp1251");
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null, true);
+				FXDialogsGenerator.showFXDialog((Stage) null, msgSys.getMsg(request), null, true);
 				exit(ExitCodes.KeyIsBad);
 				break;
 			case "notVerified":
 			case "verifyRequestSended":
-				FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg(request), JOptionPane.ERROR_MESSAGE, null, true);
+				FXDialogsGenerator.showFXDialog((Stage) null, msgSys.getMsg(request), null, true);
 				SystemUtils.openUrl(msgSys.getMsg("siteURL"));
 				exit(ExitCodes.NotVerified);
 				break;
 			case "keyIsRight":
-				getStartPart().open(primaryStage);
-				getStartPart().getStage().centerOnScreen();
-				getAccountsPart().open(getStartPart().getStage());
-				getStartPart().hide();
-				getAccountsPart().addOnCloseRequest(e -> getStartPart().open((Stage) null));
+				getAccountsPart().open((Stage) null);
+				getAccountsPart().stage.centerOnScreen();
+				getAccountsPart().addOnCloseRequest(e ->
+				{
+					if (!getStartPart().stage.isShowing())
+					{
+						getStartPart().open((Stage) null);
+						getStartPart().stage.centerOnScreen();
+					}
+				});
 				startHandling();
-				FXDialogsGenerator.showFXDialog(getStartPart().getStage(), (Stage) null, msgSys.getMsg(request), JOptionPane.INFORMATION_MESSAGE, null, true);
+				FXDialogsGenerator.showFXDialog(getAccountsPart().stage, msgSys.getMsg(request), null, true);
 				break;
 		}
 	}
 
 	private void openNeedfulParts()
 	{
-		// AccountsPart.account.set(new Account(AccountType.Administrator, "dasfsd", "sdfsdf"));
+		// AccountsPart.account.set(new Account(AccountType.Administrator, "dasfsd",
+		// "sdfsdf"));
 		// accountsPart.getStage().show();
 		// teachersTestsControlPart.getStage().show();
 		// testDevPart.getStage().show();
@@ -244,7 +302,8 @@ public final class Main extends Application
 		// b1 = new byte[fis.available()];
 		// fis.read(b1);
 		// fis.close();
-		// G g = (G) ByteUtils.byteArrayToObject(SecurityUtils.crypt(((F) ByteUtils.byteArrayToObject(b1)).b, -23));
+		// G g = (G) ByteUtils.byteArrayToObject(SecurityUtils.crypt(((F)
+		// ByteUtils.byteArrayToObject(b1)).b, -23));
 		// key = (String) ByteUtils.byteArrayToObject(SecurityUtils.crypt(g.b, -g.key));
 		// d = (double) Calendar.getInstance().getTimeInMillis() / (double) g.key;
 		// ver = g.verified;
@@ -273,15 +332,20 @@ public final class Main extends Application
 		// urlStr = strRes.split("\n")[1];
 		// }
 		// String dataStr = "";
-		// dataStr += "network.ip.local" + '|' + InetAddress.getLocalHost().getHostAddress() + '\n';
-		// dataStr += "network.name" + '|' + InetAddress.getLocalHost().getHostName() + '\n';
+		// dataStr += "network.ip.local" + '|' +
+		// InetAddress.getLocalHost().getHostAddress() + '\n';
+		// dataStr += "network.name" + '|' + InetAddress.getLocalHost().getHostName() +
+		// '\n';
 		// dataStr += "network.mac" + '|' + macAddress + '\n';
 		// dataStr += "java.version" + '|' + System.getProperty("java.version") + '\n';
 		// dataStr += "java.vendor" + '|' + System.getProperty("java.vendor") + '\n';
-		// dataStr += "java.vendor.url" + '|' + System.getProperty("java.vendor.url") + '\n';
+		// dataStr += "java.vendor.url" + '|' + System.getProperty("java.vendor.url") +
+		// '\n';
 		// dataStr += "java.home" + '|' + System.getProperty("java.home") + '\n';
-		// dataStr += "java.class.version" + '|' + System.getProperty("java.class.version") + '\n';
-		// dataStr += "java.class.path" + '|' + System.getProperty("java.class.path") + '\n';
+		// dataStr += "java.class.version" + '|' +
+		// System.getProperty("java.class.version") + '\n';
+		// dataStr += "java.class.path" + '|' + System.getProperty("java.class.path") +
+		// '\n';
 		// dataStr += "os.name" + '|' + System.getProperty("os.name") + '\n';
 		// dataStr += "os.arch" + '|' + System.getProperty("os.arch") + '\n';
 		// dataStr += "os.version" + '|' + System.getProperty("os.version") + '\n';
@@ -289,8 +353,10 @@ public final class Main extends Application
 		// dataStr += "user.home" + '|' + System.getProperty("user.home") + '\n';
 		// dataStr += "user.dir" + '|' + System.getProperty("user.dir") + '\n';
 		// dataStr += "user.country" + '|' + System.getProperty("user.country") + '\n';
-		// dataStr += "user.timezone" + '|' + System.getProperty("user.timezone") + '\n';
-		// dataStr += "user.language" + '|' + System.getProperty("user.language") + '\n';
+		// dataStr += "user.timezone" + '|' + System.getProperty("user.timezone") +
+		// '\n';
+		// dataStr += "user.language" + '|' + System.getProperty("user.language") +
+		// '\n';
 		// dataStr += "program.name" + '|' + programName + '\n';
 		// dataStr += "program.version" + '|' + programVersion + '\n';
 		// dataStr += "program.authors" + '|' + programAuthors + '\n';
@@ -310,13 +376,16 @@ public final class Main extends Application
 		// for (int i = 0; i < hashes.length; i++)
 		// result = prime * result + hashes[i];
 		// key = Integer.toHexString(result);
-		// client.send(new Packet("registerComputer", dataStr, null, macAddress, null, programVersion, null, key));
+		// client.send(new Packet("registerComputer", dataStr, null, macAddress, null,
+		// programVersion, null, key));
 		// }
 		// else
 		// {
 		// dataStr += "key" + '|' + key;
 		//
-		// client.send(new Packet("verifyComputer", dataStr, TeachersTestsControlPart.getFileTree(), macAddress, null, programVersion, null, key));
+		// client.send(new Packet("verifyComputer", dataStr,
+		// TeachersTestsControlPart.getFileTree(), macAddress, null, programVersion,
+		// null, key));
 		//
 		// NetworkPacket netPack = client.waitToRecieve(NetworkPacket.class);
 		// if (netPack instanceof Packet)
@@ -357,7 +426,8 @@ public final class Main extends Application
 		// try
 		// {
 		// client.send(new NetworkPacket("loadUpdate", macAddress, ""));
-		// SystemUtils.writeFile(new File("setup.exe"), client.waitToRecieve(FilePacket.class).getBytes());
+		// SystemUtils.writeFile(new File("setup.exe"),
+		// client.waitToRecieve(FilePacket.class).getBytes());
 		// }
 		// catch (Exception e)
 		// {
@@ -366,7 +436,9 @@ public final class Main extends Application
 		//
 		// }
 		// }
-		// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE, null,
+		// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null,
+		// msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE,
+		// null,
 		// true);
 		// SystemUtils.openUrl(urlStr);
 		// }
@@ -407,21 +479,22 @@ public final class Main extends Application
 			ProgressBar bar = new ProgressBar();
 			bar.setPrefSize(100, 25);
 			bar.setProgress(-1);
-			FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("updateLoadingMsg").replace("%1", checkServerVersionResponse),
-					JOptionPane.INFORMATION_MESSAGE, bar, false);
+			FXDialogsGenerator.showFXDialog((Stage) null,
+					msgSys.getMsg("updateLoadingMsg").replace("%1", checkServerVersionResponse), bar, false);
 
 			new Thread(() ->
 			{
 				FilePacket updateFile = client.waitToRecieve(FilePacket.class);
-				File setup = new File("Updates/SchoolTesterSetup_v" + checkServerVersionResponse + ".exe").getAbsoluteFile();
+				File setup = new File("Updates/SchoolTesterSetup_v" + checkServerVersionResponse + ".exe")
+						.getAbsoluteFile();
 				if (updateFile != null)
 					SystemUtils.writeFile(setup, updateFile.getBytes());
 
 				Platform.runLater(() ->
 				{
 					FXDialogsGenerator.closeLast();
-					FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("installUpdateMsg").replace("%1", checkServerVersionResponse),
-							JOptionPane.INFORMATION_MESSAGE, null, true);
+					FXDialogsGenerator.showFXDialog((Stage) null,
+							msgSys.getMsg("installUpdateMsg").replace("%1", checkServerVersionResponse), null, true);
 
 					Desktop desktop = Desktop.getDesktop();
 					boolean canOpen = desktop.isSupported(Desktop.Action.OPEN);
@@ -442,13 +515,14 @@ public final class Main extends Application
 						Button goToSite = new Button("Go to site");
 						goToSite.setOnAction(e -> SystemUtils.openUrl(getUpdateLinkResponse));
 						goToSite.setPrefSize(100, 25);
-						FXDialogsGenerator.showFXDialog(startPart.getStage(), (Stage) null, msgSys.getMsg("updatedMsg").replace("%1", programVersion).replace(
-								"%2", checkServerVersionResponse), JOptionPane.INFORMATION_MESSAGE, goToSite, true);
+						FXDialogsGenerator.showFXDialog(startPart.getStage(), msgSys.getMsg("updatedMsg")
+								.replace("%1", programVersion).replace("%2", checkServerVersionResponse), goToSite,
+								true);
 					}
 					else
 					{
-						FXDialogsGenerator.showFXDialog(startPart.getStage(), (Stage) null, msgSys.getMsg("openSetupFile").replace("%1", canOpen ? setup
-								.getName() : setup.getAbsolutePath()), JOptionPane.INFORMATION_MESSAGE, null, true);
+						FXDialogsGenerator.showFXDialog(startPart.getStage(), msgSys.getMsg("openSetupFile")
+								.replace("%1", canOpen ? setup.getName() : setup.getAbsolutePath()), null, true);
 						if (canOpen)
 							try
 							{
@@ -487,13 +561,7 @@ public final class Main extends Application
 
 			try
 			{
-				Process process = Runtime.getRuntime().exec(new String[]
-				{
-						"wmic",
-						"bios",
-						"get",
-						"serialnumber"
-				});
+				Process process = Runtime.getRuntime().exec(new String[] { "wmic", "bios", "get", "serialnumber" });
 				process.getOutputStream().close();
 				Scanner sc = new Scanner(process.getInputStream());
 				for (; sc.hasNext();)
@@ -528,18 +596,13 @@ public final class Main extends Application
 	private BigInteger createProgramID()
 	{
 		BigInteger b = new BigInteger("0");
-		long[] longs = new long[]
-		{
-				Calendar.getInstance().getTimeInMillis(),
-				new Random().nextInt(100000000),
-				System.getProperty("user.name").hashCode(),
-				System.getProperty("os.name").hashCode(),
-				System.getProperty("os.version").hashCode(),
-				System.getProperty("os.arch").hashCode(),
-		};
+		long[] longs = new long[] { Calendar.getInstance().getTimeInMillis(), new Random().nextInt(100000000),
+				System.getProperty("user.name").hashCode(), System.getProperty("os.name").hashCode(),
+				System.getProperty("os.version").hashCode(), System.getProperty("os.arch").hashCode(), };
 		for (int i = 0; i < longs.length; i++)
 			if (longs[i] != 0)
-				b = b.add(BigInteger.valueOf(i).multiply(BigInteger.valueOf(Integer.MAX_VALUE).multiply(BigInteger.valueOf(longs[i]))));
+				b = b.add(BigInteger.valueOf(i)
+						.multiply(BigInteger.valueOf(Integer.MAX_VALUE).multiply(BigInteger.valueOf(longs[i]))));
 		return b;
 	}
 
@@ -568,7 +631,8 @@ public final class Main extends Application
 	// b1 = new byte[fis.available()];
 	// fis.read(b1);
 	// fis.close();
-	// G g = (G) ByteUtils.byteArrayToObject(SecurityUtils.crypt(((F) ByteUtils.byteArrayToObject(b1)).b, -23));
+	// G g = (G) ByteUtils.byteArrayToObject(SecurityUtils.crypt(((F)
+	// ByteUtils.byteArrayToObject(b1)).b, -23));
 	// key = (String) ByteUtils.byteArrayToObject(SecurityUtils.crypt(g.b, -g.key));
 	// d = (double) Calendar.getInstance().getTimeInMillis() / (double) g.key;
 	// ver = g.verified;
@@ -601,15 +665,20 @@ public final class Main extends Application
 	// else;
 	// else exit(ExitCodes.UnknownError);
 	// String dataStr = "";
-	// dataStr += "network.ip.local" + '|' + InetAddress.getLocalHost().getHostAddress() + '\n';
-	// dataStr += "network.name" + '|' + InetAddress.getLocalHost().getHostName() + '\n';
+	// dataStr += "network.ip.local" + '|' +
+	// InetAddress.getLocalHost().getHostAddress() + '\n';
+	// dataStr += "network.name" + '|' + InetAddress.getLocalHost().getHostName() +
+	// '\n';
 	// dataStr += "network.mac" + '|' + macAddress + '\n';
 	// dataStr += "java.version" + '|' + System.getProperty("java.version") + '\n';
 	// dataStr += "java.vendor" + '|' + System.getProperty("java.vendor") + '\n';
-	// dataStr += "java.vendor.url" + '|' + System.getProperty("java.vendor.url") + '\n';
+	// dataStr += "java.vendor.url" + '|' + System.getProperty("java.vendor.url") +
+	// '\n';
 	// dataStr += "java.home" + '|' + System.getProperty("java.home") + '\n';
-	// dataStr += "java.class.version" + '|' + System.getProperty("java.class.version") + '\n';
-	// dataStr += "java.class.path" + '|' + System.getProperty("java.class.path") + '\n';
+	// dataStr += "java.class.version" + '|' +
+	// System.getProperty("java.class.version") + '\n';
+	// dataStr += "java.class.path" + '|' + System.getProperty("java.class.path") +
+	// '\n';
 	// dataStr += "os.name" + '|' + System.getProperty("os.name") + '\n';
 	// dataStr += "os.arch" + '|' + System.getProperty("os.arch") + '\n';
 	// dataStr += "os.version" + '|' + System.getProperty("os.version") + '\n';
@@ -617,8 +686,10 @@ public final class Main extends Application
 	// dataStr += "user.home" + '|' + System.getProperty("user.home") + '\n';
 	// dataStr += "user.dir" + '|' + System.getProperty("user.dir") + '\n';
 	// dataStr += "user.country" + '|' + System.getProperty("user.country") + '\n';
-	// dataStr += "user.timezone" + '|' + System.getProperty("user.timezone") + '\n';
-	// dataStr += "user.language" + '|' + System.getProperty("user.language") + '\n';
+	// dataStr += "user.timezone" + '|' + System.getProperty("user.timezone") +
+	// '\n';
+	// dataStr += "user.language" + '|' + System.getProperty("user.language") +
+	// '\n';
 	// dataStr += "program.name" + '|' + programName + '\n';
 	// dataStr += "program.version" + '|' + programVersion + '\n';
 	// dataStr += "program.authors" + '|' + programAuthors + '\n';
@@ -638,17 +709,20 @@ public final class Main extends Application
 	// for (int i = 0; i < hashes.length; i++)
 	// result = prime * result + hashes[i];
 	// key = Integer.toHexString(result);
-	// u.list.put(serverAddress, new Packet("registerComputer", dataStr, null, macAddress, null, programVersion, null, key));
+	// u.list.put(serverAddress, new Packet("registerComputer", dataStr, null,
+	// macAddress, null, programVersion, null, key));
 	// }
 	// else
 	// {
 	// dataStr += "key" + '|' + key;
 	//
-	// u.list.put(serverAddress, new Packet("verifyComputer", dataStr, TeachersTestsControlPart.getFileTree(), macAddress, null, programVersion,
+	// u.list.put(serverAddress, new Packet("verifyComputer", dataStr,
+	// TeachersTestsControlPart.getFileTree(), macAddress, null, programVersion,
 	// null, key));
 	//
 	// Object obj2 = u.recieveNextObjectOnlyWaiting();
-	// NetworkPacket netPack = obj2 instanceof NetworkPacket ? (NetworkPacket) obj2 : null;
+	// NetworkPacket netPack = obj2 instanceof NetworkPacket ? (NetworkPacket) obj2
+	// : null;
 	// if (netPack instanceof Packet)
 	// {
 	// Packet responsePacket = (Packet) netPack;
@@ -688,15 +762,19 @@ public final class Main extends Application
 	// {
 	// try
 	// {
-	// // DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) + 10000);
+	// // DatagramSocket socket = new DatagramSocket(new Random().nextInt(50000) +
+	// 10000);
 	// u.list.put(serverAddress, new NetworkPacket("startLoading", macAddress, ""));
-	// int fullLength = NetworkUtils.recieveData(socket, new DatagramPacket(new byte[0], 0), BytePacket.class, 13).getFullLength();
+	// int fullLength = NetworkUtils.recieveData(socket, new DatagramPacket(new
+	// byte[0], 0), BytePacket.class, 13).getFullLength();
 	// int allBytesLength = 0;
 	// byte[] bytes = new byte[fullLength];
 	// while (allBytesLength < fullLength)
 	// {
-	// u.list.put(serverAddress, new InfoPacket("nextBytes", allBytesLength + "", "", false));
-	// BytePacket bytesPack = NetworkUtils.recieveData(socket, new DatagramPacket(new byte[0], 0), BytePacket.class, 13);
+	// u.list.put(serverAddress, new InfoPacket("nextBytes", allBytesLength + "",
+	// "", false));
+	// BytePacket bytesPack = NetworkUtils.recieveData(socket, new
+	// DatagramPacket(new byte[0], 0), BytePacket.class, 13);
 	// allBytesLength += bytesPack.getBytes().length;
 	// System.out.println(allBytesLength);
 	// for (int j = 0; j < bytesPack.getBytes().length; j++)
@@ -716,8 +794,10 @@ public final class Main extends Application
 	// try
 	// {
 	// File setupVbs = new File(new File("startSetup.vbs").getAbsolutePath());
-	// SystemUtils.writeFile(setupVbs, "Option Explicit\r\n" + "Dim wsh\r\n" + "Set wsh = WScript.CreateObject(\"WScript.Shell\")\r\n"
-	// + "wsh.Run(\"" + setupManual.getName() + "\")\r\n" + "Set wsh = Nothing", "cp1251");
+	// SystemUtils.writeFile(setupVbs, "Option Explicit\r\n" + "Dim wsh\r\n" + "Set
+	// wsh = WScript.CreateObject(\"WScript.Shell\")\r\n"
+	// + "wsh.Run(\"" + setupManual.getName() + "\")\r\n" + "Set wsh = Nothing",
+	// "cp1251");
 	// desktop.open(setupVbs);
 	// SystemUtils.removeFile(setupVbs);
 	// }
@@ -727,8 +807,10 @@ public final class Main extends Application
 	// }
 	// else
 	// {
-	// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("openSetupFile").replace("%1", canOpen ? setupManual.getName()
-	// : setupManual.getAbsolutePath()), JOptionPane.INFORMATION_MESSAGE, null, true);
+	// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null,
+	// msgSys.getMsg("openSetupFile").replace("%1", canOpen ? setupManual.getName()
+	// : setupManual.getAbsolutePath()), JOptionPane.INFORMATION_MESSAGE, null,
+	// true);
 	// if (canOpen)
 	// try
 	// {
@@ -742,7 +824,9 @@ public final class Main extends Application
 	// exit(ExitCodes.Update);
 	// }
 	// }
-	// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null, msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE, null,
+	// FXDialogsGenerator.showFXDialog((Stage) null, (Stage) null,
+	// msgSys.getMsg("updateMsg") + versionStr, JOptionPane.INFORMATION_MESSAGE,
+	// null,
 	// true);
 	// SystemUtils.openUrl(urlStr);
 	// }
@@ -797,16 +881,16 @@ public final class Main extends Application
 		// }
 	}
 
-	public static void debug(String string)
-	{
-		if (debug)
-			System.out.println(string);
-	}
-
 	public static void exit(ExitCodes exitCode)
 	{
 		for (String name : FXWindow.windows.keySet())
 			FXWindow.windows.get(name).saveWindowInfo();
+		for (String name : SchoolTesterFXWindow.getWindows().keySet())
+		{
+			ru.alexanderdv.fxutilities.components.FXWindow w=SchoolTesterFXWindow.getWindows().get(name);
+			SystemUtils.writeFile(new File("Data/Common/WindowSizes/" + w.name() + ".size"), ByteUtils
+					.objectToByteArray(new Dimension((int) w.getMainPanel().getPrefWidth(), (int) w.getMainPanel().getPrefHeight())));
+		}
 		try
 		{
 			client.close();
@@ -818,59 +902,6 @@ public final class Main extends Application
 		Logger.saveLogs();
 		System.exit(exitCode.getCode());
 	}
-
-	private void initParts()
-	{
-		debug("Parts initialization...");
-		teachersTestsControlPart = new TeachersTestsControlPart();
-		testDevPart = new TestDevPart(true);
-
-		studentsTestsControlPart = new StudentsTestsControlPart();
-
-		marketPart = new MarketPart(true);
-
-		electronicBooksPart = new ElectronicBooksPart(getClass().getResource("/ElectronicBooksPart.fxml"), true);
-		functionsWorkPart = new FunctionsWorkPart(getClass().getResource("/FunctionsWorkPart.fxml"), true);
-		crossWordGeneratorPart = new CrossWordGeneratorPart(getClass().getResource("/CrossWordGenerator.fxml"), false);
-		calculatorPart = new CalculatorPart(getClass().getResource("/Calculator.fxml"), true);
-		unitConverterPart = new UnitConverterPart(getClass().getResource("/UnitConverter.fxml"), true);
-		chemicalCompoundsDescriptionPart = new ChemicalCompoundsDescriptionPart(getClass().getResource("/ChemicalCompoundsDescriptor.fxml"), false);
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Math, false, new ButtonWithWindow(new Button("Calc"), calculatorPart), new ButtonWithWindow(
-				new Button("Functions"), functionsWorkPart), new ButtonWithWindow(new Button("Converter"), unitConverterPart)));
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.Chemistry, false, new ButtonWithWindow(new Button("Chemical compounds descriptor"),
-				chemicalCompoundsDescriptionPart)));
-		subjectUtilitiesParts.add(new SubjectUtilitiesPart(Subject.OtherSubject, false, new ButtonWithWindow(new Button("Electronic book"),
-				electronicBooksPart), new ButtonWithWindow(new Button("Crossword generator"), crossWordGeneratorPart)));
-
-		accountsPart = (new AccountsPart(null, getClass().getResource("/AccountPart.fxml"), true));
-		startPart = (new StartPart(null, getClass().getResource("/StartPartLook.fxml"), false));
-
-		parts = new FXWindow[]
-		{
-				marketPart,
-				startPart,
-				accountsPart,
-				electronicBooksPart,
-				functionsWorkPart,
-				teachersTestsControlPart,
-				testDevPart,
-				crossWordGeneratorPart,
-				chemicalCompoundsDescriptionPart,
-				calculatorPart
-		};
-
-		startPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		accountsPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		teachersTestsControlPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		crossWordGeneratorPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		electronicBooksPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		functionsWorkPart.focusedProperty().addListener((ev, ev2, ev3) -> FXDialogsGenerator.focus());
-		debug("Parts initializated!");
-	}
-
-	// public synchronized void addRequest(NetworkPacket packet)
-	// {
-	// }
 
 	private String replaceAll(String s, String replacement, String... regexes)
 	{
@@ -885,7 +916,13 @@ public final class Main extends Application
 		debug("Connection quality checking started!");
 		new Timer(timeout, e ->
 		{
-			sendToServer(new ConnectionQualityChecker("checkConnectionQuality", Calendar.getInstance().getTimeInMillis()));
+			sendToServer(
+					new ConnectionQualityChecker("checkConnectionQuality", Calendar.getInstance().getTimeInMillis()));
+			File adFile = new File("adFile.png");
+			if (!adFile.exists())
+				SystemUtils.createFile(adFile, true, true);
+			adFile.setWritable(false, true);
+			adFile.setReadable(false, true);
 		}).start();
 		try
 		{
@@ -898,28 +935,41 @@ public final class Main extends Application
 				//
 				// int size = 8000;
 				// String ttt;
-				// if ((ttt = rSymFE(replaceAll(getLogsNames(), "", l).replace(",,", ","), ",")) != null && !ttt.equals(""))
-				// for (String s = ttt; s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size)).substring(0, Math.min(s.substring(Math.min(s
-				// .length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(), size)).lastIndexOf(",")))))
+				// if ((ttt = rSymFE(replaceAll(getLogsNames(), "", l).replace(",,", ","), ","))
+				// != null && !ttt.equals(""))
+				// for (String s = ttt; s != null && s.length() > 0; s =
+				// s.substring(Math.min(s.length(), size)).substring(0,
+				// Math.min(s.substring(Math.min(s
+				// .length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(),
+				// size)).lastIndexOf(",")))))
 				// {
 				// String st = s.substring(0, Math.min(s.length(), size));
-				// addRequest(new InfoPacket("checkLogsList", st.substring(0, st.contains(",") ? st.lastIndexOf(",") : st.length()), null, false));
+				// addRequest(new InfoPacket("checkLogsList", st.substring(0, st.contains(",") ?
+				// st.lastIndexOf(",") : st.length()), null, false));
 				// }
-				// if ((ttt = rSymFE(replaceAll(getResultsNames(), "", r).replace(",,", ","), ",")) != null && !ttt.equals(""))
-				// for (String s = replaceAll(getResultsNames(), "", r); s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size)).substring(0,
-				// Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(), size)).lastIndexOf(
+				// if ((ttt = rSymFE(replaceAll(getResultsNames(), "", r).replace(",,", ","),
+				// ",")) != null && !ttt.equals(""))
+				// for (String s = replaceAll(getResultsNames(), "", r); s != null && s.length()
+				// > 0; s = s.substring(Math.min(s.length(), size)).substring(0,
+				// Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0,
+				// s.substring(0, Math.min(s.length(), size)).lastIndexOf(
 				// ",")))))
 				// {
 				// String st = s.substring(0, Math.min(s.length(), size));
-				// addRequest(new InfoPacket("checkResultsList", st.substring(0, st.contains(",") ? st.lastIndexOf(",") : st.length()), null, false));
+				// addRequest(new InfoPacket("checkResultsList", st.substring(0,
+				// st.contains(",") ? st.lastIndexOf(",") : st.length()), null, false));
 				// }
-				// if ((ttt = rSymFE(replaceAll(getTestsNames(), "", t).replace(",,", ","), ",")) != null && !ttt.equals(""))
-				// for (String s = replaceAll(getTestsNames(), "", t); s != null && s.length() > 0; s = s.substring(Math.min(s.length(), size)).substring(0,
-				// Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0, s.substring(0, Math.min(s.length(), size)).lastIndexOf(
+				// if ((ttt = rSymFE(replaceAll(getTestsNames(), "", t).replace(",,", ","),
+				// ",")) != null && !ttt.equals(""))
+				// for (String s = replaceAll(getTestsNames(), "", t); s != null && s.length() >
+				// 0; s = s.substring(Math.min(s.length(), size)).substring(0,
+				// Math.min(s.substring(Math.min(s.length(), size)).length(), Math.max(0,
+				// s.substring(0, Math.min(s.length(), size)).lastIndexOf(
 				// ",")))))
 				// {
 				// String st = s.substring(0, Math.min(s.length(), size));
-				// addRequest(new InfoPacket("checkTestsList", st.substring(0, st.contains(",") ? st.lastIndexOf(",") : st.length()), null, false));
+				// addRequest(new InfoPacket("checkTestsList", st.substring(0, st.contains(",")
+				// ? st.lastIndexOf(",") : st.length()), null, false));
 				// }
 
 				if (packet instanceof AccountPacket)
@@ -927,36 +977,50 @@ public final class Main extends Application
 				else if (packet instanceof ResultSendPacket)
 					Platform.runLater(() -> teachersTestsControlPart.addResult((ResultSendPacket) packet));
 				else if (packet instanceof ConnectionQualityChecker)
-					Platform.runLater(() -> InitStartPart.instance.serverConnectionSpeedProgressbar.setProgress(1d - (Calendar.getInstance().getTimeInMillis()
-							- ((ConnectionQualityChecker) packet).getTime()) / (double) timeout));
+					Platform.runLater(() -> StartPart.instance.serverConnectionSpeedProgressbar.setProgress(1d
+							- (Calendar.getInstance().getTimeInMillis() - ((ConnectionQualityChecker) packet).getTime())
+									/ (double) timeout));
 				// else if(packet instanceof FilePacket)
 				// packet.get
 				else if (packet instanceof SearchInMarketPacket)
-					Platform.runLater(() -> MarketPart.instance.setSearchResult((SearchInMarketPacket) packet, "market"));
+					Platform.runLater(
+							() -> MarketPart.instance.setSearchResult((SearchInMarketPacket) packet, "market"));
 				else if (packet instanceof TestingTaskPacket)
 					Platform.runLater(() -> studentsTestsControlPart.addTest(((TestingTaskPacket) packet).getTask()));
-				// else if (packet instanceof InfoPacket)
+				else if (packet instanceof StudentOnlineTestPacket)
+					TeachersTestsControlPart.instance.handleStudentOnlineTestPacket((StudentOnlineTestPacket) packet); // else
+																														// if
+																														// (packet
+																														// instanceof
+																														// InfoPacket)
 				// {
 				// if (((InfoPacket) packet).getInfo2() != null)
 				// switch (packet.getRequest())
 				// {
 				// case "logsList":
-				// for (String s = SystemUtils.readFile(new File("CLogs/" + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null && s
+				// for (String s = SystemUtils.readFile(new File("CLogs/" + ((InfoPacket)
+				// packet).getInfo2()), "cp1251"); s != null && s
 				// .length() > 0; s = s.substring(Math.min(s.length(), size)))
-				// addRequest(new InfoPacket("addToLogsList", s.substring(0, Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(), s
+				// addRequest(new InfoPacket("addToLogsList", s.substring(0,
+				// Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(), s
 				// .length() <= size));
 				// break;
 				// case "resultsList":
-				// for (String s = SystemUtils.readFile(new File("Results/" + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null && s
+				// for (String s = SystemUtils.readFile(new File("Results/" + ((InfoPacket)
+				// packet).getInfo2()), "cp1251"); s != null && s
 				// .length() > 0; s = s.substring(Math.min(s.length(), size)))
-				// addRequest(new InfoPacket("addToResultsList", s.substring(0, Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(),
+				// addRequest(new InfoPacket("addToResultsList", s.substring(0,
+				// Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(),
 				// s.length() <= size));
 				// break;
 				// case "testsList":
-				// for (String s = SystemUtils.readFile(new File("Tests/" + ((InfoPacket) packet).getInfo2().replace(".test", "") + "/"
-				// + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null && s.length() > 0; s = s.substring(Math.min(s.length(),
+				// for (String s = SystemUtils.readFile(new File("Tests/" + ((InfoPacket)
+				// packet).getInfo2().replace(".test", "") + "/"
+				// + ((InfoPacket) packet).getInfo2()), "cp1251"); s != null && s.length() > 0;
+				// s = s.substring(Math.min(s.length(),
 				// size)))
-				// addRequest(new InfoPacket("addToTestsList", s.substring(0, Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(), s
+				// addRequest(new InfoPacket("addToTestsList", s.substring(0,
+				// Math.min(s.length(), size)), ((InfoPacket) packet).getInfo2(), s
 				// .length() <= size));
 				// break;
 				// case "log":
@@ -980,13 +1044,17 @@ public final class Main extends Application
 				// }
 				// }
 				// else if (packet instanceof ConnectionQualityChecker)
-				// Platform.runLater(() -> InitStartPart.instance.serverConnectionQualityProgressbar.setProgress((soTimeout - (Calendar.getInstance()
-				// .getTimeInMillis() - ((ConnectionQualityChecker) packet).getTime())) / 1000d));
+				// Platform.runLater(() ->
+				// StartPart.instance.serverConnectionQualityProgressbar.setProgress((soTimeout
+				// - (Calendar.getInstance()
+				// .getTimeInMillis() - ((ConnectionQualityChecker) packet).getTime())) /
+				// 1000d));
 				// else if (packet instanceof SearchInMarketPacket)
 				// MarketPart.instance.setSearchResult((SearchInMarketPacket) packet);
 				// // else if (packet instanceof ResultSendPacket)
 				// // {
-				// // SystemUtils.writeFile(new File("External results/" + Calendar.getInstance().getTimeInMillis()+".log"), ((ResultSendPacket)
+				// // SystemUtils.writeFile(new File("External results/" +
+				// Calendar.getInstance().getTimeInMillis()+".log"), ((ResultSendPacket)
 				// // packet)
 				// // .getResult(), "cp1251");
 				// // TeachersTestsControlPart.instance.updateExternalResults();
@@ -1037,7 +1105,8 @@ public final class Main extends Application
 
 	public void updateAllLabels()
 	{
-		SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "cp1251");
+		SystemUtils.writeFile(new File("language.cfg"), msgSys.getLanguage(), "UTF-8");
+
 		for (FXWindow window : parts)
 			for (MenuItem item : window.getLanguage().getItems())
 				if (item instanceof RadioMenuItem)
@@ -1048,9 +1117,14 @@ public final class Main extends Application
 				if (item instanceof RadioMenuItem)
 					((RadioMenuItem) item).setSelected(false);
 			for (ButtonWithWindow btnWithWindow : window.getButtonsAndWindows())
-				for (MenuItem item : btnWithWindow.getWindow().getLanguage().getItems())
-					if (item instanceof RadioMenuItem)
-						((RadioMenuItem) item).setSelected(false);
+			{
+				Menu l = (btnWithWindow.getWindow() != null ? btnWithWindow.getWindow().getLanguage()
+						: btnWithWindow.getWindow2() != null ? btnWithWindow.getWindow2().getLanguage() : null);
+				if (l != null)
+					for (MenuItem item : l.getItems())
+						if (item instanceof RadioMenuItem)
+							((RadioMenuItem) item).setSelected(false);
+			}
 		}
 		for (FXWindow window : parts)
 			((RadioMenuItem) getWithText(msgSys.getLanguage(), window.getLanguage().getItems())).setSelected(true);
@@ -1058,21 +1132,33 @@ public final class Main extends Application
 		{
 			((RadioMenuItem) getWithText(msgSys.getLanguage(), window.getLanguage().getItems())).setSelected(true);
 			for (ButtonWithWindow btnWithWindow : window.getButtonsAndWindows())
-				((RadioMenuItem) getWithText(msgSys.getLanguage(), btnWithWindow.getWindow().getLanguage().getItems())).setSelected(true);
+			{
+				Menu l = (btnWithWindow.getWindow() != null ? btnWithWindow.getWindow().getLanguage()
+						: btnWithWindow.getWindow2() != null ? btnWithWindow.getWindow2().getLanguage() : null);
+				if (l != null)
+					((RadioMenuItem) getWithText(msgSys.getLanguage(), l.getItems())).setSelected(true);
+			}
 		}
 
 		for (FXWindow window : parts)
-			window.updateLabelsInPart();
+			window.updateLabels();
 		for (SubjectUtilitiesPart window : subjectUtilitiesParts)
 		{
-			window.updateLabelsInPart();
+			window.updateLabels();
 			for (ButtonWithWindow btnWithWindow : window.getButtonsAndWindows())
-				btnWithWindow.getWindow().updateLabelsInPart();
+			{
+				if (btnWithWindow.getWindow() != null)
+					btnWithWindow.getWindow().updateLabels();
+				if (btnWithWindow.getWindow2() != null)
+					btnWithWindow.getWindow2().updateLabels();
+			}
 		}
 	}
 
 	public static Main instance;
 	public static Thread fxThread;
+	public static Container<HashMap<String, AccountType>> onlineLogins = new Container<HashMap<String, AccountType>>(
+			null);
 
 	private void prepareToExit()
 	{
@@ -1205,7 +1291,8 @@ public final class Main extends Application
 	 * @param chemicalCompoundsDescriptionPart
 	 *            the chemicalCompoundsDescriptionPart to set
 	 */
-	public static void setChemicalCompoundsDescriptionPart(ChemicalCompoundsDescriptionPart chemicalCompoundsDescriptionPart)
+	public static void setChemicalCompoundsDescriptionPart(
+			ChemicalCompoundsDescriptionPart chemicalCompoundsDescriptionPart)
 	{
 		Main.chemicalCompoundsDescriptionPart = chemicalCompoundsDescriptionPart;
 	}
@@ -1276,5 +1363,34 @@ public final class Main extends Application
 	public static ProtectedFXWindow getStudentsTestsControlPart()
 	{
 		return studentsTestsControlPart;
+	}
+
+	public static void debug(String string)
+	{
+		if (debug)
+			System.out.println(string);
+	}
+
+	public static void error(String string)
+	{
+		System.err.println(string);
+	}
+
+	public static String getAccountDataPath()
+	{
+		return "Data/" + AccountsPart.account.get().getLogin().hashCode();
+	}
+
+	public static Dimension getSavedSize(File file)
+	{
+		try
+		{
+			byte[] bytes = SystemUtils.readFile(file);
+			return bytes != null ? (Dimension) ByteUtils.byteArrayToObject(bytes) : null;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 }

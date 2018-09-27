@@ -26,20 +26,20 @@ import ru.alexanderdv.schooltester.utilities.Logger.ExitCodes;
 import ru.alexanderdv.schooltester.utilities.MessageSystem;
 import ru.alexanderdv.schooltester.utilities.ScriptUtils;
 import ru.alexanderdv.schooltester.utilities.fx.FXDialogsGenerator;
+import ru.alexanderdv.schooltester.utilities.questionvars.ArrangementAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.ArrangementQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.ChooseOneQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.DistributionAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.DistributionQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.EnterTextQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.MatchingAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.MatchingQuestion;
+import ru.alexanderdv.schooltester.utilities.questionvars.Question;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleAnswerVariant;
+import ru.alexanderdv.schooltester.utilities.questionvars.SelectMultipleQuestion;
 import ru.alexanderdv.schooltester.utilities.types.Test.TableQuestionSelector.Cell;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.ArrangementQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.DistributionQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.EnterTextQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.MatchingQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.PickOneQuestion;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.Question;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeAnswerVariant;
-import ru.alexanderdv.schooltester.utilities.types.questionvariants.SelectSomeQuestion;
 import ru.alexanderdv.simpleutilities.Entry;
 
 /**
@@ -413,7 +413,7 @@ public final class Test
 				Main.exit(ExitCodes.TestNotHaveSyntaxLanguage);
 			}
 			String syntaxLanguage = cfg.getString("syntaxLanguage", null, false).toLowerCase();
-			if (!cfg.hasValue(MessageSystem.getMsg("programVersion", syntaxLanguage)) || !cfg.hasValue(MessageSystem.getMsg("colorType", syntaxLanguage)))
+			if (!cfg.hasValue(msgSys.getMsg("programVersion", syntaxLanguage)) || !cfg.hasValue(msgSys.getMsg("colorType", syntaxLanguage)))
 			{
 				Config.print(msgSys.getMsg("testMustContainsMainProperties"));
 				Main.exit(ExitCodes.TestNotHaveMainValues);
@@ -428,52 +428,52 @@ public final class Test
 					Main.exit(ExitCodes.TestSyntaxLanguageIsNotSupported);
 					break;
 			}
-			if (!cfg.getString(MessageSystem.getMsg("programVersion", syntaxLanguage), null, false).equals(Main.programVersion))
-				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testVersionNotMatchWithProgramVersion"),
-						JOptionPane.WARNING_MESSAGE, null, true);
+			if (!cfg.getString(msgSys.getMsg("programVersion", syntaxLanguage), null, false).equals(Main.programVersion))
+				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg("testVersionNotMatchWithProgramVersion"),
+						null, true);
 
-			String colorType = cfg.getString(MessageSystem.getMsg("colorType", syntaxLanguage), null, false);
+			String colorType = cfg.getString(msgSys.getMsg("colorType", syntaxLanguage), null, false);
 
-			String qnsStr = MessageSystem.getMsg("questions", syntaxLanguage);
-			String qnStr = MessageSystem.getMsg("question", syntaxLanguage);
-			String anrsStr = MessageSystem.getMsg("answers", syntaxLanguage);
-			String ansStr = MessageSystem.getMsg("answer", syntaxLanguage);
-			String awdStr = MessageSystem.getMsg("award", syntaxLanguage);
-			String txtStr = MessageSystem.getMsg("text", syntaxLanguage);
+			String qnsStr = msgSys.getMsg("questions", syntaxLanguage);
+			String qnStr = msgSys.getMsg("question", syntaxLanguage);
+			String anrsStr = msgSys.getMsg("answers", syntaxLanguage);
+			String ansStr = msgSys.getMsg("answer", syntaxLanguage);
+			String awdStr = msgSys.getMsg("award", syntaxLanguage);
+			String txtStr = msgSys.getMsg("text", syntaxLanguage);
 			String htmlStr = "html";
-			String minResStr = MessageSystem.getMsg("minimalResult", syntaxLanguage);
-			String igreCaseStr = MessageSystem.getMsg("ignoreCase", syntaxLanguage);
-			String handleOnlyMaximalStr = MessageSystem.getMsg("handleOnlyMaximal", syntaxLanguage);
-			String igrdChrsStr = MessageSystem.getMsg("ignoredCharacters", syntaxLanguage);
+			String minResStr = msgSys.getMsg("minimalResult", syntaxLanguage);
+			String igreCaseStr = msgSys.getMsg("ignoreCase", syntaxLanguage);
+			String handleOnlyMaximalStr = msgSys.getMsg("handleOnlyMaximal", syntaxLanguage);
+			String igrdChrsStr = msgSys.getMsg("ignoredCharacters", syntaxLanguage);
 
-			String awardsForAnswersStr = MessageSystem.getMsg("awardsForAnswersCombinations", syntaxLanguage);
-			String awardForAnswerStr = MessageSystem.getMsg("awardForAnswersCombination", syntaxLanguage);
-			String answersIndexesStr = MessageSystem.getMsg("answersCombination", syntaxLanguage);
-			String numberStr = MessageSystem.getMsg("answerNumber", syntaxLanguage);
-			String indexesStr = MessageSystem.getMsg("answerIndexes", syntaxLanguage);
-			String indexStr = MessageSystem.getMsg("index", syntaxLanguage);
-			String aIndexStr = MessageSystem.getMsg("answerIndex", syntaxLanguage);
-			String onlyThisIndexesStr = MessageSystem.getMsg("onlyThisIndexes", syntaxLanguage);
+			String awardsForAnswersStr = msgSys.getMsg("awardsForAnswersCombinations", syntaxLanguage);
+			String awardForAnswerStr = msgSys.getMsg("awardForAnswersCombination", syntaxLanguage);
+			String answersIndexesStr = msgSys.getMsg("answersCombination", syntaxLanguage);
+			String numberStr = msgSys.getMsg("answerNumber", syntaxLanguage);
+			String indexesStr = msgSys.getMsg("answerIndexes", syntaxLanguage);
+			String indexStr = msgSys.getMsg("index", syntaxLanguage);
+			String aIndexStr = msgSys.getMsg("answerIndex", syntaxLanguage);
+			String onlyThisIndexesStr = msgSys.getMsg("onlyThisIndexes", syntaxLanguage);
 
-			String indexesForNamesStr = MessageSystem.getMsg("indexesForNames", syntaxLanguage);
-			String nameStr = MessageSystem.getMsg("naming", syntaxLanguage);
-			String groupStr = MessageSystem.getMsg("group", syntaxLanguage);
-			String randomizeStr = MessageSystem.getMsg("randomize", syntaxLanguage);
-			String randomizeBlocksStr = MessageSystem.getMsg("randomizeBlocks", syntaxLanguage);
-			String randomizeGroupsStr = MessageSystem.getMsg("randomizeGroups", syntaxLanguage);
-			String imagesStr = MessageSystem.getMsg("clippedImages", syntaxLanguage);
-			String imageStr = MessageSystem.getMsg("image", syntaxLanguage);
-			String videosStr = MessageSystem.getMsg("clippedVideos", syntaxLanguage);
-			String videoStr = MessageSystem.getMsg("video", syntaxLanguage);
-			String audiosStr = MessageSystem.getMsg("clippedAudios", syntaxLanguage);
-			String audioStr = MessageSystem.getMsg("audio", syntaxLanguage);
+			String indexesForNamesStr = msgSys.getMsg("indexesForNames", syntaxLanguage);
+			String nameStr = msgSys.getMsg("naming", syntaxLanguage);
+			String groupStr = msgSys.getMsg("group", syntaxLanguage);
+			String randomizeStr = msgSys.getMsg("randomize", syntaxLanguage);
+			String randomizeBlocksStr = msgSys.getMsg("randomizeBlocks", syntaxLanguage);
+			String randomizeGroupsStr = msgSys.getMsg("randomizeGroups", syntaxLanguage);
+			String imagesStr = msgSys.getMsg("clippedImages", syntaxLanguage);
+			String imageStr = msgSys.getMsg("image", syntaxLanguage);
+			String videosStr = msgSys.getMsg("clippedVideos", syntaxLanguage);
+			String videoStr = msgSys.getMsg("video", syntaxLanguage);
+			String audiosStr = msgSys.getMsg("clippedAudios", syntaxLanguage);
+			String audioStr = msgSys.getMsg("audio", syntaxLanguage);
 
-			String scriptsStr = MessageSystem.getMsg("scripts", syntaxLanguage);
-			String scriptStr = MessageSystem.getMsg("script", syntaxLanguage);
-			String scriptNameStr = MessageSystem.getMsg("scriptName", syntaxLanguage);
-			String scriptTextStr = MessageSystem.getMsg("scriptText", syntaxLanguage);
+			String scriptsStr = msgSys.getMsg("scripts", syntaxLanguage);
+			String scriptStr = msgSys.getMsg("script", syntaxLanguage);
+			String scriptNameStr = msgSys.getMsg("scriptName", syntaxLanguage);
+			String scriptTextStr = msgSys.getMsg("scriptText", syntaxLanguage);
 
-			String usedScriptStr = MessageSystem.getMsg("usedScript", syntaxLanguage);
+			String usedScriptStr = msgSys.getMsg("usedScript", syntaxLanguage);
 
 			String path = cfg.getFile().getAbsoluteFile().getParentFile().getAbsolutePath() + "\\";
 
@@ -499,8 +499,8 @@ public final class Test
 			boolean tabledView = tableQuestionSelector != null;
 
 			// Questions
-			int dqFont = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("fontSize", syntaxLanguage), 14, true);
-			int daFont = cfg.getInteger(qnsStr + ":" + MessageSystem.getMsg("answerFontSize", syntaxLanguage), 14, true);
+			int dqFont = cfg.getInteger(qnsStr + ":" + msgSys.getMsg("fontSize", syntaxLanguage), 14, true);
+			int daFont = cfg.getInteger(qnsStr + ":" + msgSys.getMsg("answerFontSize", syntaxLanguage), 14, true);
 			int stMinRes = cfg.getInteger(qnsStr + ":" + minResStr, Integer.MIN_VALUE, true);
 			boolean randomizeAll = cfg.getBoolean(qnsStr + ":" + randomizeStr, !tabledView, true);
 			boolean randomizeBlocks = cfg.getBoolean(qnsStr + ":" + randomizeBlocksStr, !tabledView, true);
@@ -520,16 +520,16 @@ public final class Test
 			ArrayList<Question<?>[]> mList1 = new ArrayList<Question<?>[]>();
 			for (String questionType : new String[]
 			{
-					"PickOne",
-					"SelectSome",
+					"ChooseOne",
+					"SelectMultiple",
 					"EnterText",
 					"Arrangement",
 					"Distribution",
 					"Matching"
 			})
-				if (cfg.hasValue(qnsStr + ":" + MessageSystem.getMsg(questionType, syntaxLanguage) + ":" + groupStr + 1))
+				if (cfg.hasValue(qnsStr + ":" + msgSys.getMsg(questionType, syntaxLanguage) + ":" + groupStr + 1))
 				{
-					String gr = qnsStr + ":" + MessageSystem.getMsg(questionType, syntaxLanguage);
+					String gr = qnsStr + ":" + msgSys.getMsg(questionType, syntaxLanguage);
 					String gs = gr + ":" + groupStr;
 					Config group = cfg.getConfig(gs + 1, true);
 					// ArrayList<Question<?>> typedQuestions = new ArrayList<Question<?>>();
@@ -553,16 +553,16 @@ public final class Test
 							b = true;
 							if (maxAward != questionQ.getMaxAward())
 							{
-								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("awardsInGroupNotMatch")
+								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg("awardsInGroupNotMatch")
 										+ "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents() + "'" + " a1: " + maxAward
-										+ " a2: " + questionQ.getMaxAward(), JOptionPane.WARNING_MESSAGE, null, true);
+										+ " a2: " + questionQ.getMaxAward(), null, true);
 								Main.exit(ExitCodes.TestAwardsOfQuestionsInGroupNotMatch);
 							}
 							typedGroupQuestions.add(questionQ);
 						}
 						if (typedGroupQuestions.size() > 0)
 						{
-							int questionsToTestAmount = group.getInteger(MessageSystem.getMsg("questionsToTestAmount", syntaxLanguage), typedGroupQuestions
+							int questionsToTestAmount = group.getInteger(msgSys.getMsg("questionsToTestAmount", syntaxLanguage), typedGroupQuestions
 									.size(), true);
 							boolean randomize = group.getBoolean(randomizeStr, !tabledView, true);
 							if (tabledView)
@@ -574,16 +574,16 @@ public final class Test
 							if (questionsToTestAmount > typedGroupQuestions.size())
 							{
 								questionsToTestAmount = typedGroupQuestions.size();
-								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
+								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg(
 										"questionsToTestAmountMoreThanQuestionsAmount") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group
-												.getFullPathInParents() + "'", JOptionPane.WARNING_MESSAGE, null, true);
+												.getFullPathInParents() + "'", null, true);
 							}
 							if (questionsToTestAmount <= 0)
 							{
 								questionsToTestAmount = typedGroupQuestions.size();
-								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg(
+								FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg(
 										"questionsToTestAmountLessThanOne") + "\nFile: '" + cfg.getFile().getName() + "' Path: '" + group.getFullPathInParents()
-										+ "'", JOptionPane.WARNING_MESSAGE, null, true);
+										+ "'", null, true);
 							}
 							Question<?>[] array = new Question<?>[questionsToTestAmount];
 							if (randomize)
@@ -620,38 +620,38 @@ public final class Test
 						questions.add(q);
 			if (questions.size() <= 0)
 			{
-				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("testNotHaveQuestions") + "\nFile: '" + cfg
-						.getFile().getName() + "'", JOptionPane.ERROR_MESSAGE, null, true);
+				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg("testNotHaveQuestions") + "\nFile: '" + cfg
+						.getFile().getName() + "'", null, true);
 				Main.exit(ExitCodes.TestNotHaveQuestions);
 			}
 			Question<?>[] array = new Question<?>[questions.size()];
 			if (randomizeAll)
 				array = randomizeToArray(questions, array);
 			else array = questions.toArray(array);
-			String startPermsStr = MessageSystem.getMsg("startPermissions", syntaxLanguage);
-			Permissions startPerms = new Permissions(cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("showLastAnswerQualityPermission",
-					syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("showAllAnswersQualityPermission",
-							syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("showRightAnswerPermission",
-									syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("goToAllAnswersPermission",
-											syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("skipPermission",
-													syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + MessageSystem.getMsg("pausePermission",
+			String startPermsStr = msgSys.getMsg("startPermissions", syntaxLanguage);
+			Permissions startPerms = new Permissions(cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("showLastAnswerQualityPermission",
+					syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("showAllAnswersQualityPermission",
+							syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("showRightAnswerPermission",
+									syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("goToAllAnswersPermission",
+											syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("skipPermission",
+													syntaxLanguage), false, false), cfg.getBoolean(startPermsStr + ":" + msgSys.getMsg("pausePermission",
 															syntaxLanguage), false, false));
-			String hintsPermsStr = MessageSystem.getMsg("hintsPermissions", syntaxLanguage);
-			Permissions hintsPerms = new Permissions(cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("showLastAnswerQualityPermission",
-					syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("showAllAnswersQualityPermission",
-							syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("showRightAnswerPermission",
-									syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("goToAllAnswersPermission",
-											syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("skipPermission",
-													syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + MessageSystem.getMsg("pausePermission",
+			String hintsPermsStr = msgSys.getMsg("hintsPermissions", syntaxLanguage);
+			Permissions hintsPerms = new Permissions(cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("showLastAnswerQualityPermission",
+					syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("showAllAnswersQualityPermission",
+							syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("showRightAnswerPermission",
+									syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("goToAllAnswersPermission",
+											syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("skipPermission",
+													syntaxLanguage), false, false), cfg.getBoolean(hintsPermsStr + ":" + msgSys.getMsg("pausePermission",
 															syntaxLanguage), false, false));
-			return new Test(syntaxLanguage, cfg.getString(MessageSystem.getMsg("programVersion", syntaxLanguage), null, false), colorType, cfg.getString(
-					MessageSystem.getMsg("testVersion", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("testCreationDate", syntaxLanguage),
-							null, false), cfg.getString(MessageSystem.getMsg("testLanguage", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg(
-									"testSubject", syntaxLanguage), null, false), cfg.getString(MessageSystem.getMsg("testAuthors", syntaxLanguage), null,
-											false), cfg.getString(MessageSystem.getMsg("testNaming", syntaxLanguage), null, false), cfg.getString(MessageSystem
-													.getMsg("testDescription", syntaxLanguage), null, false), cfg.getInteger(MessageSystem.getMsg("timeLimit",
-															syntaxLanguage), -1, true), cfg.getInteger(MessageSystem.getMsg("timeEndWarning", syntaxLanguage),
-																	30, true), cfg.getBoolean(MessageSystem.getMsg("smartMode", syntaxLanguage), false, true),
+			return new Test(syntaxLanguage, cfg.getString(msgSys.getMsg("programVersion", syntaxLanguage), null, false), colorType, cfg.getString(
+					msgSys.getMsg("testVersion", syntaxLanguage), null, false), cfg.getString(msgSys.getMsg("testCreationDate", syntaxLanguage),
+							null, false), cfg.getString(msgSys.getMsg("testLanguage", syntaxLanguage), null, false), cfg.getString(msgSys.getMsg(
+									"testSubject", syntaxLanguage), null, false), cfg.getString(msgSys.getMsg("testAuthors", syntaxLanguage), null,
+											false), cfg.getString(msgSys.getMsg("testNaming", syntaxLanguage), null, false), cfg.getString(msgSys
+													.getMsg("testDescription", syntaxLanguage), null, false), cfg.getInteger(msgSys.getMsg("timeLimit",
+															syntaxLanguage), -1, true), cfg.getInteger(msgSys.getMsg("timeEndWarning", syntaxLanguage),
+																	30, true), cfg.getBoolean(msgSys.getMsg("smartMode", syntaxLanguage), false, true),
 					startPerms, hintsPerms, array, cfg.hasValue("wrongAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "")
 							+ "/" + cfg.getString("wrongAnswerImage", null, false)), true) : getImage(new File("wrongAnswerImage.png"), false), cfg.hasValue(
 									"rightAnswerImage") ? getImage(new File("Tests/" + cfg.getFile().getName().replace(".test", "") + "/" + cfg.getString(
@@ -677,8 +677,7 @@ public final class Test
 		catch (Exception e)
 		{
 			if (b)
-				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance, (Stage) null, msgSys.getMsg("imageNotLoaded"), JOptionPane.ERROR_MESSAGE,
-						null, true);
+				FXDialogsGenerator.showFXDialog(TeachersTestsControlPart.instance.stage, msgSys.getMsg("imageNotLoaded"), null, true);
 			return null;
 		}
 	}
@@ -835,16 +834,16 @@ public final class Test
 				Main.exit(ExitCodes.WrongSyntax);
 			}
 		}
-		else if (type.equalsIgnoreCase("selectsome"))
+		else if (type.equalsIgnoreCase("selectmultiple"))
 		{
-			ArrayList<SelectSomeAnswerVariant> answers = new ArrayList<SelectSomeAnswerVariant>();
+			ArrayList<SelectMultipleAnswerVariant> answers = new ArrayList<SelectMultipleAnswerVariant>();
 			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
 			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
 					|| true : false; j++)
-				answers.add(new SelectSomeAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
-			q = new SelectSomeQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+				answers.add(new SelectMultipleAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+			q = new SelectMultipleQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
 					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
-							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new SelectSomeAnswerVariant[answers.size()]),
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new SelectMultipleAnswerVariant[answers.size()]),
 					tabledView ? question.getInteger(indexStr, -1, true) : -1);
 			if (tabledView && q.getIndex() < 0)
 			{
@@ -854,14 +853,14 @@ public final class Test
 		}
 		else
 		{
-			ArrayList<PickOneAnswerVariant> answers = new ArrayList<PickOneAnswerVariant>();
+			ArrayList<ChooseOneAnswerVariant> answers = new ArrayList<ChooseOneAnswerVariant>();
 			Config ans = question.getConfig(anrsStr + ":" + ansStr + 1, true);
 			for (int j = 0; question.hasValue(anrsStr + ":" + ansStr + (j + 1)) ? (ans = question.getConfig(anrsStr + ":" + ansStr + (j + 1), true)) != null
 					|| true : false; j++)
-				answers.add(new PickOneAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
-			q = new PickOneQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
+				answers.add(new ChooseOneAnswerVariant(getHtml(ans, htmlStr, args), ans.getInteger(awdStr, 0, true), j));
+			q = new ChooseOneQuestion(nonrandomizeToArray(imagesList, new Image[imagesList.size()]), nonrandomizeToArray(videosList, new Media[videosList
 					.size()]), nonrandomizeToArray(audiosList, new Media[audiosList.size()]), getHtml(question, htmlStr, args), question.getInteger(awdStr, 0,
-							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new PickOneAnswerVariant[answers.size()]),
+							true), question.getInteger(minResStr, stMinRes, true), randomizeToArray(answers, new ChooseOneAnswerVariant[answers.size()]),
 					tabledView ? question.getInteger(indexStr, -1, true) : -1);
 			if (tabledView && q.getIndex() < 0)
 			{

@@ -182,9 +182,9 @@ public final class CrossWordGeneratorPart extends ProtectedFXWindow
 		return i;
 	}
 	@Override
-	public void updateLabelsInPart()
+	public void updateLabels()
 	{
-		super.updateLabelsInPart();
+		super.updateLabels();
 		InitCrossWordGeneratorPart.instance.words.setPromptText(msgSys.getMsg("splitByComma"));
 		InitCrossWordGeneratorPart.instance.digits.setText(msgSys.getMsg("digits"));
 		InitCrossWordGeneratorPart.instance.letters.setText(msgSys.getMsg("letters"));
